@@ -1,8 +1,25 @@
 <script lang="ts">
+  import type { Weapon } from '$lib/data/types';
   import { dataStore, filteredWeapons, weaponFilters, weaponSort } from '$lib/stores';
+  import { Badge, Tabs } from '$lib/components/ui';
+  import { WeaponDetailModal } from '$lib/components/weapons';
 
   const categories = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar'];
   const sizes = ['Light', 'Medium', 'Heavy'];
+
+  // Selected weapon for modal
+  let selectedWeapon: Weapon | null = $state(null);
+  let modalOpen = $state(false);
+
+  // Category tabs
+  const categoryTabs = [
+    { id: '', label: 'All', count: $dataStore.weapons.length },
+    ...categories.map(cat => ({
+      id: cat,
+      label: cat,
+      count: $dataStore.weapons.filter(w => w.category === cat).length
+    }))
+  ];
 
   function handleSort(field: string) {
     weaponSort.update(current => ({
@@ -15,6 +32,16 @@
     if ($weaponSort.field !== field) return '';
     return $weaponSort.direction === 'asc' ? ' ▲' : ' ▼';
   }
+
+  function openWeaponModal(weapon: Weapon) {
+    selectedWeapon = weapon;
+    modalOpen = true;
+  }
+
+  function closeModal() {
+    modalOpen = false;
+    selectedWeapon = null;
+  }
 </script>
 
 <div class="page">
@@ -23,17 +50,15 @@
     <p class="page-subtitle">{$dataStore.weapons.length} cannons • {$dataStore.kegs.length} powder kegs</p>
   </header>
 
-  <div class="filters">
-    <div class="filter-group">
-      <label for="category-filter">Category</label>
-      <select id="category-filter" bind:value={$weaponFilters.category}>
-        <option value="">All Categories</option>
-        {#each categories as cat}
-          <option value={cat}>{cat}</option>
-        {/each}
-      </select>
-    </div>
+  <div class="category-tabs">
+    <Tabs
+      tabs={categoryTabs}
+      activeTab={$weaponFilters.category}
+      onchange={(id) => weaponFilters.update(f => ({ ...f, category: id }))}
+    />
+  </div>
 
+  <div class="filters">
     <div class="filter-group">
       <label for="size-filter">Size</label>
       <select id="size-filter" bind:value={$weaponFilters.size}>
@@ -61,49 +86,47 @@
     <table class="table">
       <thead>
         <tr>
-          <th class="sortable" on:click={() => handleSort('category')}>
+          <th class="sortable" onclick={() => handleSort('category')}>
             Category{getSortIndicator('category')}
           </th>
-          <th class="sortable" on:click={() => handleSort('sizeClass')}>
+          <th class="sortable" onclick={() => handleSort('sizeClass')}>
             Size{getSortIndicator('sizeClass')}
           </th>
-          <th class="sortable" on:click={() => handleSort('name')}>
+          <th class="sortable" onclick={() => handleSort('name')}>
             Name{getSortIndicator('name')}
           </th>
-          <th class="sortable numeric" on:click={() => handleSort('penetration')}>
+          <th class="sortable numeric" onclick={() => handleSort('penetration')}>
             Pen{getSortIndicator('penetration')}
           </th>
-          <th class="sortable numeric" on:click={() => handleSort('distance')}>
+          <th class="sortable numeric" onclick={() => handleSort('distance')}>
             Range{getSortIndicator('distance')}
           </th>
-          <th class="sortable numeric" on:click={() => handleSort('cooldown')}>
+          <th class="sortable numeric" onclick={() => handleSort('cooldown')}>
             Reload{getSortIndicator('cooldown')}
           </th>
-          <th class="sortable numeric hide-mobile" on:click={() => handleSort('angle')}>
+          <th class="sortable numeric hide-mobile" onclick={() => handleSort('angle')}>
             Angle{getSortIndicator('angle')}
           </th>
-          <th class="numeric hide-mobile">Price</th>
+          <th class="numeric hide-mobile">DPS</th>
         </tr>
       </thead>
       <tbody>
         {#each $filteredWeapons as weapon (weapon.id)}
-          <tr>
+          <tr class="clickable" onclick={() => openWeaponModal(weapon)}>
             <td>
-              <span class="category-badge category-badge--{weapon.category.toLowerCase()}">
-                {weapon.category}
-              </span>
+              <Badge variant="category" value={weapon.category} />
             </td>
             <td>
-              <span class="size-badge size-badge--{weapon.sizeClass.toLowerCase()}">
-                {weapon.sizeClass}
-              </span>
+              <Badge variant="size" value={weapon.sizeClass} />
             </td>
             <td class="weapon-name">{weapon.name}</td>
-            <td class="numeric">{weapon.penetration}</td>
-            <td class="numeric">{weapon.distance}</td>
-            <td class="numeric">{(weapon.cooldown ?? 0).toFixed(1)}s</td>
+            <td class="numeric">{weapon.penetration.toFixed(1)}</td>
+            <td class="numeric">{weapon.distance}m</td>
+            <td class="numeric">{weapon.cooldown.toFixed(1)}s</td>
             <td class="numeric hide-mobile">{weapon.angle}°</td>
-            <td class="numeric hide-mobile muted">{weapon.price.toLocaleString()}</td>
+            <td class="numeric hide-mobile muted">
+              {weapon.cooldown > 0 ? (weapon.penetration / weapon.cooldown).toFixed(2) : '—'}
+            </td>
           </tr>
         {/each}
       </tbody>
@@ -121,7 +144,7 @@
             <div class="keg-card__stats">
               <div class="stat">
                 <span class="stat__label">Damage</span>
-                <span class="stat__value">{keg.damage}</span>
+                <span class="stat__value stat__value--damage">{keg.damage}</span>
               </div>
               <div class="stat">
                 <span class="stat__label">Radius</span>
@@ -142,6 +165,12 @@
     </section>
   {/if}
 </div>
+
+<WeaponDetailModal
+  weapon={selectedWeapon}
+  open={modalOpen}
+  onclose={closeModal}
+/>
 
 <style>
   .page {
@@ -165,6 +194,11 @@
   .page-subtitle {
     color: var(--text-muted);
     margin: 0;
+  }
+
+  .category-tabs {
+    display: flex;
+    justify-content: center;
   }
 
   .filters {
@@ -251,13 +285,19 @@
     color: var(--gold-light);
   }
 
-  .table tbody tr:hover {
+  .table tbody tr.clickable {
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+
+  .table tbody tr.clickable:hover {
     background: rgba(181, 166, 66, 0.1);
   }
 
   .numeric {
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   .muted {
@@ -267,25 +307,6 @@
   .weapon-name {
     font-weight: var(--font-medium);
   }
-
-  .category-badge,
-  .size-badge {
-    display: inline-block;
-    padding: var(--space-0-5) var(--space-sm);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
-  }
-
-  .category-badge--cannon { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-  .category-badge--culverin { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-  .category-badge--carronade { background: rgba(234, 179, 8, 0.2); color: #facc15; }
-  .category-badge--bombard { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
-  .category-badge--mortar { background: rgba(239, 68, 68, 0.2); color: #f87171; }
-
-  .size-badge--light { background: rgba(148, 163, 184, 0.2); color: #94a3b8; }
-  .size-badge--medium { background: rgba(212, 168, 83, 0.2); color: var(--gold-primary); }
-  .size-badge--heavy { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
   /* Kegs Section */
   .kegs-section {
@@ -310,6 +331,12 @@
     border: 2px solid var(--wood-grain);
     border-radius: var(--radius-lg);
     padding: var(--space-md);
+    transition: all var(--transition-fast);
+  }
+
+  .keg-card:hover {
+    border-color: var(--brass);
+    box-shadow: var(--shadow-md);
   }
 
   .keg-card__name {
@@ -340,11 +367,29 @@
   .stat__value {
     font-weight: var(--font-semibold);
     color: var(--canvas);
+    font-family: var(--font-mono);
+  }
+
+  .stat__value--damage {
+    color: var(--error-light);
   }
 
   @media (max-width: 768px) {
     .hide-mobile {
       display: none;
+    }
+
+    .filters {
+      flex-direction: column;
+    }
+
+    .filter-group {
+      width: 100%;
+    }
+
+    .filter-count {
+      margin-left: 0;
+      text-align: center;
     }
   }
 </style>

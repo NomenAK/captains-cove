@@ -1,9 +1,19 @@
 <script lang="ts">
-  import { dataStore, filteredShips, shipFilters, shipSort, shipsByClass } from '$lib/stores';
+  import type { Ship } from '$lib/data/types';
+  import { dataStore, filteredShips, shipFilters, shipSort } from '$lib/stores';
+  import { Badge, Tabs } from '$lib/components/ui';
+  import { ShipDetailModal } from '$lib/components/ships';
 
-  // Ship classes for filter
+  // Ship classes and tiers for filters
   const shipClasses = ['Combat', 'Fast', 'Heavy', 'Transport', 'Siege'];
   const tiers = [1, 2, 3, 4, 5, 6, 7];
+
+  // View mode (table or cards)
+  let viewMode: 'table' | 'cards' = $state('table');
+
+  // Selected ship for modal
+  let selectedShip: Ship | null = $state(null);
+  let modalOpen = $state(false);
 
   function handleSort(field: string) {
     shipSort.update(current => ({
@@ -16,6 +26,21 @@
     if ($shipSort.field !== field) return '';
     return $shipSort.direction === 'asc' ? ' ▲' : ' ▼';
   }
+
+  function openShipModal(ship: Ship) {
+    selectedShip = ship;
+    modalOpen = true;
+  }
+
+  function closeModal() {
+    modalOpen = false;
+    selectedShip = null;
+  }
+
+  const viewTabs = [
+    { id: 'table', label: 'Table', icon: '📋' },
+    { id: 'cards', label: 'Cards', icon: '🃏' }
+  ];
 </script>
 
 <div class="page">
@@ -24,91 +49,136 @@
     <p class="page-subtitle">Browse all {$dataStore.ships.length} playable ships</p>
   </header>
 
-  <div class="filters">
-    <div class="filter-group">
-      <label for="class-filter">Class</label>
-      <select id="class-filter" bind:value={$shipFilters.class}>
-        <option value="">All Classes</option>
-        {#each shipClasses as cls}
-          <option value={cls}>{cls}</option>
-        {/each}
-      </select>
+  <div class="toolbar">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="class-filter">Class</label>
+        <select id="class-filter" bind:value={$shipFilters.class}>
+          <option value="">All Classes</option>
+          {#each shipClasses as cls}
+            <option value={cls}>{cls}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="tier-filter">Tier</label>
+        <select id="tier-filter" bind:value={$shipFilters.tier}>
+          <option value="">All Tiers</option>
+          {#each tiers as tier}
+            <option value={tier}>Tier {tier}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div class="filter-group filter-group--search">
+        <label for="search">Search</label>
+        <input
+          id="search"
+          type="text"
+          placeholder="Search ships..."
+          bind:value={$shipFilters.search}
+        />
+      </div>
     </div>
 
-    <div class="filter-group">
-      <label for="tier-filter">Tier</label>
-      <select id="tier-filter" bind:value={$shipFilters.tier}>
-        <option value="">All Tiers</option>
-        {#each tiers as tier}
-          <option value={tier}>Tier {tier}</option>
-        {/each}
-      </select>
-    </div>
-
-    <div class="filter-group filter-group--search">
-      <label for="search">Search</label>
-      <input
-        id="search"
-        type="text"
-        placeholder="Search ships..."
-        bind:value={$shipFilters.search}
+    <div class="toolbar-right">
+      <span class="filter-count">{$filteredShips.length} ships</span>
+      <Tabs
+        tabs={viewTabs}
+        activeTab={viewMode}
+        onchange={(id) => viewMode = id as 'table' | 'cards'}
       />
     </div>
-
-    <span class="filter-count">{$filteredShips.length} ships</span>
   </div>
 
-  <div class="table-container">
-    <table class="table">
-      <thead>
-        <tr>
-          <th class="sortable" on:click={() => handleSort('tier')}>
-            Tier{getSortIndicator('tier')}
-          </th>
-          <th class="sortable" on:click={() => handleSort('name')}>
-            Name{getSortIndicator('name')}
-          </th>
-          <th class="sortable" on:click={() => handleSort('shipClass')}>
-            Class{getSortIndicator('shipClass')}
-          </th>
-          <th class="sortable numeric" on:click={() => handleSort('health')}>
-            HP{getSortIndicator('health')}
-          </th>
-          <th class="sortable numeric" on:click={() => handleSort('speed')}>
-            Speed{getSortIndicator('speed')}
-          </th>
-          <th class="sortable numeric" on:click={() => handleSort('armor')}>
-            Armor{getSortIndicator('armor')}
-          </th>
-          <th class="sortable numeric" on:click={() => handleSort('capacity')}>
-            Cargo{getSortIndicator('capacity')}
-          </th>
-          <th class="hide-mobile">Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each $filteredShips as ship (ship.id)}
+  {#if viewMode === 'table'}
+    <div class="table-container">
+      <table class="table">
+        <thead>
           <tr>
-            <td>
-              <span class="tier-badge tier-badge--{ship.tier}">{ship.tier}</span>
-            </td>
-            <td class="ship-name">{ship.name}</td>
-            <td>
-              <span class="class-badge class-badge--{ship.shipClass.toLowerCase()}">
-                {ship.shipClass}
-              </span>
-            </td>
-            <td class="numeric">{ship.health.toLocaleString()}</td>
-            <td class="numeric">{ship.speed.toFixed(1)}</td>
-            <td class="numeric">{ship.armor.toFixed(1)}</td>
-            <td class="numeric">{ship.capacity.toLocaleString()}</td>
-            <td class="hide-mobile muted">{ship.pvpRole || '—'}</td>
+            <th class="sortable" onclick={() => handleSort('tier')}>
+              Tier{getSortIndicator('tier')}
+            </th>
+            <th class="sortable" onclick={() => handleSort('name')}>
+              Name{getSortIndicator('name')}
+            </th>
+            <th class="sortable" onclick={() => handleSort('type')}>
+              Class{getSortIndicator('type')}
+            </th>
+            <th class="sortable numeric" onclick={() => handleSort('health')}>
+              HP{getSortIndicator('health')}
+            </th>
+            <th class="sortable numeric" onclick={() => handleSort('speed')}>
+              Speed{getSortIndicator('speed')}
+            </th>
+            <th class="sortable numeric" onclick={() => handleSort('armor')}>
+              Armor{getSortIndicator('armor')}
+            </th>
+            <th class="sortable numeric hide-mobile" onclick={() => handleSort('capacity')}>
+              Cargo{getSortIndicator('capacity')}
+            </th>
+            <th class="numeric hide-mobile">Crew</th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {#each $filteredShips as ship (ship.id)}
+            <tr class="clickable" onclick={() => openShipModal(ship)}>
+              <td>
+                <Badge variant="tier" value={ship.tier} />
+              </td>
+              <td class="ship-name">{ship.name}</td>
+              <td>
+                <Badge variant="class" value={ship.type} />
+              </td>
+              <td class="numeric">{ship.health.toLocaleString()}</td>
+              <td class="numeric">{ship.speed.toFixed(1)}</td>
+              <td class="numeric">{ship.armor.toFixed(1)}</td>
+              <td class="numeric hide-mobile">{ship.capacity.toLocaleString()}</td>
+              <td class="numeric hide-mobile muted">{ship.crewSlots}</td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
+  {:else}
+    <div class="cards-grid">
+      {#each $filteredShips as ship (ship.id)}
+        <button class="ship-card" onclick={() => openShipModal(ship)}>
+          <div class="ship-card__header">
+            <Badge variant="tier" value={ship.tier} size="sm" />
+            <Badge variant="class" value={ship.type} size="sm" />
+          </div>
+          <h3 class="ship-card__name">{ship.name}</h3>
+          <div class="ship-card__stats">
+            <div class="stat-item">
+              <span class="stat-label">HP</span>
+              <span class="stat-value">{ship.health.toLocaleString()}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Speed</span>
+              <span class="stat-value">{ship.speed.toFixed(1)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Armor</span>
+              <span class="stat-value">{ship.armor.toFixed(1)}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Cargo</span>
+              <span class="stat-value">{ship.capacity.toLocaleString()}</span>
+            </div>
+          </div>
+        </button>
+      {/each}
+    </div>
+  {/if}
 </div>
+
+<ShipDetailModal
+  ship={selectedShip}
+  open={modalOpen}
+  onclose={closeModal}
+/>
 
 <style>
   .page {
@@ -134,15 +204,23 @@
     margin: 0;
   }
 
-  .filters {
+  .toolbar {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-md);
     align-items: flex-end;
+    justify-content: space-between;
     padding: var(--space-md);
     background: var(--bg-card);
     border-radius: var(--radius-lg);
     border: 2px solid var(--wood-grain);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    flex: 1;
   }
 
   .filter-group {
@@ -178,12 +256,18 @@
     width: 100%;
   }
 
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
   .filter-count {
     color: var(--text-muted);
     font-size: var(--text-sm);
-    margin-left: auto;
   }
 
+  /* Table styles */
   .table-container {
     overflow-x: auto;
     background: var(--bg-card);
@@ -223,7 +307,12 @@
     color: var(--gold-light);
   }
 
-  .table tbody tr:hover {
+  .table tbody tr.clickable {
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+
+  .table tbody tr.clickable:hover {
     background: rgba(181, 166, 66, 0.1);
   }
 
@@ -234,6 +323,7 @@
   .numeric {
     text-align: right;
     font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
   }
 
   .muted {
@@ -245,46 +335,87 @@
     color: var(--canvas);
   }
 
-  .tier-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-sm);
-    font-weight: var(--font-bold);
+  /* Cards grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: var(--space-md);
+  }
+
+  .ship-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    background: var(--bg-card);
+    border: 2px solid var(--wood-grain);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+    width: 100%;
+  }
+
+  .ship-card:hover {
+    border-color: var(--brass);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .ship-card:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.3);
+  }
+
+  .ship-card__header {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  .ship-card__name {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    color: var(--gold-primary);
+    margin: 0;
+  }
+
+  .ship-card__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--wood-dark);
+  }
+
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
     font-size: var(--text-xs);
   }
 
-  .tier-badge--1 { background: var(--tier-1); color: var(--wood-dark); }
-  .tier-badge--2 { background: var(--tier-2); color: var(--wood-dark); }
-  .tier-badge--3 { background: var(--tier-3); color: white; }
-  .tier-badge--4 { background: var(--tier-4); color: white; }
-  .tier-badge--5 { background: var(--tier-5); color: white; }
-  .tier-badge--6 { background: var(--tier-6); color: white; }
-  .tier-badge--7 { background: var(--tier-7); color: white; }
-
-  .class-badge {
-    display: inline-block;
-    padding: var(--space-0-5) var(--space-sm);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-xs);
-    font-weight: var(--font-medium);
+  .stat-label {
+    color: var(--text-muted);
   }
 
-  .class-badge--combat { background: rgba(59, 130, 246, 0.2); color: var(--class-combat); }
-  .class-badge--fast { background: rgba(34, 197, 94, 0.2); color: var(--class-fast); }
-  .class-badge--heavy { background: rgba(234, 179, 8, 0.2); color: var(--class-heavy); }
-  .class-badge--transport { background: rgba(168, 162, 158, 0.2); color: var(--class-transport); }
-  .class-badge--siege { background: rgba(239, 68, 68, 0.2); color: var(--class-siege); }
+  .stat-value {
+    color: var(--canvas);
+    font-family: var(--font-mono);
+  }
 
   @media (max-width: 768px) {
     .hide-mobile {
       display: none;
     }
 
+    .toolbar {
+      flex-direction: column;
+    }
+
     .filters {
       flex-direction: column;
+      width: 100%;
     }
 
     .filter-group {
@@ -296,9 +427,9 @@
       width: 100%;
     }
 
-    .filter-count {
-      margin-left: 0;
-      text-align: center;
+    .toolbar-right {
+      width: 100%;
+      justify-content: space-between;
     }
   }
 </style>
