@@ -243,27 +243,37 @@ export interface UpgradeEffect {
 // COSMETIC TYPES
 // ═══════════════════════════════════════════════════
 
+export type CosmeticType = 'design' | 'sail' | 'flag' | 'guild' | 'private';
+
 export interface Cosmetic {
   id: string;
   name: string;
-  type: 'sail' | 'decoration' | 'hull' | 'flag';
-  shipId?: number;
+  nameKey: string;
+  type: CosmeticType;
   icon: string;
-  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  inShop: boolean;
+  tierRequired: number | null;
+  goldCost: number | null;
+  bonus: string | null;
 }
 
 // ═══════════════════════════════════════════════════
 // RESOURCE TYPES
 // ═══════════════════════════════════════════════════
 
+export type ResourceCategory = 'trade' | 'food' | 'material' | 'special';
+
 export interface Resource {
   id: string;
   name: string;
-  category: string;
-  basePrice: number;
+  category: ResourceCategory;
+  mediumCost: number;
   mass: number;
   icon: string;
-  tradeable: boolean;
+  effects: string;
+  isFood: boolean;
+  isTradeable: boolean;
+  corruption: number;
 }
 
 // ═══════════════════════════════════════════════════

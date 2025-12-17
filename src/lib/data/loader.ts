@@ -428,26 +428,149 @@ async function loadUpgrades(): Promise<Upgrade[]> {
 }
 
 // ═══════════════════════════════════════════════════
-// COSMETICS DATA (placeholder)
+// COSMETICS DATA TRANSFORMATION
 // ═══════════════════════════════════════════════════
+
+interface CosmeticRaw {
+  name: string;
+  icon: string;
+  inShop: string;
+  bonus: string | null;
+}
+
+interface CosmeticsJsonResponse {
+  cosmetics: CosmeticRaw[];
+}
+
+function parseCosmeticType(nameKey: string): 'design' | 'sail' | 'flag' | 'guild' | 'private' {
+  if (nameKey.includes('guildflag') || nameKey.includes('flag')) return 'flag';
+  if (nameKey.includes('guildsail') || nameKey.includes('sail')) return 'sail';
+  if (nameKey.includes('guild')) return 'guild';
+  if (nameKey.includes('private')) return 'private';
+  return 'design';
+}
+
+function parseInShop(inShop: string): { inShop: boolean; tierRequired: number | null; goldCost: number | null } {
+  if (!inShop || inShop === 'false' || inShop === '') {
+    return { inShop: false, tierRequired: null, goldCost: null };
+  }
+
+  // Check for tier requirements like "true Tier4"
+  const tierMatch = inShop.match(/Tier(\d+)/i);
+  const tierRequired = tierMatch ? parseInt(tierMatch[1], 10) : null;
+
+  // Check for gold cost like "ByGold 10000"
+  const goldMatch = inShop.match(/ByGold\s+(\d+)/i);
+  const goldCost = goldMatch ? parseInt(goldMatch[1], 10) : null;
+
+  return {
+    inShop: inShop.includes('true') || goldCost !== null,
+    tierRequired,
+    goldCost
+  };
+}
 
 async function loadCosmetics(): Promise<Cosmetic[]> {
   try {
-    const data = await fetchJson<{ cosmetics: Cosmetic[] }>('ships/cosmetics.json');
-    return data.cosmetics || [];
+    const [data, loc] = await Promise.all([
+      fetchJson<CosmeticsJsonResponse>('ships/cosmetics.json'),
+      loadLocalization()
+    ]);
+
+    return data.cosmetics
+      .filter(raw => raw.name && !raw.name.includes('private_d')) // Filter out private duplicates
+      .map((raw, index) => {
+        const nameKey = raw.name;
+        const name = loc[nameKey] || nameKey.replace(/_name$/, '').replace(/_/g, ' ');
+        const type = parseCosmeticType(nameKey);
+        const { inShop, tierRequired, goldCost } = parseInShop(raw.inShop || '');
+
+        return {
+          id: `cosmetic_${index}`,
+          name,
+          nameKey,
+          type,
+          icon: raw.icon || '',
+          inShop,
+          tierRequired,
+          goldCost,
+          bonus: raw.bonus
+        } as Cosmetic;
+      });
   } catch {
     return [];
   }
 }
 
 // ═══════════════════════════════════════════════════
-// RESOURCES DATA (placeholder)
+// RESOURCES DATA TRANSFORMATION
 // ═══════════════════════════════════════════════════
+
+interface ResourceRaw {
+  id: string;
+  status: string;
+  mediumCost: number;
+  mass: number;
+  icon: string;
+  effects: string;
+}
+
+interface ResourcesJsonResponse {
+  resources: ResourceRaw[];
+}
+
+function parseResourceCategory(effects: string): { category: 'trade' | 'food' | 'material' | 'special'; isFood: boolean; isTradeable: boolean; corruption: number } {
+  const effectsLower = effects.toLowerCase();
+  const isFood = effectsLower.includes('foodvalue');
+  const isTradeable = effectsLower.includes('tradingitem');
+
+  // Extract corruption value
+  let corruption = 0;
+  const corruptionMatch = effects.match(/Corruption\s+([\d.]+)/i);
+  if (corruptionMatch) {
+    corruption = parseFloat(corruptionMatch[1]);
+  }
+
+  // Determine category
+  let category: 'trade' | 'food' | 'material' | 'special' = 'material';
+  if (isFood) {
+    category = 'food';
+  } else if (isTradeable) {
+    category = 'trade';
+  } else if (effectsLower.includes('cannotbestoredinport') || effectsLower.includes('special')) {
+    category = 'special';
+  }
+
+  return { category, isFood, isTradeable, corruption };
+}
 
 async function loadResources(): Promise<Resource[]> {
   try {
-    const data = await fetchJson<{ resources: Resource[] }>('world/resources.json');
-    return data.resources || [];
+    const [data, loc] = await Promise.all([
+      fetchJson<ResourcesJsonResponse>('world/resources.json'),
+      loadLocalization()
+    ]);
+
+    return data.resources
+      .filter(raw => raw.status === 'ok')
+      .map(raw => {
+        const nameKey = `${raw.id}_name`;
+        const name = loc[nameKey] || raw.id.replace('res_', 'Resource ');
+        const { category, isFood, isTradeable, corruption } = parseResourceCategory(raw.effects || '');
+
+        return {
+          id: raw.id,
+          name,
+          category,
+          mediumCost: raw.mediumCost,
+          mass: raw.mass,
+          icon: raw.icon,
+          effects: raw.effects || '',
+          isFood,
+          isTradeable,
+          corruption
+        } as Resource;
+      });
   } catch {
     return [];
   }
