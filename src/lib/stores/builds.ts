@@ -171,7 +171,7 @@ function createBuildsStore() {
 
         for (const build of data.builds) {
           if (!validateBuild(build)) {
-            errors.push(`Invalid build: ${build.name || 'Unknown'}`);
+            errors.push(`Invalid build: ${(build as { name?: string }).name || 'Unknown'}`);
             continue;
           }
 

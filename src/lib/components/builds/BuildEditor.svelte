@@ -332,7 +332,7 @@
             onclick={() => toggleUpgrade(upgrade.id)}
           >
             <span class="upgrade-name">{upgrade.name}</span>
-            <span class="upgrade-slot">{upgrade.slotType}</span>
+            <span class="upgrade-slot">{upgrade.category}</span>
           </button>
         {/each}
       </div>

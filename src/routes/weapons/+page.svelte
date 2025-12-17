@@ -54,7 +54,7 @@
     <Tabs
       tabs={categoryTabs}
       activeTab={$weaponFilters.category}
-      onchange={(id) => weaponFilters.update(f => ({ ...f, category: id }))}
+      onchange={(id) => weaponFilters.update(f => ({ ...f, category: id as typeof f.category }))}
     />
   </div>
 

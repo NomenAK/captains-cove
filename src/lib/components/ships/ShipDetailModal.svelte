@@ -103,7 +103,7 @@
             </div>
             <div class="detail-item">
               <span class="detail-label">Base Price</span>
-              <span class="detail-value">{ship.price?.toLocaleString() || 'N/A'}</span>
+              <span class="detail-value">{ship.cost?.toLocaleString() || 'N/A'}</span>
             </div>
             {#if ship.rank !== undefined}
               <div class="detail-item">

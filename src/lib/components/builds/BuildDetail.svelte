@@ -125,15 +125,15 @@
           <div class="ship-stats">
             <div class="stat-row">
               <span class="stat-label">HP</span>
-              <StatBar value={ship.health} max={maxHp} label={ship.health.toLocaleString()} color="hp" />
+              <StatBar value={ship.health} max={maxHp} label={ship.health.toLocaleString()} variant="hp" />
             </div>
             <div class="stat-row">
               <span class="stat-label">Speed</span>
-              <StatBar value={ship.speed} max={maxSpeed} label={ship.speed.toString()} color="speed" />
+              <StatBar value={ship.speed} max={maxSpeed} label={ship.speed.toString()} variant="speed" />
             </div>
             <div class="stat-row">
               <span class="stat-label">Armor</span>
-              <StatBar value={ship.armor} max={maxArmor} label={ship.armor.toString()} color="armor" />
+              <StatBar value={ship.armor} max={maxArmor} label={ship.armor.toString()} variant="armor" />
             </div>
             <div class="stat-row">
               <span class="stat-label">Cargo</span>
@@ -198,7 +198,7 @@
           <span class="loadout-slot">Primary</span>
           {#if primaryAmmoData}
             <span class="loadout-value">{primaryAmmoData.name}</span>
-            <span class="loadout-meta">x{primaryAmmoData.damageModifier} damage</span>
+            <span class="loadout-meta">x{primaryAmmoData.damageFactor} damage</span>
           {:else}
             <span class="loadout-empty">Not selected</span>
           {/if}
@@ -207,7 +207,7 @@
           <span class="loadout-slot">Secondary</span>
           {#if secondaryAmmoData}
             <span class="loadout-value">{secondaryAmmoData.name}</span>
-            <span class="loadout-meta">x{secondaryAmmoData.damageModifier} damage</span>
+            <span class="loadout-meta">x{secondaryAmmoData.damageFactor} damage</span>
           {:else}
             <span class="loadout-empty">Not selected</span>
           {/if}
@@ -223,7 +223,7 @@
           {#each selectedUpgrades as upgrade}
             <div class="upgrade-item">
               <span class="upgrade-name">{upgrade?.name}</span>
-              <span class="upgrade-slot">{upgrade?.slotType}</span>
+              <span class="upgrade-slot">{upgrade?.category}</span>
             </div>
           {/each}
         </div>

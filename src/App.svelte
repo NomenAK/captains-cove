@@ -48,11 +48,11 @@
   });
 
   // Handle route events
-  function handleConditionsFailed(event: CustomEvent) {
+  function handleConditionsFailed(event: { detail: unknown }) {
     console.warn('Route conditions failed:', event.detail);
   }
 
-  function handleRouteLoaded(event: CustomEvent) {
+  function handleRouteLoaded() {
     // Scroll to top on route change
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
