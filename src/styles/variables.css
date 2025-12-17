@@ -1,0 +1,396 @@
+/* Captain's Cove - Design System Variables */
+/* Dark Nautical Theme - Age of Sail Aesthetic */
+
+:root {
+  /* ═══════════════════════════════════════════════════ */
+  /* OCEAN DEPTHS - Background Hierarchy                 */
+  /* ═══════════════════════════════════════════════════ */
+  --ocean-abyss: #050a12;
+  --ocean-deep: #0a1628;
+  --ocean-dark: #132238;
+  --ocean-surface: #1a3a4a;
+  --ocean-foam: #4a7c8c;
+  --storm-sky: #2c3e50;
+
+  /* Card/Surface Backgrounds */
+  --bg-primary: var(--ocean-deep);
+  --bg-secondary: var(--ocean-dark);
+  --bg-tertiary: var(--ocean-surface);
+  --bg-card: #0f1d2d;
+  --bg-card-elevated: #142636;
+  --bg-hover: #1e3a4d;
+  --bg-active: #254a5f;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* WEATHERED WOOD - Structural Elements                */
+  /* ═══════════════════════════════════════════════════ */
+  --wood-charred: #0d0906;
+  --wood-dark: #1a120d;
+  --wood-medium: #2d1f15;
+  --wood-light: #4a3728;
+  --wood-grain: #5c4033;
+  --wood-weathered: #3d2817;
+  --wood-deck: #6b4d3a;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* BRASS & GOLD - Accents & Interactive                */
+  /* ═══════════════════════════════════════════════════ */
+  --brass-tarnished: #6b5a2e;
+  --brass-dark: #8b7d32;
+  --brass: #b5a642;
+  --brass-light: #d4c36a;
+  --brass-polish: #e8d98a;
+
+  --gold-dark: #a67c3d;
+  --gold-primary: #d4a853;
+  --gold-light: #f0d78c;
+  --gold-white: #ffeab3;
+
+  --copper: #b87333;
+  --copper-patina: #4a7c59;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* PARCHMENT & CANVAS - Text Colors                    */
+  /* ═══════════════════════════════════════════════════ */
+  --canvas-white: #faf5eb;
+  --canvas: #f5e6c8;
+  --canvas-aged: #d4c4a8;
+  --canvas-dark: #a89880;
+
+  --rope: #8b7355;
+  --rope-dark: #6b5744;
+  --hemp: #a0916b;
+
+  /* Text Aliases */
+  --text-primary: var(--canvas);
+  --text-secondary: var(--canvas-aged);
+  --text-muted: #9fb0b5;
+  --text-link: var(--brass-light);
+
+  /* ═══════════════════════════════════════════════════ */
+  /* SHIP CLASS COLORS                                   */
+  /* ═══════════════════════════════════════════════════ */
+  --class-combat: #3b82f6;
+  --class-combat-dark: #2563eb;
+  --class-fast: #22c55e;
+  --class-fast-dark: #16a34a;
+  --class-heavy: #ef4444;
+  --class-heavy-dark: #dc2626;
+  --class-imperial: #a855f7;
+  --class-imperial-dark: #9333ea;
+  --class-siege: #f97316;
+  --class-siege-dark: #ea580c;
+  --class-transport: #eab308;
+  --class-transport-dark: #ca8a04;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* ARCHETYPE COLORS                                    */
+  /* ═══════════════════════════════════════════════════ */
+  --archetype-brawler: #dc3545;
+  --archetype-brawler-bg: rgba(220, 53, 69, 0.15);
+  --archetype-kite: #0d6efd;
+  --archetype-kite-bg: rgba(13, 110, 253, 0.15);
+  --archetype-sniper: #6f42c1;
+  --archetype-sniper-bg: rgba(111, 66, 193, 0.15);
+  --archetype-pursuit: #fd7e14;
+  --archetype-pursuit-bg: rgba(253, 126, 20, 0.15);
+  --archetype-trade: #2eb872;
+  --archetype-trade-bg: rgba(46, 184, 114, 0.15);
+  --archetype-siege: #8b959e;
+  --archetype-siege-bg: rgba(139, 149, 158, 0.15);
+
+  /* ═══════════════════════════════════════════════════ */
+  /* TIER COLORS (Naval Ranks)                           */
+  /* ═══════════════════════════════════════════════════ */
+  --tier-1: #ffd700;
+  --tier-2: #c0c0c0;
+  --tier-3: #cd7f32;
+  --tier-4: #4ade80;
+  --tier-5: #60a5fa;
+  --tier-6: #a78bfa;
+  --tier-7: #f472b6;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* STAT BAR COLORS                                     */
+  /* ═══════════════════════════════════════════════════ */
+  --stat-hp: #ef4444;
+  --stat-speed: #22c55e;
+  --stat-cargo: #eab308;
+  --stat-crew: #3b82f6;
+  --stat-armor: #6b7280;
+  --stat-damage: #f97316;
+  --stat-range: #8b5cf6;
+  --stat-accuracy: #06b6d4;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* STATUS COLORS                                       */
+  /* ═══════════════════════════════════════════════════ */
+  --success: #238636;
+  --success-light: #4ade80;
+  --success-bg: rgba(35, 134, 54, 0.15);
+
+  --warning: #9e6a03;
+  --warning-light: #fcd34d;
+  --warning-bg: rgba(158, 106, 3, 0.15);
+
+  --error: #da3633;
+  --error-light: #f87171;
+  --error-bg: rgba(218, 54, 51, 0.15);
+
+  --info: #1f6feb;
+  --info-light: #60a5fa;
+  --info-bg: rgba(31, 111, 235, 0.15);
+
+  /* ═══════════════════════════════════════════════════ */
+  /* TEXTURE GRADIENTS                                   */
+  /* ═══════════════════════════════════════════════════ */
+  --texture-wood: linear-gradient(
+    135deg,
+    var(--wood-dark) 0%,
+    var(--wood-medium) 25%,
+    var(--wood-light) 50%,
+    var(--wood-medium) 75%,
+    var(--wood-dark) 100%
+  );
+
+  --texture-wood-vertical: linear-gradient(
+    180deg,
+    var(--wood-medium) 0%,
+    var(--wood-dark) 100%
+  );
+
+  --texture-wood-plank: linear-gradient(
+    90deg,
+    var(--wood-dark) 0%,
+    var(--wood-medium) 20%,
+    var(--wood-light) 40%,
+    var(--wood-medium) 60%,
+    var(--wood-dark) 80%,
+    var(--wood-medium) 100%
+  );
+
+  --texture-brass: linear-gradient(
+    90deg,
+    var(--brass-dark) 0%,
+    var(--brass) 25%,
+    var(--brass-light) 50%,
+    var(--brass) 75%,
+    var(--brass-dark) 100%
+  );
+
+  --texture-gold-shimmer: linear-gradient(
+    90deg,
+    var(--gold-dark),
+    var(--gold-primary),
+    var(--gold-light),
+    var(--gold-primary),
+    var(--gold-dark)
+  );
+
+  --texture-ocean: linear-gradient(
+    180deg,
+    var(--ocean-deep) 0%,
+    var(--ocean-dark) 50%,
+    var(--ocean-surface) 100%
+  );
+
+  --texture-ocean-radial:
+    radial-gradient(ellipse at top, var(--ocean-dark) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, var(--ocean-surface) 0%, transparent 50%);
+
+  --texture-parchment: linear-gradient(
+    135deg,
+    var(--canvas) 0%,
+    var(--canvas-aged) 50%,
+    var(--canvas) 100%
+  );
+
+  /* ═══════════════════════════════════════════════════ */
+  /* SHADOWS & GLOWS                                     */
+  /* ═══════════════════════════════════════════════════ */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5), 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.5), 0 8px 10px rgba(0, 0, 0, 0.3);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.6);
+
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+  --shadow-inset-lg: inset 0 4px 8px rgba(0, 0, 0, 0.5);
+  --shadow-emboss: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.4);
+
+  /* Glows */
+  --glow-gold: 0 0 20px rgba(212, 168, 83, 0.5);
+  --glow-gold-sm: 0 0 10px rgba(212, 168, 83, 0.3);
+  --glow-gold-lg: 0 0 40px rgba(212, 168, 83, 0.6);
+  --glow-brass: 0 0 15px rgba(181, 166, 66, 0.4);
+  --glow-brass-sm: 0 0 8px rgba(181, 166, 66, 0.3);
+  --glow-ocean: 0 0 20px rgba(74, 124, 140, 0.3);
+  --glow-success: 0 0 15px rgba(34, 197, 94, 0.4);
+  --glow-error: 0 0 15px rgba(239, 68, 68, 0.4);
+  --glow-warning: 0 0 15px rgba(234, 179, 8, 0.4);
+
+  /* Text Shadows */
+  --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --text-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4);
+  --text-shadow-gold: 0 0 10px rgba(212, 168, 83, 0.4);
+  --text-shadow-glow: 0 0 20px rgba(212, 168, 83, 0.6);
+
+  /* ═══════════════════════════════════════════════════ */
+  /* SPACING SCALE (8px base)                            */
+  /* ═══════════════════════════════════════════════════ */
+  --space-px: 1px;
+  --space-0: 0;
+  --space-0-5: 0.125rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Semantic Aliases */
+  --space-xs: var(--space-1);
+  --space-sm: var(--space-2);
+  --space-md: var(--space-4);
+  --space-lg: var(--space-6);
+  --space-xl: var(--space-8);
+  --space-2xl: var(--space-12);
+
+  /* ═══════════════════════════════════════════════════ */
+  /* BORDER RADIUS                                       */
+  /* ═══════════════════════════════════════════════════ */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* TYPOGRAPHY                                          */
+  /* ═══════════════════════════════════════════════════ */
+  --font-display: 'Playfair Display', 'Crimson Text', Georgia, serif;
+  --font-body: 'Crimson Text', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+  --font-mono: 'Courier New', 'Source Code Pro', monospace;
+  --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Font Sizes (1.25 scale) */
+  --text-xs: 0.64rem;
+  --text-sm: 0.8rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.563rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --text-4xl: 3.052rem;
+  --text-5xl: 3.815rem;
+
+  /* Font Weights */
+  --font-light: 300;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-black: 900;
+
+  /* Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.025em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.025em;
+  --tracking-wider: 0.05em;
+  --tracking-widest: 0.1em;
+  --tracking-caps: 0.15em;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* TRANSITIONS & EASING                                */
+  /* ═══════════════════════════════════════════════════ */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-ship: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-wave: cubic-bezier(0.36, 0, 0.66, -0.56);
+  --ease-anchor: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --duration-instant: 75ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-moderate: 300ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  --duration-wave: 800ms;
+
+  --transition-fast: var(--duration-fast) var(--ease-out);
+  --transition-base: var(--duration-base) var(--ease-out);
+  --transition-slow: var(--duration-slow) var(--ease-out);
+  --transition-ship: var(--duration-slow) var(--ease-ship);
+  --transition-wave: var(--duration-wave) var(--ease-in-out);
+
+  /* ═══════════════════════════════════════════════════ */
+  /* Z-INDEX SCALE                                       */
+  /* ═══════════════════════════════════════════════════ */
+  --z-below: -1;
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 250;
+  --z-modal-backdrop: 300;
+  --z-modal: 350;
+  --z-popover: 400;
+  --z-tooltip: 450;
+  --z-toast: 500;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* CONTAINER WIDTHS                                    */
+  /* ═══════════════════════════════════════════════════ */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+
+  /* ═══════════════════════════════════════════════════ */
+  /* BREAKPOINTS                                         */
+  /* ═══════════════════════════════════════════════════ */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Light Theme (Parchment) */
+[data-theme="light"] {
+  --bg-primary: var(--canvas);
+  --bg-secondary: var(--canvas-aged);
+  --bg-tertiary: #c4b498;
+  --bg-card: #efe5d0;
+  --bg-card-elevated: #f5ead8;
+  --bg-hover: #d4c4a8;
+  --bg-active: #c4b498;
+
+  --text-primary: var(--wood-dark);
+  --text-secondary: var(--wood-medium);
+  --text-muted: var(--wood-grain);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+}

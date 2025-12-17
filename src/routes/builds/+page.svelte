@@ -1,0 +1,381 @@
+<script lang="ts">
+  import { buildsStore, filteredBuilds, buildFilters, buildCount, toasts } from '$lib/stores';
+
+  const archetypes = ['brawler', 'kite', 'sniper', 'pursuit', 'trade', 'siege'];
+  const archetypeLabels: Record<string, string> = {
+    brawler: 'Brawler',
+    kite: 'Kite',
+    sniper: 'Sniper',
+    pursuit: 'Pursuit',
+    trade: 'Trade',
+    siege: 'Siege'
+  };
+
+  function handleExport() {
+    const json = buildsStore.export();
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'captains-cove-builds.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toasts.success('Builds exported successfully');
+  }
+
+  let importInput: HTMLInputElement;
+
+  function handleImportClick() {
+    importInput.click();
+  }
+
+  async function handleImport(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const result = buildsStore.import(text);
+
+    if (result.errors.length > 0) {
+      toasts.warning(`Imported ${result.imported} builds with ${result.errors.length} errors`);
+    } else {
+      toasts.success(`Imported ${result.imported} builds`);
+    }
+
+    input.value = '';
+  }
+</script>
+
+<div class="page">
+  <header class="page-header">
+    <h1 class="page-title">⚙️ Builds</h1>
+    <p class="page-subtitle">{$buildCount} saved builds</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="archetype-filter">Archetype</label>
+        <select id="archetype-filter" bind:value={$buildFilters.archetype}>
+          <option value="">All Archetypes</option>
+          {#each archetypes as arch}
+            <option value={arch}>{archetypeLabels[arch]}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div class="filter-group filter-group--search">
+        <label for="search">Search</label>
+        <input
+          id="search"
+          type="text"
+          placeholder="Search builds..."
+          bind:value={$buildFilters.search}
+        />
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="#/builds/new" class="btn btn--primary">
+        + New Build
+      </a>
+      <button class="btn btn--secondary" on:click={handleExport}>
+        Export
+      </button>
+      <button class="btn btn--secondary" on:click={handleImportClick}>
+        Import
+      </button>
+      <input
+        bind:this={importInput}
+        type="file"
+        accept=".json"
+        on:change={handleImport}
+        style="display: none;"
+      />
+    </div>
+  </div>
+
+  {#if $filteredBuilds.length === 0}
+    <div class="empty-state">
+      <span class="empty-icon">🚢</span>
+      <h2>No Builds Yet</h2>
+      <p>Create your first ship build to get started.</p>
+      <a href="#/builds/new" class="btn btn--primary">
+        Create Build
+      </a>
+    </div>
+  {:else}
+    <div class="builds-grid">
+      {#each $filteredBuilds as build (build.id)}
+        <div class="build-card">
+          <div class="build-card__header">
+            <span class="archetype-badge archetype-badge--{build.archetype}">
+              {archetypeLabels[build.archetype]}
+            </span>
+            <span class="tier-badge">T{build.tier}</span>
+          </div>
+          <h3 class="build-card__name">{build.name}</h3>
+          <p class="build-card__strategy">{build.strategy || 'No strategy description'}</p>
+          <div class="build-card__footer">
+            <span class="build-card__score">Score: {build.estimatedScore}</span>
+            <div class="build-card__actions">
+              <a href="#/builds/{build.id}" class="btn btn--small">View</a>
+              <button
+                class="btn btn--small btn--danger"
+                on:click={() => buildsStore.delete(build.id)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+  {/if}
+</div>
+
+<style>
+  .page {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .page-header {
+    text-align: center;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    color: var(--gold-primary);
+    margin: 0 0 var(--space-xs);
+  }
+
+  .page-subtitle {
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: var(--space-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 2px solid var(--wood-grain);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md);
+    flex: 1;
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+
+  .filter-group label {
+    font-size: var(--text-xs);
+    color: var(--brass-light);
+    text-transform: uppercase;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    padding: var(--space-sm) var(--space-md);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--wood-grain);
+    border-radius: var(--radius-md);
+    color: var(--canvas);
+    font-size: var(--text-sm);
+    min-width: 140px;
+  }
+
+  .filter-group--search {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
+  .btn {
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--font-display);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    border: 2px solid transparent;
+  }
+
+  .btn--primary {
+    background: var(--gold-primary);
+    color: var(--wood-dark);
+    border-color: var(--gold-dark);
+  }
+
+  .btn--primary:hover {
+    background: var(--gold-light);
+  }
+
+  .btn--secondary {
+    background: var(--bg-tertiary);
+    color: var(--canvas);
+    border-color: var(--wood-grain);
+  }
+
+  .btn--secondary:hover {
+    border-color: var(--brass);
+  }
+
+  .btn--small {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-xs);
+  }
+
+  .btn--danger {
+    color: var(--error-light);
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-3xl);
+    background: var(--bg-card);
+    border: 2px dashed var(--wood-grain);
+    border-radius: var(--radius-xl);
+    min-height: 300px;
+  }
+
+  .empty-icon {
+    font-size: 64px;
+    margin-bottom: var(--space-lg);
+    opacity: 0.6;
+  }
+
+  .empty-state h2 {
+    font-family: var(--font-display);
+    color: var(--brass-light);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .empty-state p {
+    color: var(--text-muted);
+    margin: 0 0 var(--space-lg);
+  }
+
+  .builds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-lg);
+  }
+
+  .build-card {
+    background: var(--bg-card);
+    border: 2px solid var(--wood-grain);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .build-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .archetype-badge {
+    padding: var(--space-0-5) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+  }
+
+  .archetype-badge--brawler { background: rgba(220, 53, 69, 0.2); color: var(--archetype-brawler); }
+  .archetype-badge--kite { background: rgba(40, 167, 69, 0.2); color: var(--archetype-kite); }
+  .archetype-badge--sniper { background: rgba(0, 123, 255, 0.2); color: var(--archetype-sniper); }
+  .archetype-badge--pursuit { background: rgba(255, 193, 7, 0.2); color: var(--archetype-pursuit); }
+  .archetype-badge--trade { background: rgba(108, 117, 125, 0.2); color: var(--archetype-trade); }
+  .archetype-badge--siege { background: rgba(111, 66, 193, 0.2); color: var(--archetype-siege); }
+
+  .tier-badge {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .build-card__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    color: var(--gold-primary);
+    margin: 0;
+  }
+
+  .build-card__strategy {
+    font-size: var(--text-sm);
+    color: var(--canvas-aged);
+    flex: 1;
+    margin: 0;
+    line-height: var(--leading-relaxed);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .build-card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-sm);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--wood-dark);
+  }
+
+  .build-card__score {
+    font-size: var(--text-sm);
+    color: var(--brass-light);
+  }
+
+  .build-card__actions {
+    display: flex;
+    gap: var(--space-xs);
+  }
+
+  @media (max-width: 768px) {
+    .toolbar {
+      flex-direction: column;
+    }
+
+    .actions {
+      width: 100%;
+      justify-content: stretch;
+    }
+
+    .actions .btn {
+      flex: 1;
+      justify-content: center;
+    }
+  }
+</style>

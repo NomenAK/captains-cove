@@ -1,0 +1,386 @@
+/* Captain's Cove - Global Styles */
+/* Reset, Base Typography, Utilities */
+
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+/* ═══════════════════════════════════════════════════ */
+/* RESET                                               */
+/* ═══════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  background-image: var(--texture-ocean-radial);
+  color: var(--text-primary);
+  line-height: var(--leading-normal);
+  min-height: 100vh;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* BASE TYPOGRAPHY                                     */
+/* ═══════════════════════════════════════════════════ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  color: var(--gold-primary);
+  text-shadow: var(--text-shadow-sm);
+}
+
+h1 { font-size: var(--text-4xl); letter-spacing: var(--tracking-tight); }
+h2 { font-size: var(--text-3xl); }
+h3 { font-size: var(--text-2xl); }
+h4 { font-size: var(--text-xl); }
+h5 { font-size: var(--text-lg); }
+h6 { font-size: var(--text-base); }
+
+p {
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+a {
+  color: var(--text-link);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--gold-light);
+  text-shadow: var(--text-shadow-gold);
+}
+
+strong, b {
+  font-weight: var(--font-semibold);
+}
+
+em, i {
+  font-style: italic;
+}
+
+small {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+code {
+  padding: var(--space-0-5) var(--space-1);
+}
+
+pre {
+  padding: var(--space-md);
+  overflow-x: auto;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* LISTS                                               */
+/* ═══════════════════════════════════════════════════ */
+
+ul, ol {
+  padding-left: var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+li {
+  margin-bottom: var(--space-xs);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* FORM ELEMENTS                                       */
+/* ═══════════════════════════════════════════════════ */
+
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* IMAGES                                              */
+/* ═══════════════════════════════════════════════════ */
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* ACCESSIBILITY                                       */
+/* ═══════════════════════════════════════════════════ */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(212, 168, 83, 0.3);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--gold-primary);
+  color: var(--wood-dark);
+  padding: var(--space-sm) var(--space-md);
+  z-index: var(--z-tooltip);
+  transition: top var(--transition-fast);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* SCROLLBAR                                           */
+/* ═══════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--wood-grain);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brass-dark);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--wood-grain) var(--bg-secondary);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* SELECTION                                           */
+/* ═══════════════════════════════════════════════════ */
+
+::selection {
+  background: var(--gold-primary);
+  color: var(--wood-dark);
+}
+
+::-moz-selection {
+  background: var(--gold-primary);
+  color: var(--wood-dark);
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* UTILITY CLASSES                                     */
+/* ═══════════════════════════════════════════════════ */
+
+/* Display */
+.hidden { display: none !important; }
+.block { display: block; }
+.inline-block { display: inline-block; }
+.flex { display: flex; }
+.inline-flex { display: inline-flex; }
+.grid { display: grid; }
+
+/* Flex Utilities */
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.gap-xl { gap: var(--space-xl); }
+
+/* Text */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-base { font-size: var(--text-base); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+.font-normal { font-weight: var(--font-normal); }
+.font-medium { font-weight: var(--font-medium); }
+.font-semibold { font-weight: var(--font-semibold); }
+.font-bold { font-weight: var(--font-bold); }
+.uppercase { text-transform: uppercase; }
+.capitalize { text-transform: capitalize; }
+.italic { font-style: italic; }
+.tracking-wide { letter-spacing: var(--tracking-wide); }
+.tracking-widest { letter-spacing: var(--tracking-widest); }
+
+/* Colors */
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-gold { color: var(--gold-primary); }
+.text-brass { color: var(--brass); }
+.text-success { color: var(--success-light); }
+.text-warning { color: var(--warning-light); }
+.text-error { color: var(--error-light); }
+
+/* Backgrounds */
+.bg-primary { background-color: var(--bg-primary); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-card { background-color: var(--bg-card); }
+.bg-wood { background: var(--texture-wood); }
+.bg-brass { background: var(--texture-brass); }
+.bg-parchment { background: var(--texture-parchment); color: var(--wood-dark); }
+.bg-ocean { background: var(--texture-ocean); }
+
+/* Spacing */
+.p-0 { padding: 0; }
+.p-xs { padding: var(--space-xs); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.p-xl { padding: var(--space-xl); }
+
+.m-0 { margin: 0; }
+.m-auto { margin: auto; }
+.mx-auto { margin-left: auto; margin-right: auto; }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+/* Width/Height */
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.min-h-screen { min-height: 100vh; }
+
+/* Borders */
+.rounded { border-radius: var(--radius-md); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+.border { border: 1px solid var(--wood-grain); }
+.border-brass { border: 2px solid var(--brass); }
+.border-gold { border: 2px solid var(--gold-primary); }
+
+/* Shadows */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-emboss { box-shadow: var(--shadow-emboss); }
+.glow-gold { box-shadow: var(--glow-gold); }
+.glow-brass { box-shadow: var(--glow-brass); }
+
+/* Overflow */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-auto { overflow-x: auto; }
+
+/* Position */
+.relative { position: relative; }
+.absolute { position: absolute; }
+.fixed { position: fixed; }
+.sticky { position: sticky; }
+
+/* Cursor */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+/* Opacity */
+.opacity-50 { opacity: 0.5; }
+.opacity-75 { opacity: 0.75; }
+
+/* Transitions */
+.transition { transition: all var(--transition-base); }
+.transition-fast { transition: all var(--transition-fast); }
+.transition-slow { transition: all var(--transition-slow); }
+
+/* ═══════════════════════════════════════════════════ */
+/* RESPONSIVE UTILITIES                                */
+/* ═══════════════════════════════════════════════════ */
+
+@media (max-width: 767px) {
+  .hide-mobile { display: none !important; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hide-tablet { display: none !important; }
+}
+
+@media (min-width: 1024px) {
+  .hide-desktop { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════ */
+/* PRINT STYLES                                        */
+/* ═══════════════════════════════════════════════════ */
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

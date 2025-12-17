@@ -1,0 +1,15 @@
+/* Captain's Cove - Main Application Styles */
+/* Import design system */
+
+@import './styles/variables.css';
+@import './styles/animations.css';
+@import './styles/global.css';
+
+/* App container */
+#app {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
