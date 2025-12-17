@@ -1,128 +1,154 @@
 <script lang="ts">
   import { dataStore, shipsByClass, shipsByTier } from '$lib/stores';
+  import { ArchetypeAnalysis, TTKMatrix, MetaAnalysis } from '$lib/components/balance';
+  import { Tabs } from '$lib/components/ui';
 
-  $: tierCounts = Object.entries($shipsByTier)
-    .sort(([a], [b]) => Number(a) - Number(b))
-    .map(([tier, ships]) => ({ tier: Number(tier), count: ships.length }));
+  // Tab state
+  let activeTab = $state('overview');
 
-  $: classCounts = Object.entries($shipsByClass)
-    .map(([cls, ships]) => ({ class: cls, count: ships.length }))
-    .sort((a, b) => b.count - a.count);
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'archetypes', label: 'Archetypes' },
+    { id: 'ttk', label: 'TTK Matrix' },
+    { id: 'meta', label: 'Meta Analysis' }
+  ];
+
+  // Stats computed from ship data
+  const tierCounts = $derived(
+    Object.entries($shipsByTier)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .map(([tier, ships]) => ({ tier: Number(tier), count: ships.length }))
+  );
+
+  const classCounts = $derived(
+    Object.entries($shipsByClass)
+      .map(([cls, ships]) => ({ class: cls, count: ships.length }))
+      .sort((a, b) => b.count - a.count)
+  );
+
+  // Top ships by various stats
+  const topByHp = $derived(
+    [...$dataStore.ships].sort((a, b) => b.health - a.health).slice(0, 5)
+  );
+
+  const topBySpeed = $derived(
+    [...$dataStore.ships].sort((a, b) => b.speed - a.speed).slice(0, 5)
+  );
+
+  const topByArmor = $derived(
+    [...$dataStore.ships].sort((a, b) => b.armor - a.armor).slice(0, 5)
+  );
+
+  const topByCargo = $derived(
+    [...$dataStore.ships].sort((a, b) => b.capacity - a.capacity).slice(0, 5)
+  );
 </script>
 
 <div class="page">
   <header class="page-header">
-    <h1 class="page-title">⚖️ Balance Analysis</h1>
-    <p class="page-subtitle">Meta statistics and tier rankings</p>
+    <h1 class="page-title">Balance Analysis</h1>
+    <p class="page-subtitle">Meta statistics, tier rankings, and combat analysis</p>
   </header>
 
-  <div class="stats-overview">
-    <div class="stat-section">
-      <h2 class="section-title">Ships by Tier</h2>
-      <div class="tier-bars">
-        {#each tierCounts as { tier, count }}
-          <div class="tier-bar">
-            <span class="tier-bar__label">Tier {tier}</span>
-            <div class="tier-bar__track">
-              <div
-                class="tier-bar__fill tier-bar__fill--{tier}"
-                style="width: {(count / $dataStore.ships.length) * 100}%"
-              ></div>
+  <Tabs {tabs} {activeTab} onchange={(id) => activeTab = id} />
+
+  {#if activeTab === 'overview'}
+    <div class="stats-overview">
+      <div class="stat-section">
+        <h2 class="section-title">Ships by Tier</h2>
+        <div class="tier-bars">
+          {#each tierCounts as { tier, count }}
+            <div class="tier-bar">
+              <span class="tier-bar__label">Tier {tier}</span>
+              <div class="tier-bar__track">
+                <div
+                  class="tier-bar__fill tier-bar__fill--{tier}"
+                  style="width: {(count / $dataStore.ships.length) * 100}%"
+                ></div>
+              </div>
+              <span class="tier-bar__count">{count}</span>
             </div>
-            <span class="tier-bar__count">{count}</span>
-          </div>
-        {/each}
+          {/each}
+        </div>
       </div>
-    </div>
 
-    <div class="stat-section">
-      <h2 class="section-title">Ships by Class</h2>
-      <div class="class-bars">
-        {#each classCounts as { class: cls, count }}
-          <div class="class-bar">
-            <span class="class-bar__label">{cls}</span>
-            <div class="class-bar__track">
-              <div
-                class="class-bar__fill class-bar__fill--{cls.toLowerCase()}"
-                style="width: {(count / $dataStore.ships.length) * 100}%"
-              ></div>
+      <div class="stat-section">
+        <h2 class="section-title">Ships by Class</h2>
+        <div class="class-bars">
+          {#each classCounts as { class: cls, count }}
+            <div class="class-bar">
+              <span class="class-bar__label">{cls}</span>
+              <div class="class-bar__track">
+                <div
+                  class="class-bar__fill class-bar__fill--{cls.toLowerCase()}"
+                  style="width: {(count / $dataStore.ships.length) * 100}%"
+                ></div>
+              </div>
+              <span class="class-bar__count">{count}</span>
             </div>
-            <span class="class-bar__count">{count}</span>
-          </div>
-        {/each}
+          {/each}
+        </div>
       </div>
     </div>
-  </div>
 
-  <section class="section">
-    <h2 class="section-title">Top Ships by Stat</h2>
-    <div class="top-ships-grid">
-      <div class="top-card">
-        <h3 class="top-card__title">Highest HP</h3>
-        {#each $dataStore.ships.slice().sort((a, b) => b.health - a.health).slice(0, 5) as ship, i}
-          <div class="top-item">
-            <span class="top-item__rank">#{i + 1}</span>
-            <span class="top-item__name">{ship.name}</span>
-            <span class="top-item__value">{ship.health.toLocaleString()}</span>
-          </div>
-        {/each}
-      </div>
+    <section class="section">
+      <h2 class="section-title">Top Ships by Stat</h2>
+      <div class="top-ships-grid">
+        <div class="top-card">
+          <h3 class="top-card__title">Highest HP</h3>
+          {#each topByHp as ship, i}
+            <div class="top-item">
+              <span class="top-item__rank">#{i + 1}</span>
+              <span class="top-item__name">{ship.name}</span>
+              <span class="top-item__value">{ship.health.toLocaleString()}</span>
+            </div>
+          {/each}
+        </div>
 
-      <div class="top-card">
-        <h3 class="top-card__title">Fastest Speed</h3>
-        {#each $dataStore.ships.slice().sort((a, b) => b.speed - a.speed).slice(0, 5) as ship, i}
-          <div class="top-item">
-            <span class="top-item__rank">#{i + 1}</span>
-            <span class="top-item__name">{ship.name}</span>
-            <span class="top-item__value">{ship.speed.toFixed(1)}</span>
-          </div>
-        {/each}
-      </div>
+        <div class="top-card">
+          <h3 class="top-card__title">Fastest Speed</h3>
+          {#each topBySpeed as ship, i}
+            <div class="top-item">
+              <span class="top-item__rank">#{i + 1}</span>
+              <span class="top-item__name">{ship.name}</span>
+              <span class="top-item__value">{ship.speed.toFixed(1)}</span>
+            </div>
+          {/each}
+        </div>
 
-      <div class="top-card">
-        <h3 class="top-card__title">Best Armor</h3>
-        {#each $dataStore.ships.slice().sort((a, b) => b.armor - a.armor).slice(0, 5) as ship, i}
-          <div class="top-item">
-            <span class="top-item__rank">#{i + 1}</span>
-            <span class="top-item__name">{ship.name}</span>
-            <span class="top-item__value">{ship.armor.toFixed(1)}</span>
-          </div>
-        {/each}
-      </div>
+        <div class="top-card">
+          <h3 class="top-card__title">Best Armor</h3>
+          {#each topByArmor as ship, i}
+            <div class="top-item">
+              <span class="top-item__rank">#{i + 1}</span>
+              <span class="top-item__name">{ship.name}</span>
+              <span class="top-item__value">{ship.armor.toFixed(1)}</span>
+            </div>
+          {/each}
+        </div>
 
-      <div class="top-card">
-        <h3 class="top-card__title">Largest Cargo</h3>
-        {#each $dataStore.ships.slice().sort((a, b) => b.capacity - a.capacity).slice(0, 5) as ship, i}
-          <div class="top-item">
-            <span class="top-item__rank">#{i + 1}</span>
-            <span class="top-item__name">{ship.name}</span>
-            <span class="top-item__value">{ship.capacity.toLocaleString()}</span>
-          </div>
-        {/each}
+        <div class="top-card">
+          <h3 class="top-card__title">Largest Cargo</h3>
+          {#each topByCargo as ship, i}
+            <div class="top-item">
+              <span class="top-item__rank">#{i + 1}</span>
+              <span class="top-item__name">{ship.name}</span>
+              <span class="top-item__value">{ship.capacity.toLocaleString()}</span>
+            </div>
+          {/each}
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section">
-    <h2 class="section-title">Coming Soon</h2>
-    <div class="placeholder-grid">
-      <div class="placeholder-card">
-        <span class="placeholder-icon">📊</span>
-        <h3>TTK Matrix</h3>
-        <p>Time-to-kill analysis between ship classes</p>
-      </div>
-      <div class="placeholder-card">
-        <span class="placeholder-icon">🎯</span>
-        <h3>Meta Analysis</h3>
-        <p>Current meta trends and popular builds</p>
-      </div>
-      <div class="placeholder-card">
-        <span class="placeholder-icon">📈</span>
-        <h3>Archetype Stats</h3>
-        <p>Win rates and performance by archetype</p>
-      </div>
-    </div>
-  </section>
+  {:else if activeTab === 'archetypes'}
+    <ArchetypeAnalysis />
+
+  {:else if activeTab === 'ttk'}
+    <TTKMatrix />
+
+  {:else if activeTab === 'meta'}
+    <MetaAnalysis />
+  {/if}
 </div>
 
 <style>
@@ -282,36 +308,9 @@
     color: var(--brass-light);
   }
 
-  .placeholder-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-md);
-  }
-
-  .placeholder-card {
-    background: var(--bg-card);
-    border: 2px dashed var(--wood-grain);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    text-align: center;
-  }
-
-  .placeholder-icon {
-    font-size: 32px;
-    display: block;
-    margin-bottom: var(--space-sm);
-    opacity: 0.5;
-  }
-
-  .placeholder-card h3 {
-    font-family: var(--font-display);
-    color: var(--brass-light);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .placeholder-card p {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-    margin: 0;
+  @media (max-width: 768px) {
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
