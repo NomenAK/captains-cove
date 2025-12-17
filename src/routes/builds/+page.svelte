@@ -1,5 +1,28 @@
 <script lang="ts">
   import { buildsStore, filteredBuilds, buildFilters, buildCount, toasts } from '$lib/stores';
+  import { BuildEditor, BuildDetail } from '$lib/components/builds';
+  import { Badge } from '$lib/components/ui';
+  import { location, querystring } from 'svelte-spa-router';
+
+  // Determine current view from URL
+  const currentPath = $derived($location);
+
+  // Parse build ID from path
+  const buildId = $derived(() => {
+    const match = currentPath.match(/^\/builds\/([^/]+)/);
+    return match ? match[1] : null;
+  });
+
+  // Determine view mode
+  const viewMode = $derived(() => {
+    if (currentPath === '/builds/new') return 'create';
+    if (currentPath.endsWith('/edit')) return 'edit';
+    if (buildId()) return 'detail';
+    return 'list';
+  });
+
+  // Get current build for detail/edit views
+  const currentBuild = $derived(buildId() ? buildsStore.get(buildId()!) : null);
 
   const archetypes = ['brawler', 'kite', 'sniper', 'pursuit', 'trade', 'siege'];
   const archetypeLabels: Record<string, string> = {
@@ -47,93 +70,110 @@
   }
 </script>
 
-<div class="page">
-  <header class="page-header">
-    <h1 class="page-title">⚙️ Builds</h1>
-    <p class="page-subtitle">{$buildCount} saved builds</p>
-  </header>
+{#if viewMode() === 'create'}
+  <BuildEditor mode="create" />
 
-  <div class="toolbar">
-    <div class="filters">
-      <div class="filter-group">
-        <label for="archetype-filter">Archetype</label>
-        <select id="archetype-filter" bind:value={$buildFilters.archetype}>
-          <option value="">All Archetypes</option>
-          {#each archetypes as arch}
-            <option value={arch}>{archetypeLabels[arch]}</option>
-          {/each}
-        </select>
+{:else if viewMode() === 'edit' && currentBuild}
+  <BuildEditor mode="edit" build={currentBuild} />
+
+{:else if viewMode() === 'detail' && currentBuild}
+  <BuildDetail build={currentBuild} />
+
+{:else if viewMode() === 'detail' && !currentBuild}
+  <div class="not-found">
+    <span class="not-found-icon">🔍</span>
+    <h2>Build Not Found</h2>
+    <p>The build you're looking for doesn't exist or has been deleted.</p>
+    <a href="#/builds" class="btn btn--primary">Back to Builds</a>
+  </div>
+
+{:else}
+  <!-- List View -->
+  <div class="page">
+    <header class="page-header">
+      <h1 class="page-title">Ship Builds</h1>
+      <p class="page-subtitle">{$buildCount} saved builds - Create, customize, and share your ship configurations</p>
+    </header>
+
+    <div class="toolbar">
+      <div class="filters">
+        <div class="filter-group">
+          <label for="archetype-filter">Archetype</label>
+          <select id="archetype-filter" bind:value={$buildFilters.archetype}>
+            <option value="">All Archetypes</option>
+            {#each archetypes as arch}
+              <option value={arch}>{archetypeLabels[arch]}</option>
+            {/each}
+          </select>
+        </div>
+
+        <div class="filter-group filter-group--search">
+          <label for="search">Search</label>
+          <input
+            id="search"
+            type="text"
+            placeholder="Search builds..."
+            bind:value={$buildFilters.search}
+          />
+        </div>
       </div>
 
-      <div class="filter-group filter-group--search">
-        <label for="search">Search</label>
+      <div class="actions">
+        <a href="#/builds/new" class="btn btn--primary">
+          + New Build
+        </a>
+        <button class="btn btn--secondary" onclick={handleExport} disabled={$buildCount === 0}>
+          Export All
+        </button>
+        <button class="btn btn--secondary" onclick={handleImportClick}>
+          Import
+        </button>
         <input
-          id="search"
-          type="text"
-          placeholder="Search builds..."
-          bind:value={$buildFilters.search}
+          bind:this={importInput}
+          type="file"
+          accept=".json"
+          onchange={handleImport}
+          style="display: none;"
         />
       </div>
     </div>
 
-    <div class="actions">
-      <a href="#/builds/new" class="btn btn--primary">
-        + New Build
-      </a>
-      <button class="btn btn--secondary" on:click={handleExport}>
-        Export
-      </button>
-      <button class="btn btn--secondary" on:click={handleImportClick}>
-        Import
-      </button>
-      <input
-        bind:this={importInput}
-        type="file"
-        accept=".json"
-        on:change={handleImport}
-        style="display: none;"
-      />
-    </div>
-  </div>
-
-  {#if $filteredBuilds.length === 0}
-    <div class="empty-state">
-      <span class="empty-icon">🚢</span>
-      <h2>No Builds Yet</h2>
-      <p>Create your first ship build to get started.</p>
-      <a href="#/builds/new" class="btn btn--primary">
-        Create Build
-      </a>
-    </div>
-  {:else}
-    <div class="builds-grid">
-      {#each $filteredBuilds as build (build.id)}
-        <div class="build-card">
-          <div class="build-card__header">
-            <span class="archetype-badge archetype-badge--{build.archetype}">
-              {archetypeLabels[build.archetype]}
-            </span>
-            <span class="tier-badge">T{build.tier}</span>
-          </div>
-          <h3 class="build-card__name">{build.name}</h3>
-          <p class="build-card__strategy">{build.strategy || 'No strategy description'}</p>
-          <div class="build-card__footer">
-            <span class="build-card__score">Score: {build.estimatedScore}</span>
-            <div class="build-card__actions">
-              <a href="#/builds/{build.id}" class="btn btn--small">View</a>
-              <button
-                class="btn btn--small btn--danger"
-                on:click={() => buildsStore.delete(build.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+    {#if $filteredBuilds.length === 0}
+      <div class="empty-state">
+        <span class="empty-icon">🚢</span>
+        <h2>No Builds Yet</h2>
+        <p>Create your first ship build to get started, or import existing builds.</p>
+        <div class="empty-actions">
+          <a href="#/builds/new" class="btn btn--primary">
+            Create Build
+          </a>
+          <button class="btn btn--secondary" onclick={handleImportClick}>
+            Import Builds
+          </button>
         </div>
-      {/each}
-    </div>
-  {/if}
-</div>
+      </div>
+    {:else}
+      <div class="builds-grid">
+        {#each $filteredBuilds as build (build.id)}
+          <a href="#/builds/{build.id}" class="build-card">
+            <div class="build-card__header">
+              <Badge variant="archetype" value={build.archetype} size="sm" />
+              <Badge variant="tier" value={build.tier} size="sm" />
+            </div>
+            <h3 class="build-card__name">{build.name}</h3>
+            <p class="build-card__strategy">{build.strategy || 'No strategy description'}</p>
+            <div class="build-card__footer">
+              <span class="build-card__score">Score: {build.estimatedScore}</span>
+              <span class="build-card__date">
+                {new Date(build.updatedAt).toLocaleDateString()}
+              </span>
+            </div>
+          </a>
+        {/each}
+      </div>
+    {/if}
+  </div>
+{/if}
 
 <style>
   .page {
@@ -224,13 +264,18 @@
     border: 2px solid transparent;
   }
 
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .btn--primary {
     background: var(--gold-primary);
     color: var(--wood-dark);
     border-color: var(--gold-dark);
   }
 
-  .btn--primary:hover {
+  .btn--primary:hover:not(:disabled) {
     background: var(--gold-light);
   }
 
@@ -240,17 +285,8 @@
     border-color: var(--wood-grain);
   }
 
-  .btn--secondary:hover {
+  .btn--secondary:hover:not(:disabled) {
     border-color: var(--brass);
-  }
-
-  .btn--small {
-    padding: var(--space-xs) var(--space-sm);
-    font-size: var(--text-xs);
-  }
-
-  .btn--danger {
-    color: var(--error-light);
   }
 
   .empty-state {
@@ -283,6 +319,11 @@
     margin: 0 0 var(--space-lg);
   }
 
+  .empty-actions {
+    display: flex;
+    gap: var(--space-sm);
+  }
+
   .builds-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -297,32 +338,21 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+
+  .build-card:hover {
+    border-color: var(--brass);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .build-card__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-
-  .archetype-badge {
-    padding: var(--space-0-5) var(--space-sm);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-xs);
-    font-weight: var(--font-semibold);
-    text-transform: uppercase;
-  }
-
-  .archetype-badge--brawler { background: rgba(220, 53, 69, 0.2); color: var(--archetype-brawler); }
-  .archetype-badge--kite { background: rgba(40, 167, 69, 0.2); color: var(--archetype-kite); }
-  .archetype-badge--sniper { background: rgba(0, 123, 255, 0.2); color: var(--archetype-sniper); }
-  .archetype-badge--pursuit { background: rgba(255, 193, 7, 0.2); color: var(--archetype-pursuit); }
-  .archetype-badge--trade { background: rgba(108, 117, 125, 0.2); color: var(--archetype-trade); }
-  .archetype-badge--siege { background: rgba(111, 66, 193, 0.2); color: var(--archetype-siege); }
-
-  .tier-badge {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
   }
 
   .build-card__name {
@@ -355,12 +385,40 @@
 
   .build-card__score {
     font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
     color: var(--brass-light);
   }
 
-  .build-card__actions {
+  .build-card__date {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .not-found {
     display: flex;
-    gap: var(--space-xs);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-3xl);
+    min-height: 400px;
+  }
+
+  .not-found-icon {
+    font-size: 64px;
+    margin-bottom: var(--space-lg);
+    opacity: 0.6;
+  }
+
+  .not-found h2 {
+    font-family: var(--font-display);
+    color: var(--brass-light);
+    margin: 0 0 var(--space-sm);
+  }
+
+  .not-found p {
+    color: var(--text-muted);
+    margin: 0 0 var(--space-lg);
   }
 
   @media (max-width: 768px) {
@@ -375,6 +433,16 @@
 
     .actions .btn {
       flex: 1;
+      justify-content: center;
+    }
+
+    .empty-actions {
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .empty-actions .btn {
+      width: 100%;
       justify-content: center;
     }
   }

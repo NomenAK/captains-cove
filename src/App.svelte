@@ -28,6 +28,7 @@
     '/builds': Builds,
     '/builds/new': Builds,
     '/builds/:id': Builds,
+    '/builds/:id/edit': Builds,
     '/balance': Balance,
     '*': NotFound
   };
