@@ -124,8 +124,8 @@
       variant="filter"
     />
   {:else if viewMode === 'table'}
-    <div class="table-container">
-      <table class="table">
+    <div class="table-nautical">
+      <table>
         <thead>
           <tr>
             <th scope="col" class="sortable" onclick={() => handleSort('tier')}>
@@ -137,25 +137,24 @@
             <th scope="col" class="sortable" onclick={() => handleSort('type')}>
               Class{getSortIndicator('type')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('health')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('health')}>
               HP{getSortIndicator('health')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('speed')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('speed')}>
               Speed{getSortIndicator('speed')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('armor')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('armor')}>
               Armor{getSortIndicator('armor')}
             </th>
-            <th scope="col" class="sortable numeric hide-mobile" onclick={() => handleSort('capacity')}>
+            <th scope="col" class="sortable col-numeric hide-mobile" onclick={() => handleSort('capacity')}>
               Cargo{getSortIndicator('capacity')}
             </th>
-            <th scope="col" class="numeric hide-mobile">Crew</th>
+            <th scope="col" class="col-numeric hide-mobile">Crew</th>
           </tr>
         </thead>
         <tbody>
           {#each $filteredShips as ship (ship.id)}
             <tr
-              class="clickable"
               tabindex="0"
               role="button"
               aria-label="View details for {ship.name}"
@@ -165,15 +164,15 @@
               <td>
                 <Badge variant="tier" value={ship.tier} />
               </td>
-              <td class="ship-name">{ship.name}</td>
+              <td class="col-name">{ship.name}</td>
               <td>
                 <Badge variant="class" value={ship.type} />
               </td>
-              <td class="numeric">{ship.health.toLocaleString()}</td>
-              <td class="numeric">{ship.speed.toFixed(1)}</td>
-              <td class="numeric">{ship.armor.toFixed(1)}</td>
-              <td class="numeric hide-mobile">{ship.capacity.toLocaleString()}</td>
-              <td class="numeric hide-mobile muted">{ship.crewSlots}</td>
+              <td class="col-numeric">{ship.health.toLocaleString()}</td>
+              <td class="col-numeric">{ship.speed.toFixed(1)}</td>
+              <td class="col-numeric">{ship.armor.toFixed(1)}</td>
+              <td class="col-numeric hide-mobile">{ship.capacity.toLocaleString()}</td>
+              <td class="col-numeric col-muted hide-mobile">{ship.crewSlots}</td>
             </tr>
           {/each}
         </tbody>
@@ -222,80 +221,6 @@
   .filter-count {
     color: var(--text-muted);
     font-size: var(--text-sm);
-  }
-
-  /* Table styles */
-  .table-container {
-    overflow-x: auto;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--wood-grain);
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table th,
-  .table td {
-    padding: var(--space-sm) var(--space-md);
-    text-align: left;
-    border-bottom: 1px solid var(--wood-dark);
-  }
-
-  .table th {
-    background: linear-gradient(180deg, var(--wood-medium) 0%, var(--wood-dark) 100%);
-    color: var(--brass-light);
-    font-weight: var(--font-semibold);
-    text-transform: uppercase;
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-wide);
-    white-space: nowrap;
-  }
-
-  .table th.sortable {
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .table th.sortable:hover {
-    background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood-medium) 100%);
-    color: var(--gold-light);
-  }
-
-  .table tbody tr.clickable {
-    cursor: pointer;
-    transition: background var(--transition-fast);
-  }
-
-  .table tbody tr.clickable:hover {
-    background: rgba(181, 166, 66, 0.1);
-  }
-
-  .table tbody tr.clickable:focus-visible {
-    outline: none;
-    background: rgba(181, 166, 66, 0.15);
-    box-shadow: inset 0 0 0 2px var(--gold-primary);
-  }
-
-  .table td {
-    color: var(--canvas);
-  }
-
-  .numeric {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-family: var(--font-mono);
-  }
-
-  .muted {
-    color: var(--text-muted);
-  }
-
-  .ship-name {
-    font-weight: var(--font-medium);
-    color: var(--canvas);
   }
 
   /* Cards grid */
@@ -371,11 +296,5 @@
   .stat-value {
     color: var(--canvas);
     font-family: var(--font-mono);
-  }
-
-  @media (max-width: 768px) {
-    .hide-mobile {
-      display: none;
-    }
   }
 </style>

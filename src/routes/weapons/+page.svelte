@@ -119,8 +119,8 @@
       variant="filter"
     />
   {:else}
-    <div class="table-container">
-      <table class="table">
+    <div class="table-nautical">
+      <table>
         <thead>
           <tr>
             <th scope="col" class="sortable" onclick={() => handleSort('category')}>
@@ -132,25 +132,24 @@
             <th scope="col" class="sortable" onclick={() => handleSort('name')}>
               Name{getSortIndicator('name')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('penetration')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('penetration')}>
               Pen{getSortIndicator('penetration')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('distance')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('distance')}>
               Range{getSortIndicator('distance')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('cooldown')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('cooldown')}>
               Reload{getSortIndicator('cooldown')}
             </th>
-            <th scope="col" class="sortable numeric hide-mobile" onclick={() => handleSort('angle')}>
+            <th scope="col" class="sortable col-numeric hide-mobile" onclick={() => handleSort('angle')}>
               Angle{getSortIndicator('angle')}
             </th>
-            <th scope="col" class="numeric hide-mobile">DPS</th>
+            <th scope="col" class="col-numeric hide-mobile">DPS</th>
           </tr>
         </thead>
         <tbody>
           {#each $filteredWeapons as weapon (weapon.id)}
             <tr
-              class="clickable"
               tabindex="0"
               role="button"
               aria-label="View details for {weapon.name}"
@@ -163,12 +162,12 @@
               <td>
                 <Badge variant="size" value={weapon.sizeClass} />
               </td>
-              <td class="weapon-name">{weapon.name}</td>
-              <td class="numeric">{weapon.penetration.toFixed(1)}</td>
-              <td class="numeric">{weapon.distance}m</td>
-              <td class="numeric">{weapon.cooldown.toFixed(1)}s</td>
-              <td class="numeric hide-mobile">{weapon.angle}°</td>
-              <td class="numeric hide-mobile muted">
+              <td class="col-name">{weapon.name}</td>
+              <td class="col-numeric">{weapon.penetration.toFixed(1)}</td>
+              <td class="col-numeric">{weapon.distance}m</td>
+              <td class="col-numeric">{weapon.cooldown.toFixed(1)}s</td>
+              <td class="col-numeric hide-mobile">{weapon.angle}°</td>
+              <td class="col-numeric col-muted hide-mobile">
                 {weapon.cooldown > 0 ? (weapon.penetration / weapon.cooldown).toFixed(2) : '—'}
               </td>
             </tr>
@@ -228,73 +227,6 @@
     font-size: var(--text-sm);
   }
 
-  .table-container {
-    overflow-x: auto;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--wood-grain);
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table th,
-  .table td {
-    padding: var(--space-sm) var(--space-md);
-    text-align: left;
-    border-bottom: 1px solid var(--wood-dark);
-  }
-
-  .table th {
-    background: linear-gradient(180deg, var(--wood-medium) 0%, var(--wood-dark) 100%);
-    color: var(--brass-light);
-    font-weight: var(--font-semibold);
-    text-transform: uppercase;
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-wide);
-    white-space: nowrap;
-  }
-
-  .table th.sortable {
-    cursor: pointer;
-  }
-
-  .table th.sortable:hover {
-    background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood-medium) 100%);
-    color: var(--gold-light);
-  }
-
-  .table tbody tr.clickable {
-    cursor: pointer;
-    transition: background var(--transition-fast);
-  }
-
-  .table tbody tr.clickable:hover {
-    background: rgba(181, 166, 66, 0.1);
-  }
-
-  .table tbody tr.clickable:focus-visible {
-    outline: none;
-    background: rgba(181, 166, 66, 0.15);
-    box-shadow: inset 0 0 0 2px var(--gold-primary);
-  }
-
-  .numeric {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-family: var(--font-mono);
-  }
-
-  .muted {
-    color: var(--text-muted);
-  }
-
-  .weapon-name {
-    font-weight: var(--font-medium);
-  }
-
   /* Kegs Section */
   .kegs-section {
     margin-top: var(--space-md);
@@ -340,11 +272,5 @@
 
   .stat__value--damage {
     color: var(--error-light);
-  }
-
-  @media (max-width: 768px) {
-    .hide-mobile {
-      display: none;
-    }
   }
 </style>

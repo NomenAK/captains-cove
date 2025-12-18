@@ -705,6 +705,217 @@ img {
 }
 
 /* ═══════════════════════════════════════════════════ */
+/* NAUTICAL DATA TABLES - Ship's Log Styling           */
+/* ═══════════════════════════════════════════════════ */
+
+/* Parchment Table Container */
+.table-nautical {
+  overflow-x: auto;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--wood-grain);
+  position: relative;
+}
+
+/* Parchment overlay effect */
+.table-nautical::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--texture-parchment-aged);
+  opacity: 0.08;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Vignette corners for depth */
+.table-nautical::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 60%,
+    rgba(13, 9, 6, 0.15) 90%,
+    rgba(13, 9, 6, 0.3) 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Base table inside container */
+.table-nautical table {
+  width: 100%;
+  border-collapse: collapse;
+  position: relative;
+  z-index: 2;
+}
+
+.table-nautical th,
+.table-nautical td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid transparent;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--wood-dark) 10%,
+    var(--wood-dark) 90%,
+    transparent 100%
+  );
+  background-size: 100% 1px;
+  background-position: bottom;
+  background-repeat: no-repeat;
+}
+
+/* Enhanced Header Row - Captain's Log Style */
+.table-nautical th {
+  background: linear-gradient(
+    180deg,
+    var(--wood-light) 0%,
+    var(--wood-medium) 40%,
+    var(--wood-dark) 100%
+  );
+  color: var(--brass-light);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  white-space: nowrap;
+  border-bottom: 3px solid var(--brass-dark);
+  box-shadow: inset 0 -1px 0 var(--brass);
+}
+
+/* Sortable header styling */
+.table-nautical th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.table-nautical th.sortable:hover {
+  background: linear-gradient(
+    180deg,
+    var(--wood-medium) 0%,
+    var(--wood-light) 40%,
+    var(--wood-medium) 100%
+  );
+  color: var(--gold-light);
+}
+
+/* Sort indicator compass style */
+.table-nautical th.sortable::after {
+  font-size: var(--text-xs);
+  margin-left: var(--space-xs);
+  opacity: 0.7;
+}
+
+/* Lantern Glow Row Hover */
+.table-nautical tbody tr {
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+}
+
+.table-nautical tbody tr::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(212, 168, 83, 0.15) 0%,
+    rgba(212, 168, 83, 0.05) 50%,
+    transparent 80%
+  );
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.table-nautical tbody tr:hover::before {
+  opacity: 1;
+  animation: lantern-row 2s ease-in-out infinite;
+}
+
+.table-nautical tbody tr:hover {
+  background: rgba(181, 166, 66, 0.05);
+}
+
+/* Focus styling for accessibility */
+.table-nautical tbody tr:focus-visible {
+  outline: none;
+  background: rgba(181, 166, 66, 0.12);
+  box-shadow: inset 0 0 0 2px var(--gold-primary);
+}
+
+/* Ship Log Typography */
+.table-nautical td {
+  color: var(--canvas-aged);
+  position: relative;
+  z-index: 1;
+}
+
+/* Name columns - Display font with gold accent */
+.table-nautical .col-name {
+  font-family: var(--font-display);
+  font-weight: var(--font-medium);
+  color: var(--gold-primary);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* Numeric columns - Monospace for alignment */
+.table-nautical .col-numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  color: var(--canvas);
+}
+
+/* Muted/secondary data */
+.table-nautical .col-muted {
+  color: var(--text-muted);
+}
+
+/* Alternating row backgrounds (optional) */
+.table-nautical--striped tbody tr:nth-child(even) {
+  background: rgba(5, 10, 18, 0.2);
+}
+
+/* Compact variant for denser data */
+.table-nautical--compact th,
+.table-nautical--compact td {
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* Large variant for feature tables */
+.table-nautical--large th,
+.table-nautical--large td {
+  padding: var(--space-md) var(--space-lg);
+}
+
+/* Hide columns on mobile */
+@media (max-width: 767px) {
+  .table-nautical .hide-mobile {
+    display: none;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .table-nautical tbody tr::before {
+    animation: none;
+  }
+
+  .table-nautical tbody tr:hover::before {
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════ */
 /* RESPONSIVE UTILITIES                                */
 /* ═══════════════════════════════════════════════════ */
 

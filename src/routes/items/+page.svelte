@@ -131,18 +131,18 @@
       {/snippet}
     </Toolbar>
 
-    <div class="table-container">
-      <table class="table">
+    <div class="table-nautical">
+      <table>
         <thead>
           <tr>
             <th scope="col">Category</th>
             <th scope="col" class="sortable" onclick={() => handleSort('name')}>
               Name{getSortIndicator('name')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('mediumCost')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('mediumCost')}>
               Price{getSortIndicator('mediumCost')}
             </th>
-            <th scope="col" class="sortable numeric" onclick={() => handleSort('mass')}>
+            <th scope="col" class="sortable col-numeric" onclick={() => handleSort('mass')}>
               Mass{getSortIndicator('mass')}
             </th>
             <th scope="col" class="hide-mobile">Effects</th>
@@ -154,12 +154,12 @@
               <td>
                 <Badge variant="category" value={resource.category} />
               </td>
-              <td class="item-name">
+              <td class="item-name col-name">
                 <span class="item-icon">{getCategoryIcon(resource.category)}</span>
                 {resource.name}
               </td>
-              <td class="numeric">{resource.mediumCost}</td>
-              <td class="numeric">{resource.mass}</td>
+              <td class="col-numeric">{resource.mediumCost}</td>
+              <td class="col-numeric">{resource.mass}</td>
               <td class="effects hide-mobile">
                 {#if resource.isFood}
                   <span class="effect-tag effect-tag--food">Food</span>
@@ -233,63 +233,11 @@
     font-size: var(--text-sm);
   }
 
-  .table-container {
-    overflow-x: auto;
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--wood-grain);
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .table th,
-  .table td {
-    padding: var(--space-sm) var(--space-md);
-    text-align: left;
-    border-bottom: 1px solid var(--wood-dark);
-  }
-
-  .table th {
-    background: linear-gradient(180deg, var(--wood-medium) 0%, var(--wood-dark) 100%);
-    color: var(--brass-light);
-    font-weight: var(--font-semibold);
-    text-transform: uppercase;
-    font-size: var(--text-xs);
-    letter-spacing: var(--tracking-wide);
-    white-space: nowrap;
-  }
-
-  .table th.sortable {
-    cursor: pointer;
-  }
-
-  .table th.sortable:hover {
-    background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood-medium) 100%);
-    color: var(--gold-light);
-  }
-
-  .table tbody tr {
-    transition: background var(--transition-fast);
-  }
-
-  .table tbody tr:hover {
-    background: rgba(181, 166, 66, 0.1);
-  }
-
-  .numeric {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-family: var(--font-mono);
-  }
-
+  /* Item-specific table styling */
   .item-name {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    font-weight: var(--font-medium);
   }
 
   .item-icon {
@@ -354,11 +302,5 @@
   .summary-label {
     font-size: var(--text-sm);
     color: var(--text-muted);
-  }
-
-  @media (max-width: 768px) {
-    .hide-mobile {
-      display: none;
-    }
   }
 </style>
