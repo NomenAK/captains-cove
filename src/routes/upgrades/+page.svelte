@@ -1,8 +1,9 @@
 <script lang="ts">
   import type { Upgrade } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card, ImageWithFallback } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
+  import { getUpgradeIconUrl } from '$lib/utils/storage';
 
   // Categories for filtering
   const categories = ['Support', 'Protection', 'Combat', 'Speed'] as const;
@@ -131,7 +132,18 @@
         <Card variant="wood" padding="md">
           <div class="upgrade-card">
             <div class="upgrade-card__header">
-              <span class="upgrade-card__icon">{getCategoryIcon(upgrade.category)}</span>
+              <div class="upgrade-card__icon-container">
+                {#if upgrade.icon}
+                  <ImageWithFallback
+                    src={getUpgradeIconUrl(upgrade.icon)}
+                    alt={upgrade.name}
+                    fallback={getCategoryIcon(upgrade.category)}
+                    class="upgrade-card__icon-img"
+                  />
+                {:else}
+                  <span class="upgrade-card__icon">{getCategoryIcon(upgrade.category)}</span>
+                {/if}
+              </div>
               <div class="upgrade-card__info">
                 <h3 class="upgrade-card__name">{upgrade.name}</h3>
                 <Badge variant="category" value={upgrade.category} />
@@ -265,6 +277,22 @@
     display: flex;
     align-items: flex-start;
     gap: var(--space-sm);
+  }
+
+  .upgrade-card__icon-container {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upgrade-card__icon-container :global(.upgrade-card__icon-img) {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
   }
 
   .upgrade-card__icon {

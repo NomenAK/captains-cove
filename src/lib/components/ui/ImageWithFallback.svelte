@@ -1,33 +1,44 @@
 <script lang="ts">
+  import { getIconUrl } from '$lib/utils/storage';
+
   interface Props {
-    src: string;
+    src: string | null | undefined;
     alt: string;
     fallback?: string;
     class?: string;
+    useStorage?: boolean;
   }
 
   let {
     src,
     alt,
     fallback = '🚢',
-    class: className = ''
+    class: className = '',
+    useStorage = false
   }: Props = $props();
 
   let hasError = $state(false);
+
+  // Compute the actual URL to use
+  const resolvedSrc = $derived(() => {
+    if (!src) return null;
+    if (useStorage) return getIconUrl(src);
+    return src;
+  });
 
   function handleError() {
     hasError = true;
   }
 </script>
 
-{#if hasError}
+{#if hasError || !resolvedSrc()}
   <div class="image-fallback {className}">
     <span class="image-fallback__icon">{fallback}</span>
     <span class="image-fallback__text">No Image</span>
   </div>
 {:else}
   <img
-    {src}
+    src={resolvedSrc()}
     {alt}
     class={className}
     onerror={handleError}
