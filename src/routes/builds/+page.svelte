@@ -57,16 +57,24 @@
     const file = input.files?.[0];
     if (!file) return;
 
-    const text = await file.text();
-    const result = buildsStore.import(text);
+    try {
+      const text = await file.text();
+      const result = buildsStore.import(text);
 
-    if (result.errors.length > 0) {
-      toasts.warning(`Imported ${result.imported} builds with ${result.errors.length} errors`);
-    } else {
-      toasts.success(`Imported ${result.imported} builds`);
+      if (result.errors.length > 0) {
+        toasts.warning(`Imported ${result.imported} builds with ${result.errors.length} errors`);
+      } else if (result.imported > 0) {
+        toasts.success(`Imported ${result.imported} builds`);
+      } else {
+        toasts.info('No builds to import');
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error reading file';
+      toasts.error(`Failed to read file: ${message}`);
+      console.error('File import error:', err);
+    } finally {
+      input.value = '';
     }
-
-    input.value = '';
   }
 </script>
 

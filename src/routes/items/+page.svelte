@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Resource, ResourceCategory } from '$lib/data/types';
-  import { dataStore } from '$lib/stores';
-  import { Badge, Tabs } from '$lib/components/ui';
+  import { dataStore, isLoading, dataError } from '$lib/stores';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
 
   const categories: ResourceCategory[] = ['trade', 'food', 'material', 'special'];
 
@@ -78,6 +78,14 @@
     };
     return icons[category] || '\uD83D\uDCE6';
   }
+
+  // Loading state detection
+  const hasNoData = $derived($dataStore.resources.length === 0);
+  const hasNoResults = $derived(filteredResources().length === 0 && !hasNoData);
+
+  function handleRetry() {
+    dataStore.load();
+  }
 </script>
 
 <div class="page">
@@ -86,6 +94,17 @@
     <p class="page-subtitle">{$dataStore.resources.length} tradeable items and resources</p>
   </header>
 
+  {#if $dataError}
+    <ErrorState message={$dataError} onretry={handleRetry} />
+  {:else if $isLoading}
+    <LoadingState message="Loading items..." />
+  {:else if hasNoData}
+    <EmptyState
+      icon="📦"
+      title="No items available"
+      message="Resource data could not be loaded. Please try again."
+    />
+  {:else}
   <div class="category-tabs">
     <Tabs
       tabs={categoryTabs}
@@ -187,6 +206,7 @@
       </div>
     </div>
   </div>
+  {/if}
 </div>
 
 <style>

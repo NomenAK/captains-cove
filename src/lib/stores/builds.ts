@@ -10,7 +10,7 @@ import { buildFilters, buildSort } from './filters';
 // ═══════════════════════════════════════════════════
 
 const STORAGE_KEY = 'captains-cove-builds';
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2; // v2: shipId changed from string to number | null
 
 interface StoredBuilds {
   version: number;
@@ -22,17 +22,38 @@ interface StoredBuilds {
 // STORAGE HELPERS
 // ═══════════════════════════════════════════════════
 
+/**
+ * Migrate builds from older storage versions
+ * - v1 -> v2: shipId changed from string to number | null
+ */
+function migrateBuilds(builds: unknown[]): Build[] {
+  return builds.map(build => {
+    const b = build as Record<string, unknown>;
+    // Migrate string shipId to number | null
+    if (typeof b.shipId === 'string') {
+      const numericId = b.shipId === '' ? null : Number(b.shipId);
+      // Handle NaN from invalid string conversion
+      b.shipId = Number.isNaN(numericId) ? null : numericId;
+    }
+    return b as unknown as Build;
+  });
+}
+
 function loadFromStorage(): Build[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
 
     const data: StoredBuilds = JSON.parse(stored);
+
+    // Handle version mismatch with migration
     if (data.version !== STORAGE_VERSION) {
-      // Future: handle migrations
-      console.warn('Build storage version mismatch, using empty builds');
-      return [];
+      console.info('Migrating builds from version', data.version, 'to', STORAGE_VERSION);
+      const migrated = migrateBuilds(data.builds);
+      saveToStorage(migrated);
+      return migrated;
     }
+
     return data.builds;
   } catch (err) {
     console.error('Failed to load builds from storage:', err);
@@ -232,14 +253,31 @@ function validateBuild(build: unknown): build is Build {
 
   const b = build as Record<string, unknown>;
 
-  return (
-    typeof b.name === 'string' &&
-    typeof b.archetype === 'string' &&
-    typeof b.tier === 'number' &&
-    typeof b.shipId === 'string' &&
-    typeof b.weapons === 'object' &&
-    typeof b.strategy === 'string'
-  );
+  // Required string fields
+  if (typeof b.name !== 'string' || b.name.trim() === '') return false;
+  if (typeof b.archetype !== 'string') return false;
+  if (typeof b.strategy !== 'string') return false;
+
+  // Required number fields
+  if (typeof b.tier !== 'number' || b.tier < 1 || b.tier > 7) return false;
+  if (typeof b.estimatedScore !== 'number' && b.estimatedScore !== undefined) return false;
+
+  // shipId: number | null (also accept string for migration compatibility)
+  if (b.shipId !== null && typeof b.shipId !== 'number' && typeof b.shipId !== 'string') return false;
+
+  // Validate archetype is valid
+  const validArchetypes = ['brawler', 'kite', 'sniper', 'pursuit', 'trade', 'siege'];
+  if (!validArchetypes.includes(b.archetype as string)) return false;
+
+  // Weapons object validation
+  if (!b.weapons || typeof b.weapons !== 'object') return false;
+
+  // Array validations
+  if (!Array.isArray(b.upgrades)) return false;
+  if (!Array.isArray(b.strengths)) return false;
+  if (!Array.isArray(b.weaknesses)) return false;
+
+  return true;
 }
 
 export const buildsStore = createBuildsStore();
@@ -327,7 +365,7 @@ export function createEmptyBuild(archetype: Archetype = 'brawler'): Omit<Build, 
     name: 'New Build',
     archetype,
     tier: 4,
-    shipId: '',
+    shipId: null,
     weapons: {},
     ammo: {},
     upgrades: [],

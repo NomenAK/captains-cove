@@ -299,7 +299,7 @@ export interface Build {
   name: string;
   archetype: Archetype;
   tier: number;
-  shipId: string;
+  shipId: number | null;
   weapons: BuildWeapons;
   ammo: BuildAmmo;
   upgrades: string[];

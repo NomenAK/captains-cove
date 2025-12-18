@@ -1,5 +1,6 @@
 <script lang="ts">
   import { dataStore, buildsStore, createShipLookup, createWeaponLookup, createAmmoLookup, toasts } from '$lib/stores';
+  import { safeMax, safePercentage } from '$lib/utils/safe-math';
   import type { Build, Archetype, Ship, Weapon, Ammo, Upgrade } from '$lib/data/types';
   import { Badge } from '$lib/components/ui';
   import { push } from 'svelte-spa-router';
@@ -15,7 +16,7 @@
   let name = $state(build?.name || 'New Build');
   let archetype = $state<Archetype>(build?.archetype || 'brawler');
   let tier = $state(build?.tier || 4);
-  let shipId = $state(build?.shipId || '');
+  let shipId = $state<number | null>(build?.shipId ?? null);
   let broadside = $state(build?.weapons.broadside || '');
   let bow = $state(build?.weapons.bow || '');
   let stern = $state(build?.weapons.stern || '');
@@ -32,8 +33,8 @@
   const weaponLookup = $derived(createWeaponLookup($dataStore.weapons));
   const ammoLookup = $derived(createAmmoLookup($dataStore.ammo));
 
-  // Selected ship details (convert string to number for lookup)
-  const selectedShip = $derived(shipId ? shipLookup.get(Number(shipId)) || null : null);
+  // Selected ship details
+  const selectedShip = $derived(shipId !== null ? shipLookup.get(shipId) ?? null : null);
 
   // Filter ships by tier
   const availableShips = $derived(
@@ -58,7 +59,7 @@
 
   // Handle tier change - reset ship selection
   function handleTierChange() {
-    shipId = '';
+    shipId = null;
   }
 
   // Toggle upgrade selection
@@ -84,11 +85,11 @@
     };
 
     const weights = archetypeWeights[archetype];
-    const maxHp = Math.max(...$dataStore.ships.map(s => s.health));
-    const maxSpeed = Math.max(...$dataStore.ships.map(s => s.speed));
+    const maxHp = safeMax($dataStore.ships.map(s => s.health), 1);
+    const maxSpeed = safeMax($dataStore.ships.map(s => s.speed), 1);
 
-    const hpScore = (selectedShip.health / maxHp) * 100 * weights.hp;
-    const speedScore = (selectedShip.speed / maxSpeed) * 100 * weights.speed;
+    const hpScore = safePercentage(selectedShip.health, maxHp) * weights.hp;
+    const speedScore = safePercentage(selectedShip.speed, maxSpeed) * weights.speed;
     const damageScore = broadside ? 30 * weights.damage : 0;
 
     return Math.round(hpScore + speedScore + damageScore);
@@ -100,7 +101,7 @@
       toasts.warning('Please enter a build name');
       return;
     }
-    if (!shipId) {
+    if (shipId === null) {
       toasts.warning('Please select a ship');
       return;
     }
@@ -208,10 +209,17 @@
 
       <div class="form-group">
         <label for="ship">Select Ship (Tier {tier})</label>
-        <select id="ship" bind:value={shipId}>
+        <select
+          id="ship"
+          value={shipId?.toString() ?? ''}
+          onchange={(e) => {
+            const value = e.currentTarget.value;
+            shipId = value === '' ? null : Number(value);
+          }}
+        >
           <option value="">-- Select a Ship --</option>
           {#each availableShips as ship}
-            <option value={ship.id}>{ship.name} ({ship.shipClass})</option>
+            <option value={ship.id.toString()}>{ship.name} ({ship.shipClass})</option>
           {/each}
         </select>
       </div>

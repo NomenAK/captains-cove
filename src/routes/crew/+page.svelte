@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CrewUnit, CaptainSkill, SkillCategory } from '$lib/data/types';
-  import { dataStore, filteredCrews, crewFilters, pvpSkills, combatSkills } from '$lib/stores';
-  import { Badge, Tabs } from '$lib/components/ui';
+  import { dataStore, filteredCrews, crewFilters, pvpSkills, combatSkills, isLoading, dataError } from '$lib/stores';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
   import { CrewDetailModal, SkillDetailModal } from '$lib/components/crew';
 
   const crewTypes = ['Sailor', 'Boarding', 'Special'];
@@ -63,6 +63,14 @@
     skillModalOpen = false;
     selectedSkill = null;
   }
+
+  // Loading state detection
+  const hasNoData = $derived($dataStore.crews.length === 0 && $dataStore.skills.length === 0);
+  const hasNoCrewResults = $derived($filteredCrews.length === 0 && $dataStore.crews.length > 0);
+
+  function handleRetry() {
+    dataStore.load();
+  }
 </script>
 
 <div class="page">
@@ -71,6 +79,17 @@
     <p class="page-subtitle">{$dataStore.crews.length} crew units - {$dataStore.skills.length} captain skills</p>
   </header>
 
+  {#if $dataError}
+    <ErrorState message={$dataError} onretry={handleRetry} />
+  {:else if $isLoading}
+    <LoadingState message="Loading crew data..." />
+  {:else if hasNoData}
+    <EmptyState
+      icon="👥"
+      title="No crew data available"
+      message="Crew and skill data could not be loaded. Please try again."
+    />
+  {:else}
   <div class="view-tabs">
     <Tabs
       tabs={viewTabs}
@@ -201,6 +220,7 @@
         </button>
       {/each}
     </div>
+  {/if}
   {/if}
 </div>
 

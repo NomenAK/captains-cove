@@ -1,8 +1,17 @@
 <script lang="ts">
   import type { Ship } from '$lib/data/types';
-  import { dataStore, filteredShips, shipFilters, shipSort } from '$lib/stores';
-  import { Badge, Tabs } from '$lib/components/ui';
+  import { dataStore, filteredShips, shipFilters, shipSort, isLoading, dataError } from '$lib/stores';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
   import { ShipDetailModal } from '$lib/components/ships';
+
+  // Derived states for empty detection
+  const hasNoData = $derived($dataStore.ships.length === 0);
+  const hasNoResults = $derived($filteredShips.length === 0 && !hasNoData);
+
+  // Retry loading
+  function handleRetry() {
+    dataStore.load();
+  }
 
   // Ship classes and tiers for filters
   const shipClasses = ['Combat', 'Fast', 'Heavy', 'Transport', 'Siege'];
@@ -92,7 +101,24 @@
     </div>
   </div>
 
-  {#if viewMode === 'table'}
+  {#if $dataError}
+    <ErrorState message={$dataError} onretry={handleRetry} />
+  {:else if $isLoading}
+    <LoadingState message="Loading ships..." />
+  {:else if hasNoData}
+    <EmptyState
+      icon="⛵"
+      title="No ships available"
+      message="Ship data could not be loaded. Please try again."
+    />
+  {:else if hasNoResults}
+    <EmptyState
+      icon="🔍"
+      title="No ships match your filters"
+      message="Try adjusting your search criteria or clearing filters."
+      variant="filter"
+    />
+  {:else if viewMode === 'table'}
     <div class="table-container">
       <table class="table">
         <thead>
@@ -141,7 +167,7 @@
         </tbody>
       </table>
     </div>
-  {:else}
+  {:else if viewMode === 'cards'}
     <div class="cards-grid">
       {#each $filteredShips as ship (ship.id)}
         <button class="ship-card" onclick={() => openShipModal(ship)}>

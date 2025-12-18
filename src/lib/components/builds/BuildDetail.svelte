@@ -1,5 +1,6 @@
 <script lang="ts">
   import { buildsStore, dataStore, createShipLookup, createWeaponLookup, createAmmoLookup, toasts } from '$lib/stores';
+  import { safeMax } from '$lib/utils/safe-math';
   import type { Build } from '$lib/data/types';
   import { Badge } from '$lib/components/ui';
   import { StatBar } from '$lib/components/data';
@@ -16,8 +17,8 @@
   const weaponLookup = $derived(createWeaponLookup($dataStore.weapons));
   const ammoLookup = $derived(createAmmoLookup($dataStore.ammo));
 
-  // Get related data (convert string to number for lookup, use .get() for Maps)
-  const ship = $derived(build.shipId ? shipLookup.get(Number(build.shipId)) || null : null);
+  // Get related data (use .get() for Maps)
+  const ship = $derived(build.shipId !== null ? shipLookup.get(build.shipId) ?? null : null);
   const broadsideWeapon = $derived(build.weapons.broadside ? weaponLookup.get(build.weapons.broadside) || null : null);
   const bowWeapon = $derived(build.weapons.bow ? weaponLookup.get(build.weapons.bow) || null : null);
   const sternWeapon = $derived(build.weapons.stern ? weaponLookup.get(build.weapons.stern) || null : null);
@@ -32,10 +33,10 @@
       .filter(Boolean)
   );
 
-  // Stat bounds for bars
-  const maxHp = $derived(Math.max(...$dataStore.ships.map(s => s.health)));
-  const maxSpeed = $derived(Math.max(...$dataStore.ships.map(s => s.speed)));
-  const maxArmor = $derived(Math.max(...$dataStore.ships.map(s => s.armor)));
+  // Stat bounds for bars (use safe defaults to prevent -Infinity)
+  const maxHp = $derived(safeMax($dataStore.ships.map(s => s.health), 1));
+  const maxSpeed = $derived(safeMax($dataStore.ships.map(s => s.speed), 1));
+  const maxArmor = $derived(safeMax($dataStore.ships.map(s => s.armor), 1));
 
   // Format date
   function formatDate(timestamp: number): string {

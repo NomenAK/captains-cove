@@ -408,10 +408,15 @@ export function getStatBounds(ships: Ship[]): Record<string, { min: number; max:
 
   for (const stat of stats) {
     const values = ships.map(s => s[stat] as number).filter(v => v > 0);
-    bounds[stat] = {
-      min: Math.min(...values),
-      max: Math.max(...values)
-    };
+    // Handle empty arrays to prevent Infinity/-Infinity
+    if (values.length === 0) {
+      bounds[stat] = { min: 0, max: 0 };
+    } else {
+      bounds[stat] = {
+        min: Math.min(...values),
+        max: Math.max(...values)
+      };
+    }
   }
 
   return bounds;

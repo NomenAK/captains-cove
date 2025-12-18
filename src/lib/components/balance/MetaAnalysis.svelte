@@ -18,7 +18,7 @@
 
     for (const build of builds) {
       // Count ship usage
-      if (build.shipId) {
+      if (build.shipId !== null) {
         shipUsage[build.shipId] = (shipUsage[build.shipId] || 0) + 1;
       }
 

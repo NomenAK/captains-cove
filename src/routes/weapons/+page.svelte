@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Weapon } from '$lib/data/types';
-  import { dataStore, filteredWeapons, weaponFilters, weaponSort } from '$lib/stores';
-  import { Badge, Tabs } from '$lib/components/ui';
+  import { dataStore, filteredWeapons, weaponFilters, weaponSort, isLoading, dataError } from '$lib/stores';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
   import { WeaponDetailModal } from '$lib/components/weapons';
 
   const categories = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar'];
@@ -11,15 +11,24 @@
   let selectedWeapon: Weapon | null = $state(null);
   let modalOpen = $state(false);
 
+  // Derived states for empty detection
+  const hasNoData = $derived($dataStore.weapons.length === 0);
+  const hasNoResults = $derived($filteredWeapons.length === 0 && !hasNoData);
+
+  // Retry loading
+  function handleRetry() {
+    dataStore.load();
+  }
+
   // Category tabs
-  const categoryTabs = [
+  const categoryTabs = $derived([
     { id: '', label: 'All', count: $dataStore.weapons.length },
     ...categories.map(cat => ({
       id: cat,
       label: cat,
       count: $dataStore.weapons.filter(w => w.category === cat).length
     }))
-  ];
+  ]);
 
   function handleSort(field: string) {
     weaponSort.update(current => ({
@@ -82,6 +91,24 @@
     <span class="filter-count">{$filteredWeapons.length} weapons</span>
   </div>
 
+  {#if $dataError}
+    <ErrorState message={$dataError} onretry={handleRetry} />
+  {:else if $isLoading}
+    <LoadingState message="Loading weapons..." />
+  {:else if hasNoData}
+    <EmptyState
+      icon="💣"
+      title="No weapons available"
+      message="Weapon data could not be loaded. Please try again."
+    />
+  {:else if hasNoResults}
+    <EmptyState
+      icon="🔍"
+      title="No weapons match your filters"
+      message="Try adjusting your search criteria or clearing filters."
+      variant="filter"
+    />
+  {:else}
   <div class="table-container">
     <table class="table">
       <thead>
@@ -132,6 +159,7 @@
       </tbody>
     </table>
   </div>
+  {/if}
 
   <!-- Powder Kegs Section -->
   {#if $dataStore.kegs.length > 0}

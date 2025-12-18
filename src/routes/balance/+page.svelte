@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { dataStore, shipsByClass, shipsByTier } from '$lib/stores';
+  import { dataStore, shipsByClass, shipsByTier, isLoading, dataError } from '$lib/stores';
   import { ArchetypeAnalysis, TTKMatrix, MetaAnalysis } from '$lib/components/balance';
-  import { Tabs } from '$lib/components/ui';
+  import { Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
 
   // Tab state
   let activeTab = $state('overview');
@@ -42,6 +42,13 @@
   const topByCargo = $derived(
     [...$dataStore.ships].sort((a, b) => b.capacity - a.capacity).slice(0, 5)
   );
+
+  // Loading state detection
+  const hasNoData = $derived($dataStore.ships.length === 0);
+
+  function handleRetry() {
+    dataStore.load();
+  }
 </script>
 
 <div class="page">
@@ -50,6 +57,17 @@
     <p class="page-subtitle">Meta statistics, tier rankings, and combat analysis</p>
   </header>
 
+  {#if $dataError}
+    <ErrorState message={$dataError} onretry={handleRetry} />
+  {:else if $isLoading}
+    <LoadingState message="Loading balance data..." />
+  {:else if hasNoData}
+    <EmptyState
+      icon="📊"
+      title="No data available"
+      message="Ship data is required for balance analysis. Please try again."
+    />
+  {:else}
   <Tabs {tabs} {activeTab} onchange={(id) => activeTab = id} />
 
   {#if activeTab === 'overview'}
@@ -148,6 +166,7 @@
 
   {:else if activeTab === 'meta'}
     <MetaAnalysis />
+  {/if}
   {/if}
 </div>
 
