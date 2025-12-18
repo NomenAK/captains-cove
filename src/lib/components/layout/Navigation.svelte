@@ -39,7 +39,7 @@
     class="nav-backdrop"
     onclick={closeSidebar}
     aria-hidden="true"
-  />
+  ></div>
 {/if}
 
 <!-- Sidebar Navigation -->

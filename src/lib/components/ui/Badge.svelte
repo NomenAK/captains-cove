@@ -11,8 +11,8 @@
     size = 'md'
   }: Props = $props();
 
-  // Normalize value for class names
-  const normalizedValue = String(value).toLowerCase().replace(/\s+/g, '-');
+  // Normalize value for class names - use $derived for reactive updates
+  const normalizedValue = $derived(String(value).toLowerCase().replace(/\s+/g, '-'));
 </script>
 
 <span class="badge badge--{variant} badge--{variant}--{normalizedValue} badge--{size}">

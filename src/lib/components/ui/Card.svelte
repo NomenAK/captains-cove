@@ -20,14 +20,24 @@
     header,
     footer
   }: Props = $props();
+
+  // Handle keyboard activation for clickable cards
+  function handleKeydown(e: KeyboardEvent) {
+    if (onclick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      onclick(e as unknown as MouseEvent);
+    }
+  }
 </script>
 
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
   class="card card--{variant} card--padding-{padding}"
   class:card--archetype={archetype}
   class:card--clickable={onclick}
   style:--archetype-color={archetype ? `var(--archetype-${archetype})` : undefined}
   onclick={onclick}
+  onkeydown={onclick ? handleKeydown : undefined}
   role={onclick ? 'button' : undefined}
   tabindex={onclick ? 0 : undefined}
 >
