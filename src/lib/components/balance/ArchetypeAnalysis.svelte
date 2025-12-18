@@ -2,6 +2,7 @@
   import { dataStore, buildsByArchetype } from '$lib/stores';
   import { Badge } from '$lib/components/ui';
   import type { Archetype, Ship } from '$lib/data/types';
+  import { safeMax } from '$lib/utils/safe-math';
 
   // Archetype scoring weights from game data
   const archetypeWeights: Record<Archetype, {
@@ -36,11 +37,11 @@
     const ships = $dataStore.ships;
     if (ships.length === 0) return 0;
 
-    const maxHp = Math.max(...ships.map(s => s.health));
-    const maxSpeed = Math.max(...ships.map(s => s.speed));
-    const maxArmor = Math.max(...ships.map(s => s.armor));
-    const maxCargo = Math.max(...ships.map(s => s.capacity));
-    const maxCrew = Math.max(...ships.map(s => s.crewSlots));
+    const maxHp = safeMax(ships.map(s => s.health), 1);
+    const maxSpeed = safeMax(ships.map(s => s.speed), 1);
+    const maxArmor = safeMax(ships.map(s => s.armor), 1);
+    const maxCargo = safeMax(ships.map(s => s.capacity), 1);
+    const maxCrew = safeMax(ships.map(s => s.crewSlots), 1);
 
     const weights = archetypeWeights[archetype];
 

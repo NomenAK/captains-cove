@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import Router from 'svelte-spa-router';
-  import { dataStore, isLoading, dataError, showLoading, hideLoading, toasts } from '$lib/stores';
+  import { dataStore, isLoading, dataError, showLoading, hideLoading, toasts, cleanupUI } from '$lib/stores';
   import { Header, Navigation, Footer, Toast, Loading } from '$lib/components/layout';
 
   // Import routes
@@ -56,6 +56,11 @@
     // Scroll to top on route change
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // Cleanup UI event listeners on destroy to prevent memory leaks
+  onDestroy(() => {
+    cleanupUI();
+  });
 </script>
 
 <div class="app">

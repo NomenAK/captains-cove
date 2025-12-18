@@ -75,5 +75,6 @@ export {
   loadingMessage,
   showLoading,
   hideLoading,
-  registerShortcut
+  registerShortcut,
+  cleanupUI
 } from './ui';

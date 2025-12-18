@@ -80,11 +80,13 @@ export function createPersistentValue<T>(
   set: (value: T) => void;
   remove: () => void;
 } {
-  let cachedValue: T | null = null;
+  // Use symbol to track cache state - allows caching falsy values like 0, false, ''
+  const NOT_CACHED = Symbol('not-cached');
+  let cachedValue: T | typeof NOT_CACHED = NOT_CACHED;
 
   return {
     get() {
-      if (cachedValue !== null) return cachedValue;
+      if (cachedValue !== NOT_CACHED) return cachedValue;
 
       const stored = loadFromStorage<T>(key, validator);
       cachedValue = stored ?? defaultValue;
@@ -95,7 +97,7 @@ export function createPersistentValue<T>(
       saveToStorage(key, value);
     },
     remove() {
-      cachedValue = null;
+      cachedValue = NOT_CACHED;
       removeFromStorage(key);
     }
   };

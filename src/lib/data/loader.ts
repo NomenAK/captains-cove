@@ -391,6 +391,7 @@ export function getSkillsByCategory(skills: CaptainSkill[], category: SkillCateg
 // ═══════════════════════════════════════════════════
 
 export function calculateMaxStat(ships: Ship[], stat: keyof Ship): number {
+  if (ships.length === 0) return 0;
   return Math.max(...ships.map(s => {
     const value = s[stat];
     return typeof value === 'number' ? value : 0;

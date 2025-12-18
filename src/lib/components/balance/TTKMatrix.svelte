@@ -2,6 +2,7 @@
   import { dataStore } from '$lib/stores';
   import { Badge } from '$lib/components/ui';
   import type { Ship, Weapon } from '$lib/data/types';
+  import { safeMin, safeMax } from '$lib/utils/safe-math';
 
   // Combat mechanics from datamined data
   // Armor scale: 0-11.5 (Huracan max)
@@ -102,8 +103,10 @@
 
   // Get color based on TTK (lower is better/redder, higher is worse/greener for defender)
   function getTTKColor(ttk: number, allTTKs: number[]): string {
-    const min = Math.min(...allTTKs);
-    const max = Math.max(...allTTKs);
+    if (allTTKs.length === 0) return 'var(--text-muted)';
+    const min = safeMin(allTTKs, ttk);
+    const max = safeMax(allTTKs, ttk);
+    if (max === min) return 'var(--warning)'; // All same TTK
     const normalized = (ttk - min) / (max - min);
 
     // Gradient from red (fast kill) to green (slow kill)

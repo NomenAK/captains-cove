@@ -5,6 +5,7 @@
 
 import type { Ship, Archetype } from '$lib/data/types';
 import { ARCHETYPE_WEIGHTS, ARCHETYPE_INFO } from '$lib/data/constants';
+import { safeMax } from '$lib/utils/safe-math';
 
 export type { Archetype };
 export { ARCHETYPE_WEIGHTS, ARCHETYPE_INFO };
@@ -38,11 +39,11 @@ export function calculateStatMaximums(ships: Ship[]): StatMaximums {
   }
 
   return {
-    health: Math.max(...ships.map(s => s.health)),
-    speed: Math.max(...ships.map(s => s.speed)),
-    armor: Math.max(...ships.map(s => s.armor)),
-    cargo: Math.max(...ships.map(s => s.capacity)),
-    crew: Math.max(...ships.map(s => s.crewSlots))
+    health: safeMax(ships.map(s => s.health), 1),
+    speed: safeMax(ships.map(s => s.speed), 1),
+    armor: safeMax(ships.map(s => s.armor), 1),
+    cargo: safeMax(ships.map(s => s.capacity), 1),
+    crew: safeMax(ships.map(s => s.crewSlots), 1)
   };
 }
 
