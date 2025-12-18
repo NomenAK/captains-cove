@@ -211,6 +211,118 @@
   );
 
   /* ═══════════════════════════════════════════════════ */
+  /* ADVANCED NAUTICAL TEXTURES                          */
+  /* ═══════════════════════════════════════════════════ */
+
+  /* Rope Pattern - Twisted cordage effect */
+  --texture-rope: repeating-linear-gradient(
+    45deg,
+    var(--rope-dark) 0px,
+    var(--rope) 2px,
+    var(--hemp) 4px,
+    var(--rope) 6px,
+    var(--rope-dark) 8px
+  );
+
+  --texture-rope-horizontal: repeating-linear-gradient(
+    90deg,
+    var(--rope-dark) 0px,
+    var(--rope) 3px,
+    var(--hemp) 6px,
+    var(--rope) 9px,
+    var(--rope-dark) 12px
+  );
+
+  /* Canvas/Sailcloth - Woven fabric texture */
+  --texture-canvas:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    ),
+    var(--canvas);
+
+  /* Parchment Aged - With weathered spots */
+  --texture-parchment-aged:
+    radial-gradient(ellipse at 20% 30%, rgba(139, 115, 85, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(139, 115, 85, 0.1) 0%, transparent 40%),
+    radial-gradient(ellipse at 60% 70%, rgba(139, 115, 85, 0.12) 0%, transparent 45%),
+    radial-gradient(ellipse at 10% 80%, rgba(139, 115, 85, 0.08) 0%, transparent 35%),
+    var(--texture-parchment);
+
+  /* Water Ripple Effect - Concentric waves */
+  --texture-water-ripple:
+    radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(74, 124, 140, 0.1) 31%, transparent 32%),
+    radial-gradient(ellipse at center, transparent 0%, transparent 50%, rgba(74, 124, 140, 0.08) 51%, transparent 52%),
+    radial-gradient(ellipse at center, transparent 0%, transparent 70%, rgba(74, 124, 140, 0.05) 71%, transparent 72%);
+
+  /* Fog/Mist Overlay - Atmospheric */
+  --texture-fog: linear-gradient(
+    180deg,
+    rgba(74, 124, 140, 0.15) 0%,
+    rgba(44, 62, 80, 0.08) 30%,
+    transparent 60%,
+    rgba(44, 62, 80, 0.05) 100%
+  );
+
+  --texture-mist: radial-gradient(
+    ellipse at 50% 0%,
+    rgba(180, 200, 205, 0.12) 0%,
+    rgba(180, 200, 205, 0.06) 40%,
+    transparent 70%
+  );
+
+  /* Metallic Brass Polish - Enhanced shine */
+  --texture-brass-polished: linear-gradient(
+    135deg,
+    var(--brass-dark) 0%,
+    var(--brass) 20%,
+    var(--brass-polish) 35%,
+    var(--brass-light) 50%,
+    var(--brass-polish) 65%,
+    var(--brass) 80%,
+    var(--brass-dark) 100%
+  );
+
+  /* Metallic Brass Tarnished - Weathered version */
+  --texture-brass-tarnished: linear-gradient(
+    135deg,
+    var(--brass-tarnished) 0%,
+    var(--brass-dark) 30%,
+    var(--brass) 50%,
+    var(--brass-dark) 70%,
+    var(--brass-tarnished) 100%
+  );
+
+  /* Lantern Glow Gradient - Warm light source */
+  --texture-lantern-glow: radial-gradient(
+    ellipse at center,
+    rgba(240, 215, 140, 0.4) 0%,
+    rgba(212, 168, 83, 0.2) 30%,
+    rgba(166, 124, 61, 0.1) 60%,
+    transparent 100%
+  );
+
+  /* Ocean Depth Gradient - Parallax-ready */
+  --texture-ocean-depth: linear-gradient(
+    180deg,
+    var(--ocean-abyss) 0%,
+    var(--ocean-deep) 20%,
+    var(--ocean-dark) 40%,
+    var(--ocean-surface) 70%,
+    var(--ocean-foam) 100%
+  );
+
+  /* ═══════════════════════════════════════════════════ */
   /* SHADOWS & GLOWS                                     */
   /* ═══════════════════════════════════════════════════ */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
