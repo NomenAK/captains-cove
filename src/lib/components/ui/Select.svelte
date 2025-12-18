@@ -52,6 +52,9 @@
       {required}
       bind:value
       class="select"
+      aria-required={required ? 'true' : undefined}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={error ? `${selectId}-error` : undefined}
       onchange={onchange}
     >
       {#if placeholder}
@@ -67,7 +70,7 @@
   </div>
 
   {#if error}
-    <span class="select-error">{error}</span>
+    <span id="{selectId}-error" class="select-error" role="alert">{error}</span>
   {/if}
 </div>
 

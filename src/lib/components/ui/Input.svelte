@@ -64,13 +64,16 @@
       bind:value
       class="input"
       class:input--has-icon={type === 'search'}
+      aria-required={required ? 'true' : undefined}
+      aria-invalid={error ? 'true' : undefined}
+      aria-describedby={error ? `${inputId}-error` : undefined}
       oninput={oninput}
       onchange={onchange}
     />
   </div>
 
   {#if error}
-    <span class="input-error">{error}</span>
+    <span id="{inputId}-error" class="input-error" role="alert">{error}</span>
   {/if}
 </div>
 

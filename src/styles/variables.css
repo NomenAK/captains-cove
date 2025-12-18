@@ -64,7 +64,7 @@
   /* Text Aliases */
   --text-primary: var(--canvas);
   --text-secondary: var(--canvas-aged);
-  --text-muted: #9fb0b5;
+  --text-muted: #b8c8cd; /* Improved contrast for WCAG AA compliance */
   --text-link: var(--brass-light);
 
   /* ═══════════════════════════════════════════════════ */

@@ -29,17 +29,16 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <!-- Backdrop -->
 {#if $sidebarOpen}
+  <!-- Backdrop is purely visual overlay - not interactive for keyboard users -->
+  <!-- Keyboard users can use Escape key (handled by window listener) -->
   <div
     class="nav-backdrop"
-    on:click={closeSidebar}
-    on:keydown={(e) => e.key === 'Enter' && closeSidebar()}
-    role="button"
-    tabindex="-1"
-    aria-label="Close navigation"
+    onclick={closeSidebar}
+    aria-hidden="true"
   />
 {/if}
 
@@ -60,7 +59,7 @@
         <a
           href={item.href}
           class="nav__link"
-          on:click={handleNavClick}
+          onclick={handleNavClick}
         >
           <span class="nav__icon">{item.icon}</span>
           <span class="nav__label">{item.label}</span>
@@ -71,11 +70,11 @@
 
   <div class="nav__footer">
     <div class="nav__divider"></div>
-    <a href="#/settings" class="nav__link nav__link--secondary" on:click={handleNavClick}>
+    <a href="#/settings" class="nav__link nav__link--secondary" onclick={handleNavClick}>
       <span class="nav__icon">⚙️</span>
       <span class="nav__label">Settings</span>
     </a>
-    <a href="#/about" class="nav__link nav__link--secondary" on:click={handleNavClick}>
+    <a href="#/about" class="nav__link nav__link--secondary" onclick={handleNavClick}>
       <span class="nav__icon">ℹ️</span>
       <span class="nav__label">About</span>
     </a>

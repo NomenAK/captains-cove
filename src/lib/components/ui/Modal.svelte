@@ -21,6 +21,7 @@
   }: Props = $props();
 
   let dialog: HTMLDialogElement;
+  const modalId = `modal-${Math.random().toString(36).slice(2)}`;
 
   function handleBackdropClick(e: MouseEvent) {
     if (e.target === dialog) {
@@ -31,6 +32,26 @@
   function handleKeydown(e: KeyboardEvent) {
     if (e.key === 'Escape') {
       onclose?.();
+      return;
+    }
+
+    // Focus trap - keep focus within modal
+    if (e.key === 'Tab') {
+      const focusableElements = dialog?.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusableElements || focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (e.shiftKey && document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      } else if (!e.shiftKey && document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
     }
   }
 
@@ -38,6 +59,14 @@
     if (open) {
       dialog?.showModal();
       document.body.style.overflow = 'hidden';
+      // Focus first focusable element or close button
+      requestAnimationFrame(() => {
+        const closeBtn = dialog?.querySelector<HTMLElement>('.modal__close');
+        const firstFocusable = dialog?.querySelector<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        (closeBtn || firstFocusable)?.focus();
+      });
     } else {
       dialog?.close();
       document.body.style.overflow = '';
@@ -56,6 +85,8 @@
   class="modal modal--{size}"
   onclick={handleBackdropClick}
   onkeydown={handleKeydown}
+  aria-modal="true"
+  aria-labelledby={title ? `${modalId}-title` : undefined}
 >
   <div class="modal__container">
     <div class="modal__corner modal__corner--tl"></div>
@@ -66,7 +97,7 @@
     {#if title || onclose}
       <header class="modal__header">
         {#if title}
-          <h2 class="modal__title">{title}</h2>
+          <h2 id="{modalId}-title" class="modal__title">{title}</h2>
         {/if}
         {#if onclose}
           <button
