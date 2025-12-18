@@ -135,11 +135,16 @@
 
   --error: #da3633;
   --error-light: #f87171;
+  --error-dark: #b91c1c;
   --error-bg: rgba(218, 54, 51, 0.15);
 
   --info: #1f6feb;
   --info-light: #60a5fa;
+  --info-dark: #1e40af;
   --info-bg: rgba(31, 111, 235, 0.15);
+
+  --success-dark: #166534;
+  --warning-dark: #a16207;
 
   /* ═══════════════════════════════════════════════════ */
   /* TEXTURE GRADIENTS                                   */
@@ -229,6 +234,7 @@
   --glow-success: 0 0 15px rgba(34, 197, 94, 0.4);
   --glow-error: 0 0 15px rgba(239, 68, 68, 0.4);
   --glow-warning: 0 0 15px rgba(234, 179, 8, 0.4);
+  --glow-subtle: 0 0 8px rgba(212, 168, 83, 0.15);
 
   /* Text Shadows */
   --text-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -283,6 +289,7 @@
   --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Font Sizes (1.25 scale) */
+  --text-2xs: 0.56rem;
   --text-xs: 0.64rem;
   --text-sm: 0.8rem;
   --text-base: 1rem;
@@ -339,9 +346,24 @@
 
   --transition-fast: var(--duration-fast) var(--ease-out);
   --transition-base: var(--duration-base) var(--ease-out);
+  --transition-normal: var(--duration-base) ease;
   --transition-slow: var(--duration-slow) var(--ease-out);
   --transition-ship: var(--duration-slow) var(--ease-ship);
   --transition-wave: var(--duration-wave) var(--ease-in-out);
+
+  /* Focus Ring Standardization */
+  --focus-ring-color: rgba(212, 168, 83, 0.3);
+  --focus-ring-shadow: 0 0 0 3px var(--focus-ring-color);
+
+  /* Icon Sizes */
+  --icon-xs: 12px;
+  --icon-sm: 16px;
+  --icon-md: 24px;
+  --icon-lg: 32px;
+
+  /* Corner Decoration Sizes */
+  --corner-size-sm: 24px;
+  --corner-size-md: 32px;
 
   /* ═══════════════════════════════════════════════════ */
   /* Z-INDEX SCALE                                       */
@@ -393,4 +415,13 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-emboss: inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+
+  /* Glow adjustments for light theme */
+  --glow-gold: 0 0 10px rgba(180, 140, 60, 0.3);
+  --glow-subtle: 0 0 8px rgba(0, 0, 0, 0.1);
+
+  /* Focus ring for light theme */
+  --focus-ring-color: rgba(180, 140, 60, 0.4);
 }

@@ -110,38 +110,38 @@
     transition: width var(--transition-normal);
   }
 
-  /* Variant colors */
+  /* Variant colors - using CSS variables for consistency */
   .stat-bar--default .stat-bar__fill {
     background: linear-gradient(90deg, var(--brass) 0%, var(--gold-primary) 100%);
   }
 
   .stat-bar--hp .stat-bar__fill {
-    background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+    background: linear-gradient(90deg, var(--stat-hp) 0%, var(--error-light) 100%);
     box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
   }
 
   .stat-bar--speed .stat-bar__fill {
-    background: linear-gradient(90deg, #059669 0%, #10b981 50%, #34d399 100%);
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    background: linear-gradient(90deg, var(--stat-speed) 0%, var(--success-light) 100%);
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
   }
 
   .stat-bar--armor .stat-bar__fill {
-    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+    background: linear-gradient(90deg, var(--stat-armor) 0%, var(--stat-range) 100%);
     box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
   }
 
   .stat-bar--cargo .stat-bar__fill {
-    background: linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);
+    background: linear-gradient(90deg, var(--stat-cargo) 0%, var(--warning-light) 100%);
     box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
   }
 
   .stat-bar--damage .stat-bar__fill {
-    background: linear-gradient(90deg, #dc2626 0%, #ea580c 50%, #f97316 100%);
+    background: linear-gradient(90deg, var(--stat-hp) 0%, var(--stat-damage) 100%);
     box-shadow: 0 0 8px rgba(234, 88, 12, 0.4);
   }
 
   .stat-bar--range .stat-bar__fill {
-    background: linear-gradient(90deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+    background: linear-gradient(90deg, var(--stat-crew) 0%, var(--stat-accuracy) 100%);
     box-shadow: 0 0 8px rgba(14, 165, 233, 0.4);
   }
 

@@ -51,13 +51,13 @@
     font-family: var(--font-display);
   }
 
-  .badge--tier--1 { background: rgba(212, 168, 83, 0.3); color: var(--gold-primary); border: 1px solid var(--gold-dark); }
-  .badge--tier--2 { background: rgba(192, 192, 192, 0.2); color: #c0c0c0; }
-  .badge--tier--3 { background: rgba(205, 127, 50, 0.2); color: #cd7f32; }
-  .badge--tier--4 { background: rgba(100, 149, 237, 0.2); color: #6495ed; }
-  .badge--tier--5 { background: rgba(144, 238, 144, 0.2); color: #90ee90; }
-  .badge--tier--6 { background: rgba(148, 163, 184, 0.2); color: var(--text-muted); }
-  .badge--tier--7 { background: rgba(107, 114, 128, 0.2); color: #6b7280; }
+  .badge--tier--1 { background: rgba(255, 215, 0, 0.2); color: var(--tier-1); border: 1px solid var(--gold-dark); }
+  .badge--tier--2 { background: rgba(192, 192, 192, 0.2); color: var(--tier-2); }
+  .badge--tier--3 { background: rgba(205, 127, 50, 0.2); color: var(--tier-3); }
+  .badge--tier--4 { background: rgba(74, 222, 128, 0.2); color: var(--tier-4); }
+  .badge--tier--5 { background: rgba(96, 165, 250, 0.2); color: var(--tier-5); }
+  .badge--tier--6 { background: rgba(167, 139, 250, 0.2); color: var(--tier-6); }
+  .badge--tier--7 { background: rgba(244, 114, 182, 0.2); color: var(--tier-7); }
 
   /* Class/Type badges */
   .badge--class--combat { background: rgba(59, 130, 246, 0.2); color: var(--class-combat); }
