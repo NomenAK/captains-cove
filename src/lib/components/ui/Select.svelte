@@ -66,7 +66,7 @@
         </option>
       {/each}
     </select>
-    <span class="select-arrow">▼</span>
+    <span class="select-arrow" aria-hidden="true">▼</span>
   </div>
 
   {#if error}

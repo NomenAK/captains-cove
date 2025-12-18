@@ -89,10 +89,10 @@
   aria-labelledby={title ? `${modalId}-title` : undefined}
 >
   <div class="modal__container">
-    <div class="modal__corner modal__corner--tl"></div>
-    <div class="modal__corner modal__corner--tr"></div>
-    <div class="modal__corner modal__corner--bl"></div>
-    <div class="modal__corner modal__corner--br"></div>
+    <div class="modal__corner modal__corner--tl" aria-hidden="true"></div>
+    <div class="modal__corner modal__corner--tr" aria-hidden="true"></div>
+    <div class="modal__corner modal__corner--bl" aria-hidden="true"></div>
+    <div class="modal__corner modal__corner--br" aria-hidden="true"></div>
 
     {#if title || onclose}
       <header class="modal__header">

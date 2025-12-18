@@ -105,13 +105,17 @@
               onclick={() => onrowclick?.(row)}
               onkeydown={(e) => e.key === 'Enter' && onrowclick?.(row)}
               tabindex={onrowclick ? 0 : undefined}
-              role={onrowclick ? 'button' : undefined}
             >
-              {#each columns as column (column.key)}
+              {#each columns as column, colIndex (column.key)}
                 <td
                   class:numeric={column.numeric}
                   class:hide-mobile={column.hideOnMobile}
                 >
+                  {#if colIndex === 0 && onrowclick}
+                    <button class="sr-only" onclick={() => onrowclick?.(row)}>
+                      View details
+                    </button>
+                  {/if}
                   {#if column.render}
                     {@render column.render(row)}
                   {:else}

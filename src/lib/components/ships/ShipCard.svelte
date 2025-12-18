@@ -74,11 +74,13 @@
 
   <div class="ship-card__footer">
     <span class="ship-card__capacity">
-      <span class="capacity-icon">📦</span>
+      <span class="capacity-icon" aria-hidden="true">📦</span>
+      <span class="sr-only">Cargo capacity:</span>
       {ship.capacity.toLocaleString()}
     </span>
     <span class="ship-card__crew">
-      <span class="crew-icon">👥</span>
+      <span class="crew-icon" aria-hidden="true">👥</span>
+      <span class="sr-only">Crew slots:</span>
       {ship.crewSlots}
     </span>
   </div>
