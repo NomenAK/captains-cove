@@ -11,10 +11,85 @@
   // Active link detection
   const currentPath = $derived($location);
 
+  // Dropdown state
+  let openDropdown = $state<string | null>(null);
+  let dropdownTimeout: ReturnType<typeof setTimeout> | null = null;
+
   function isActive(href: string): boolean {
     const path = href.replace('#', '');
     return currentPath === path || currentPath.startsWith(path + '/');
   }
+
+  function isDropdownActive(paths: string[]): boolean {
+    return paths.some(path => isActive(path));
+  }
+
+  function handleDropdownEnter(name: string) {
+    if (dropdownTimeout) clearTimeout(dropdownTimeout);
+    openDropdown = name;
+  }
+
+  function handleDropdownLeave() {
+    dropdownTimeout = setTimeout(() => {
+      openDropdown = null;
+    }, 150);
+  }
+
+  function handleDropdownClick(name: string) {
+    openDropdown = openDropdown === name ? null : name;
+  }
+
+  // Navigation structure with dropdowns
+  interface NavLink {
+    href: string;
+    label: string;
+  }
+
+  interface NavDropdown {
+    label: string;
+    id: string;
+    items: NavLink[];
+  }
+
+  type NavItem = NavLink | NavDropdown;
+
+  function isDropdown(item: NavItem): item is NavDropdown {
+    return 'items' in item;
+  }
+
+  const navItems: NavItem[] = [
+    { href: '#/ships', label: 'Ships' },
+    { href: '#/weapons', label: 'Weapons' },
+    { href: '#/crew', label: 'Crew' },
+    {
+      label: 'Equipment',
+      id: 'equipment',
+      items: [
+        { href: '#/upgrades', label: 'Upgrades' },
+        { href: '#/swivels', label: 'Swivels' },
+        { href: '#/design', label: 'Cosmetics' }
+      ]
+    },
+    {
+      label: 'Items',
+      id: 'items',
+      items: [
+        { href: '#/consumables', label: 'Consumables' },
+        { href: '#/items', label: 'Resources' }
+      ]
+    },
+    {
+      label: 'World',
+      id: 'world',
+      items: [
+        { href: '#/ports', label: 'Ports' },
+        { href: '#/progression', label: 'Progression' },
+        { href: '#/arena', label: 'Arena' }
+      ]
+    },
+    { href: '#/builds', label: 'Builds' },
+    { href: '#/balance', label: 'Balance' }
+  ];
 </script>
 
 <header class="header">
@@ -40,14 +115,51 @@
 
   <div class="header__center">
     <nav class="header__nav" aria-label="Main navigation">
-      <a href="#/ships" class="header__link" class:header__link--active={isActive('#/ships')} aria-current={isActive('#/ships') ? 'page' : undefined}>Ships</a>
-      <a href="#/weapons" class="header__link" class:header__link--active={isActive('#/weapons')} aria-current={isActive('#/weapons') ? 'page' : undefined}>Weapons</a>
-      <a href="#/crew" class="header__link" class:header__link--active={isActive('#/crew')} aria-current={isActive('#/crew') ? 'page' : undefined}>Crew</a>
-      <a href="#/consumables" class="header__link" class:header__link--active={isActive('#/consumables')} aria-current={isActive('#/consumables') ? 'page' : undefined}>Consumables</a>
-      <a href="#/items" class="header__link" class:header__link--active={isActive('#/items')} aria-current={isActive('#/items') ? 'page' : undefined}>Items</a>
-      <a href="#/design" class="header__link" class:header__link--active={isActive('#/design')} aria-current={isActive('#/design') ? 'page' : undefined}>Design</a>
-      <a href="#/builds" class="header__link" class:header__link--active={isActive('#/builds')} aria-current={isActive('#/builds') ? 'page' : undefined}>Builds</a>
-      <a href="#/balance" class="header__link" class:header__link--active={isActive('#/balance')} aria-current={isActive('#/balance') ? 'page' : undefined}>Balance</a>
+      {#each navItems as item}
+        {#if isDropdown(item)}
+          <div
+            class="header__dropdown"
+            role="navigation"
+            onmouseenter={() => handleDropdownEnter(item.id)}
+            onmouseleave={handleDropdownLeave}
+          >
+            <button
+              class="header__link header__dropdown-trigger"
+              class:header__link--active={isDropdownActive(item.items.map(i => i.href))}
+              onclick={() => handleDropdownClick(item.id)}
+              aria-expanded={openDropdown === item.id}
+              aria-haspopup="true"
+            >
+              {item.label}
+              <span class="header__dropdown-arrow" class:open={openDropdown === item.id}>▾</span>
+            </button>
+            {#if openDropdown === item.id}
+              <div class="header__dropdown-menu">
+                {#each item.items as subItem}
+                  <a
+                    href={subItem.href}
+                    class="header__dropdown-item"
+                    class:header__dropdown-item--active={isActive(subItem.href)}
+                    aria-current={isActive(subItem.href) ? 'page' : undefined}
+                    onclick={() => { openDropdown = null; }}
+                  >
+                    {subItem.label}
+                  </a>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {:else}
+          <a
+            href={item.href}
+            class="header__link"
+            class:header__link--active={isActive(item.href)}
+            aria-current={isActive(item.href) ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        {/if}
+      {/each}
     </nav>
   </div>
 
@@ -213,6 +325,78 @@
 
   .header__link--active::after {
     width: 80%;
+  }
+
+  /* Dropdown styles */
+  .header__dropdown {
+    position: relative;
+  }
+
+  .header__dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .header__dropdown-arrow {
+    font-size: var(--text-xs);
+    transition: transform var(--transition-fast);
+  }
+
+  .header__dropdown-arrow.open {
+    transform: rotate(180deg);
+  }
+
+  .header__dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: var(--space-sm);
+    background: var(--texture-wood);
+    border: 2px solid var(--brass-dark);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    min-width: 160px;
+    z-index: var(--z-dropdown);
+    padding: var(--space-xs) 0;
+    animation: dropdown-fade 0.15s ease-out;
+  }
+
+  .header__dropdown-item {
+    display: block;
+    padding: var(--space-sm) var(--space-md);
+    color: var(--canvas-aged);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  .header__dropdown-item:hover {
+    background: var(--bg-hover);
+    color: var(--gold-light);
+  }
+
+  .header__dropdown-item--active {
+    color: var(--gold-light);
+    background: var(--bg-hover);
+  }
+
+  @keyframes dropdown-fade {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 
   .header__right {
