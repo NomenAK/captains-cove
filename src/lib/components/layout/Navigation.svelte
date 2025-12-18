@@ -1,5 +1,6 @@
 <script lang="ts">
   import { sidebarOpen, closeSidebar } from '$lib/stores';
+  import { location } from 'svelte-spa-router';
 
   interface NavItem {
     href: string;
@@ -17,6 +18,14 @@
     { href: '#/builds', label: 'Builds', icon: '⚙️' },
     { href: '#/balance', label: 'Balance', icon: '⚖️' }
   ];
+
+  // Active link detection
+  const currentPath = $derived($location);
+
+  function isActive(href: string): boolean {
+    const path = href.replace('#', '');
+    return currentPath === path || currentPath.startsWith(path + '/');
+  }
 
   function handleNavClick() {
     closeSidebar();
@@ -59,6 +68,7 @@
         <a
           href={item.href}
           class="nav__link"
+          class:nav__link--active={isActive(item.href)}
           onclick={handleNavClick}
         >
           <span class="nav__icon">{item.icon}</span>
@@ -67,18 +77,6 @@
       </li>
     {/each}
   </ul>
-
-  <div class="nav__footer">
-    <div class="nav__divider"></div>
-    <a href="#/settings" class="nav__link nav__link--secondary" onclick={handleNavClick}>
-      <span class="nav__icon">⚙️</span>
-      <span class="nav__label">Settings</span>
-    </a>
-    <a href="#/about" class="nav__link nav__link--secondary" onclick={handleNavClick}>
-      <span class="nav__icon">ℹ️</span>
-      <span class="nav__label">About</span>
-    </a>
-  </div>
 </nav>
 
 <style>
@@ -164,14 +162,10 @@
     border-left-color: var(--gold-primary);
   }
 
-  .nav__link--secondary {
-    font-size: var(--text-sm);
-    color: var(--text-muted);
-  }
-
-  .nav__link--secondary:hover {
-    color: var(--canvas);
-    border-left-color: var(--brass);
+  .nav__link--active {
+    background: var(--bg-hover);
+    color: var(--gold-light);
+    border-left-color: var(--gold-primary);
   }
 
   .nav__icon {
@@ -182,22 +176,6 @@
 
   .nav__label {
     flex: 1;
-  }
-
-  .nav__footer {
-    padding: var(--space-md) 0;
-    margin-top: auto;
-  }
-
-  .nav__divider {
-    height: 2px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      var(--wood-grain),
-      transparent
-    );
-    margin: var(--space-md) var(--space-lg);
   }
 
   @media (min-width: 768px) {

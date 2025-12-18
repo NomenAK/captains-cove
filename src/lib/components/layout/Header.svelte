@@ -1,7 +1,20 @@
 <script lang="ts">
   import { sidebarOpen, toggleSidebar, theme, toggleTheme } from '$lib/stores';
+  import { location } from 'svelte-spa-router';
 
-  export let title = "Captain's Cove";
+  interface Props {
+    title?: string;
+  }
+
+  let { title = "Captain's Cove" }: Props = $props();
+
+  // Active link detection
+  const currentPath = $derived($location);
+
+  function isActive(href: string): boolean {
+    const path = href.replace('#', '');
+    return currentPath === path || currentPath.startsWith(path + '/');
+  }
 </script>
 
 <header class="header">
@@ -27,11 +40,14 @@
 
   <div class="header__center">
     <nav class="header__nav" aria-label="Main navigation">
-      <a href="#/ships" class="header__link">Ships</a>
-      <a href="#/weapons" class="header__link">Weapons</a>
-      <a href="#/crew" class="header__link">Crew</a>
-      <a href="#/builds" class="header__link">Builds</a>
-      <a href="#/balance" class="header__link">Balance</a>
+      <a href="#/ships" class="header__link" class:header__link--active={isActive('#/ships')}>Ships</a>
+      <a href="#/weapons" class="header__link" class:header__link--active={isActive('#/weapons')}>Weapons</a>
+      <a href="#/crew" class="header__link" class:header__link--active={isActive('#/crew')}>Crew</a>
+      <a href="#/consumables" class="header__link" class:header__link--active={isActive('#/consumables')}>Consumables</a>
+      <a href="#/items" class="header__link" class:header__link--active={isActive('#/items')}>Items</a>
+      <a href="#/design" class="header__link" class:header__link--active={isActive('#/design')}>Design</a>
+      <a href="#/builds" class="header__link" class:header__link--active={isActive('#/builds')}>Builds</a>
+      <a href="#/balance" class="header__link" class:header__link--active={isActive('#/balance')}>Balance</a>
     </nav>
   </div>
 
@@ -179,6 +195,15 @@
     width: 80%;
   }
 
+  .header__link--active {
+    color: var(--gold-light);
+    text-shadow: var(--text-shadow-gold);
+  }
+
+  .header__link--active::after {
+    width: 80%;
+  }
+
   .header__right {
     display: flex;
     align-items: center;
@@ -208,14 +233,25 @@
     box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.3);
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: 1200px) {
     .header__nav {
       gap: var(--space-md);
     }
 
     .header__link {
       font-size: var(--text-xs);
-      padding: var(--space-xs) var(--space-sm);
+      padding: var(--space-sm) var(--space-sm);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .header__nav {
+      gap: var(--space-sm);
+    }
+
+    .header__link {
+      font-size: var(--text-xs);
+      padding: var(--space-xs) var(--space-xs);
     }
   }
 
