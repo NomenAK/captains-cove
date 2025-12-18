@@ -40,14 +40,14 @@
 
   <div class="header__center">
     <nav class="header__nav" aria-label="Main navigation">
-      <a href="#/ships" class="header__link" class:header__link--active={isActive('#/ships')}>Ships</a>
-      <a href="#/weapons" class="header__link" class:header__link--active={isActive('#/weapons')}>Weapons</a>
-      <a href="#/crew" class="header__link" class:header__link--active={isActive('#/crew')}>Crew</a>
-      <a href="#/consumables" class="header__link" class:header__link--active={isActive('#/consumables')}>Consumables</a>
-      <a href="#/items" class="header__link" class:header__link--active={isActive('#/items')}>Items</a>
-      <a href="#/design" class="header__link" class:header__link--active={isActive('#/design')}>Design</a>
-      <a href="#/builds" class="header__link" class:header__link--active={isActive('#/builds')}>Builds</a>
-      <a href="#/balance" class="header__link" class:header__link--active={isActive('#/balance')}>Balance</a>
+      <a href="#/ships" class="header__link" class:header__link--active={isActive('#/ships')} aria-current={isActive('#/ships') ? 'page' : undefined}>Ships</a>
+      <a href="#/weapons" class="header__link" class:header__link--active={isActive('#/weapons')} aria-current={isActive('#/weapons') ? 'page' : undefined}>Weapons</a>
+      <a href="#/crew" class="header__link" class:header__link--active={isActive('#/crew')} aria-current={isActive('#/crew') ? 'page' : undefined}>Crew</a>
+      <a href="#/consumables" class="header__link" class:header__link--active={isActive('#/consumables')} aria-current={isActive('#/consumables') ? 'page' : undefined}>Consumables</a>
+      <a href="#/items" class="header__link" class:header__link--active={isActive('#/items')} aria-current={isActive('#/items') ? 'page' : undefined}>Items</a>
+      <a href="#/design" class="header__link" class:header__link--active={isActive('#/design')} aria-current={isActive('#/design') ? 'page' : undefined}>Design</a>
+      <a href="#/builds" class="header__link" class:header__link--active={isActive('#/builds')} aria-current={isActive('#/builds') ? 'page' : undefined}>Builds</a>
+      <a href="#/balance" class="header__link" class:header__link--active={isActive('#/balance')} aria-current={isActive('#/balance') ? 'page' : undefined}>Balance</a>
     </nav>
   </div>
 
@@ -192,6 +192,17 @@
   }
 
   .header__link:hover::after {
+    width: 80%;
+  }
+
+  .header__link:focus-visible {
+    outline: none;
+    color: var(--gold-light);
+    text-shadow: var(--text-shadow-gold);
+    background: var(--bg-hover);
+  }
+
+  .header__link:focus-visible::after {
     width: 80%;
   }
 

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Weapon } from '$lib/data/types';
   import { dataStore, filteredWeapons, weaponFilters, weaponSort, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { WeaponDetailModal } from '$lib/components/weapons';
   import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
@@ -52,12 +52,19 @@
     modalOpen = false;
     selectedWeapon = null;
   }
+
+  function handleRowKeydown(event: KeyboardEvent, weapon: Weapon) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openWeaponModal(weapon);
+    }
+  }
 </script>
 
-<div class="page">
+<Stack direction="vertical" gap="lg">
   <PageHeader
-    title="💣 Weapons"
-    subtitle="{$dataStore.weapons.length} cannons • {$dataStore.kegs.length} powder kegs"
+    title="Weapons"
+    subtitle="{$dataStore.weapons.length} cannons - {$dataStore.kegs.length} powder kegs"
   />
 
   <div class="category-tabs">
@@ -68,29 +75,31 @@
     />
   </div>
 
-  <div class="filters">
-    <div class="filter-group">
-      <label for="size-filter">Size</label>
-      <select id="size-filter" bind:value={$weaponFilters.size}>
-        <option value="">All Sizes</option>
-        {#each sizes as size}
-          <option value={size}>{size}</option>
-        {/each}
-      </select>
-    </div>
+  <Toolbar>
+    {#snippet children()}
+      <FilterGroup label="Size" for="size-filter">
+        <select id="size-filter" bind:value={$weaponFilters.size}>
+          <option value="">All Sizes</option>
+          {#each sizes as size}
+            <option value={size}>{size}</option>
+          {/each}
+        </select>
+      </FilterGroup>
 
-    <div class="filter-group filter-group--search">
-      <label for="search">Search</label>
-      <input
-        id="search"
-        type="text"
-        placeholder="Search weapons..."
-        bind:value={$weaponFilters.search}
-      />
-    </div>
+      <FilterGroup label="Search" for="search" grow minWidth="200px">
+        <input
+          id="search"
+          type="text"
+          placeholder="Search weapons..."
+          bind:value={$weaponFilters.search}
+        />
+      </FilterGroup>
+    {/snippet}
 
-    <span class="filter-count">{$filteredWeapons.length} weapons</span>
-  </div>
+    {#snippet actions()}
+      <span class="filter-count">{$filteredWeapons.length} weapons</span>
+    {/snippet}
+  </Toolbar>
 
   {#if $dataError}
     <ErrorState message={$dataError} onretry={handleRetry} />
@@ -110,65 +119,72 @@
       variant="filter"
     />
   {:else}
-  <div class="table-container">
-    <table class="table">
-      <thead>
-        <tr>
-          <th class="sortable" onclick={() => handleSort('category')}>
-            Category{getSortIndicator('category')}
-          </th>
-          <th class="sortable" onclick={() => handleSort('sizeClass')}>
-            Size{getSortIndicator('sizeClass')}
-          </th>
-          <th class="sortable" onclick={() => handleSort('name')}>
-            Name{getSortIndicator('name')}
-          </th>
-          <th class="sortable numeric" onclick={() => handleSort('penetration')}>
-            Pen{getSortIndicator('penetration')}
-          </th>
-          <th class="sortable numeric" onclick={() => handleSort('distance')}>
-            Range{getSortIndicator('distance')}
-          </th>
-          <th class="sortable numeric" onclick={() => handleSort('cooldown')}>
-            Reload{getSortIndicator('cooldown')}
-          </th>
-          <th class="sortable numeric hide-mobile" onclick={() => handleSort('angle')}>
-            Angle{getSortIndicator('angle')}
-          </th>
-          <th class="numeric hide-mobile">DPS</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each $filteredWeapons as weapon (weapon.id)}
-          <tr class="clickable" onclick={() => openWeaponModal(weapon)}>
-            <td>
-              <Badge variant="category" value={weapon.category} />
-            </td>
-            <td>
-              <Badge variant="size" value={weapon.sizeClass} />
-            </td>
-            <td class="weapon-name">{weapon.name}</td>
-            <td class="numeric">{weapon.penetration.toFixed(1)}</td>
-            <td class="numeric">{weapon.distance}m</td>
-            <td class="numeric">{weapon.cooldown.toFixed(1)}s</td>
-            <td class="numeric hide-mobile">{weapon.angle}°</td>
-            <td class="numeric hide-mobile muted">
-              {weapon.cooldown > 0 ? (weapon.penetration / weapon.cooldown).toFixed(2) : '—'}
-            </td>
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col" class="sortable" onclick={() => handleSort('category')}>
+              Category{getSortIndicator('category')}
+            </th>
+            <th scope="col" class="sortable" onclick={() => handleSort('sizeClass')}>
+              Size{getSortIndicator('sizeClass')}
+            </th>
+            <th scope="col" class="sortable" onclick={() => handleSort('name')}>
+              Name{getSortIndicator('name')}
+            </th>
+            <th scope="col" class="sortable numeric" onclick={() => handleSort('penetration')}>
+              Pen{getSortIndicator('penetration')}
+            </th>
+            <th scope="col" class="sortable numeric" onclick={() => handleSort('distance')}>
+              Range{getSortIndicator('distance')}
+            </th>
+            <th scope="col" class="sortable numeric" onclick={() => handleSort('cooldown')}>
+              Reload{getSortIndicator('cooldown')}
+            </th>
+            <th scope="col" class="sortable numeric hide-mobile" onclick={() => handleSort('angle')}>
+              Angle{getSortIndicator('angle')}
+            </th>
+            <th scope="col" class="numeric hide-mobile">DPS</th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {#each $filteredWeapons as weapon (weapon.id)}
+            <tr
+              class="clickable"
+              tabindex="0"
+              role="button"
+              aria-label="View details for {weapon.name}"
+              onclick={() => openWeaponModal(weapon)}
+              onkeydown={(e) => handleRowKeydown(e, weapon)}
+            >
+              <td>
+                <Badge variant="category" value={weapon.category} />
+              </td>
+              <td>
+                <Badge variant="size" value={weapon.sizeClass} />
+              </td>
+              <td class="weapon-name">{weapon.name}</td>
+              <td class="numeric">{weapon.penetration.toFixed(1)}</td>
+              <td class="numeric">{weapon.distance}m</td>
+              <td class="numeric">{weapon.cooldown.toFixed(1)}s</td>
+              <td class="numeric hide-mobile">{weapon.angle}°</td>
+              <td class="numeric hide-mobile muted">
+                {weapon.cooldown > 0 ? (weapon.penetration / weapon.cooldown).toFixed(2) : '—'}
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
   {/if}
 
   <!-- Powder Kegs Section -->
   {#if $dataStore.kegs.length > 0}
     <section class="kegs-section">
       <h2 class="section-title">Powder Kegs</h2>
-      <div class="kegs-grid">
+      <Grid columns="auto" minWidth="200px" gap="md">
         {#each $dataStore.kegs as keg (keg.id)}
-          <div class="keg-card">
+          <Card variant="wood" padding="md">
             <h3 class="keg-card__name">{keg.name}</h3>
             <div class="keg-card__stats">
               <div class="stat">
@@ -188,12 +204,12 @@
                 <span class="stat__value">{keg.reload}s</span>
               </div>
             </div>
-          </div>
+          </Card>
         {/each}
-      </div>
+      </Grid>
     </section>
   {/if}
-</div>
+</Stack>
 
 <WeaponDetailModal
   weapon={selectedWeapon}
@@ -202,61 +218,14 @@
 />
 
 <style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-
   .category-tabs {
     display: flex;
     justify-content: center;
   }
 
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    align-items: flex-end;
-    padding: var(--space-md);
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--wood-grain);
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-
-  .filter-group label {
-    font-size: var(--text-xs);
-    color: var(--brass-light);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-  }
-
-  .filter-group select,
-  .filter-group input {
-    padding: var(--space-sm) var(--space-md);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--wood-grain);
-    border-radius: var(--radius-md);
-    color: var(--canvas);
-    font-size: var(--text-sm);
-    min-width: 140px;
-  }
-
-  .filter-group--search {
-    flex: 1;
-    min-width: 200px;
-  }
-
   .filter-count {
     color: var(--text-muted);
     font-size: var(--text-sm);
-    margin-left: auto;
   }
 
   .table-container {
@@ -306,6 +275,12 @@
     background: rgba(181, 166, 66, 0.1);
   }
 
+  .table tbody tr.clickable:focus-visible {
+    outline: none;
+    background: rgba(181, 166, 66, 0.15);
+    box-shadow: inset 0 0 0 2px var(--gold-primary);
+  }
+
   .numeric {
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -322,7 +297,7 @@
 
   /* Kegs Section */
   .kegs-section {
-    margin-top: var(--space-lg);
+    margin-top: var(--space-md);
   }
 
   .section-title {
@@ -330,25 +305,6 @@
     font-size: var(--text-xl);
     color: var(--gold-primary);
     margin: 0 0 var(--space-md);
-  }
-
-  .kegs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: var(--space-md);
-  }
-
-  .keg-card {
-    background: var(--bg-card);
-    border: 2px solid var(--wood-grain);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-    transition: all var(--transition-fast);
-  }
-
-  .keg-card:hover {
-    border-color: var(--brass);
-    box-shadow: var(--shadow-md);
   }
 
   .keg-card__name {
@@ -389,19 +345,6 @@
   @media (max-width: 768px) {
     .hide-mobile {
       display: none;
-    }
-
-    .filters {
-      flex-direction: column;
-    }
-
-    .filter-group {
-      width: 100%;
-    }
-
-    .filter-count {
-      margin-left: 0;
-      text-align: center;
     }
   }
 </style>

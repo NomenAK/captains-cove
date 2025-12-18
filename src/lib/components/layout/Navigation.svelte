@@ -69,6 +69,7 @@
           href={item.href}
           class="nav__link"
           class:nav__link--active={isActive(item.href)}
+          aria-current={isActive(item.href) ? 'page' : undefined}
           onclick={handleNavClick}
         >
           <span class="nav__icon">{item.icon}</span>
@@ -160,6 +161,14 @@
     background: var(--bg-hover);
     color: var(--gold-light);
     border-left-color: var(--gold-primary);
+  }
+
+  .nav__link:focus-visible {
+    outline: none;
+    background: var(--bg-hover);
+    color: var(--gold-light);
+    border-left-color: var(--gold-primary);
+    box-shadow: inset 0 0 0 2px var(--gold-primary);
   }
 
   .nav__link--active {

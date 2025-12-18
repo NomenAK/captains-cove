@@ -6,3 +6,4 @@ export { default as Footer } from './Footer.svelte';
 export { default as Toast } from './Toast.svelte';
 export { default as Loading } from './Loading.svelte';
 export { default as PageHeader } from './PageHeader.svelte';
+export { default as Breadcrumb } from './Breadcrumb.svelte';

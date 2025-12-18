@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Resource, ResourceCategory } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
 
@@ -89,7 +89,7 @@
   }
 </script>
 
-<div class="page">
+<Stack direction="vertical" gap="lg">
   <PageHeader
     title="Items & Resources"
     subtitle="{$dataStore.resources.length} tradeable items and resources"
@@ -106,165 +106,131 @@
       message="Resource data could not be loaded. Please try again."
     />
   {:else}
-  <div class="category-tabs">
-    <Tabs
-      tabs={categoryTabs}
-      activeTab={activeCategory}
-      onchange={(id) => activeCategory = id as ResourceCategory | ''}
-    />
-  </div>
-
-  <div class="filters">
-    <div class="filter-group filter-group--search">
-      <label for="search">Search</label>
-      <input
-        id="search"
-        type="text"
-        placeholder="Search items..."
-        bind:value={searchQuery}
+    <div class="category-tabs">
+      <Tabs
+        tabs={categoryTabs}
+        activeTab={activeCategory}
+        onchange={(id) => activeCategory = id as ResourceCategory | ''}
       />
     </div>
-    <span class="filter-count">{filteredResources().length} items</span>
-  </div>
 
-  <div class="table-container">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Category</th>
-          <th class="sortable" onclick={() => handleSort('name')}>
-            Name{getSortIndicator('name')}
-          </th>
-          <th class="sortable numeric" onclick={() => handleSort('mediumCost')}>
-            Price{getSortIndicator('mediumCost')}
-          </th>
-          <th class="sortable numeric" onclick={() => handleSort('mass')}>
-            Mass{getSortIndicator('mass')}
-          </th>
-          <th class="hide-mobile">Effects</th>
-        </tr>
-      </thead>
-      <tbody>
-        {#each filteredResources() as resource (resource.id)}
+    <Toolbar>
+      {#snippet children()}
+        <FilterGroup label="Search" for="search" grow minWidth="200px">
+          <input
+            id="search"
+            type="text"
+            placeholder="Search items..."
+            bind:value={searchQuery}
+          />
+        </FilterGroup>
+      {/snippet}
+
+      {#snippet actions()}
+        <span class="filter-count">{filteredResources().length} items</span>
+      {/snippet}
+    </Toolbar>
+
+    <div class="table-container">
+      <table class="table">
+        <thead>
           <tr>
-            <td>
-              <Badge variant="category" value={resource.category} />
-            </td>
-            <td class="item-name">
-              <span class="item-icon">{getCategoryIcon(resource.category)}</span>
-              {resource.name}
-            </td>
-            <td class="numeric">{resource.mediumCost}</td>
-            <td class="numeric">{resource.mass}</td>
-            <td class="effects hide-mobile">
-              {#if resource.isFood}
-                <span class="effect-tag effect-tag--food">Food</span>
-              {/if}
-              {#if resource.isTradeable}
-                <span class="effect-tag effect-tag--trade">Trade Good</span>
-              {/if}
-              {#if resource.corruption > 0}
-                <span class="effect-tag effect-tag--corruption">Spoils: {resource.corruption}</span>
-              {/if}
-              {#if !resource.isFood && !resource.isTradeable && !resource.corruption}
-                <span class="effect-none">—</span>
-              {/if}
-            </td>
+            <th scope="col">Category</th>
+            <th scope="col" class="sortable" onclick={() => handleSort('name')}>
+              Name{getSortIndicator('name')}
+            </th>
+            <th scope="col" class="sortable numeric" onclick={() => handleSort('mediumCost')}>
+              Price{getSortIndicator('mediumCost')}
+            </th>
+            <th scope="col" class="sortable numeric" onclick={() => handleSort('mass')}>
+              Mass{getSortIndicator('mass')}
+            </th>
+            <th scope="col" class="hide-mobile">Effects</th>
           </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {#each filteredResources() as resource (resource.id)}
+            <tr>
+              <td>
+                <Badge variant="category" value={resource.category} />
+              </td>
+              <td class="item-name">
+                <span class="item-icon">{getCategoryIcon(resource.category)}</span>
+                {resource.name}
+              </td>
+              <td class="numeric">{resource.mediumCost}</td>
+              <td class="numeric">{resource.mass}</td>
+              <td class="effects hide-mobile">
+                {#if resource.isFood}
+                  <span class="effect-tag effect-tag--food">Food</span>
+                {/if}
+                {#if resource.isTradeable}
+                  <span class="effect-tag effect-tag--trade">Trade Good</span>
+                {/if}
+                {#if resource.corruption > 0}
+                  <span class="effect-tag effect-tag--corruption">Spoils: {resource.corruption}</span>
+                {/if}
+                {#if !resource.isFood && !resource.isTradeable && !resource.corruption}
+                  <span class="effect-none">—</span>
+                {/if}
+              </td>
+            </tr>
+          {/each}
+        </tbody>
+      </table>
+    </div>
 
-  <!-- Summary Cards -->
-  <div class="summary-grid">
-    <div class="summary-card">
-      <span class="summary-icon">⚖️</span>
-      <div class="summary-content">
-        <span class="summary-value">{$dataStore.resources.filter(r => r.isTradeable).length}</span>
-        <span class="summary-label">Trade Goods</span>
-      </div>
-    </div>
-    <div class="summary-card">
-      <span class="summary-icon">🍖</span>
-      <div class="summary-content">
-        <span class="summary-value">{$dataStore.resources.filter(r => r.isFood).length}</span>
-        <span class="summary-label">Food Items</span>
-      </div>
-    </div>
-    <div class="summary-card">
-      <span class="summary-icon">⚙️</span>
-      <div class="summary-content">
-        <span class="summary-value">{$dataStore.resources.filter(r => r.category === 'material').length}</span>
-        <span class="summary-label">Materials</span>
-      </div>
-    </div>
-    <div class="summary-card">
-      <span class="summary-icon">⚠️</span>
-      <div class="summary-content">
-        <span class="summary-value">{$dataStore.resources.filter(r => r.corruption > 0).length}</span>
-        <span class="summary-label">Perishable</span>
-      </div>
-    </div>
-  </div>
+    <!-- Summary Cards -->
+    <Grid columns="auto" minWidth="180px" gap="md">
+      <Card variant="wood" padding="md">
+        <div class="summary-content">
+          <span class="summary-icon">⚖️</span>
+          <div class="summary-text">
+            <span class="summary-value">{$dataStore.resources.filter(r => r.isTradeable).length}</span>
+            <span class="summary-label">Trade Goods</span>
+          </div>
+        </div>
+      </Card>
+      <Card variant="wood" padding="md">
+        <div class="summary-content">
+          <span class="summary-icon">🍖</span>
+          <div class="summary-text">
+            <span class="summary-value">{$dataStore.resources.filter(r => r.isFood).length}</span>
+            <span class="summary-label">Food Items</span>
+          </div>
+        </div>
+      </Card>
+      <Card variant="wood" padding="md">
+        <div class="summary-content">
+          <span class="summary-icon">⚙️</span>
+          <div class="summary-text">
+            <span class="summary-value">{$dataStore.resources.filter(r => r.category === 'material').length}</span>
+            <span class="summary-label">Materials</span>
+          </div>
+        </div>
+      </Card>
+      <Card variant="wood" padding="md">
+        <div class="summary-content">
+          <span class="summary-icon">⚠️</span>
+          <div class="summary-text">
+            <span class="summary-value">{$dataStore.resources.filter(r => r.corruption > 0).length}</span>
+            <span class="summary-label">Perishable</span>
+          </div>
+        </div>
+      </Card>
+    </Grid>
   {/if}
-</div>
+</Stack>
 
 <style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-
   .category-tabs {
     display: flex;
     justify-content: center;
   }
 
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    align-items: flex-end;
-    padding: var(--space-md);
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--wood-grain);
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-
-  .filter-group label {
-    font-size: var(--text-xs);
-    color: var(--brass-light);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-wide);
-  }
-
-  .filter-group input {
-    padding: var(--space-sm) var(--space-md);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--wood-grain);
-    border-radius: var(--radius-md);
-    color: var(--canvas);
-    font-size: var(--text-sm);
-    min-width: 200px;
-  }
-
-  .filter-group--search {
-    flex: 1;
-    min-width: 200px;
-  }
-
   .filter-count {
     color: var(--text-muted);
     font-size: var(--text-sm);
-    margin-left: auto;
   }
 
   .table-container {
@@ -363,27 +329,17 @@
     color: var(--text-muted);
   }
 
-  .summary-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: var(--space-md);
-  }
-
-  .summary-card {
+  .summary-content {
     display: flex;
     align-items: center;
     gap: var(--space-md);
-    padding: var(--space-md);
-    background: var(--bg-card);
-    border: 2px solid var(--wood-grain);
-    border-radius: var(--radius-lg);
   }
 
   .summary-icon {
     font-size: var(--text-2xl);
   }
 
-  .summary-content {
+  .summary-text {
     display: flex;
     flex-direction: column;
   }
@@ -403,19 +359,6 @@
   @media (max-width: 768px) {
     .hide-mobile {
       display: none;
-    }
-
-    .filters {
-      flex-direction: column;
-    }
-
-    .filter-group {
-      width: 100%;
-    }
-
-    .filter-count {
-      margin-left: 0;
-      text-align: center;
     }
   }
 </style>

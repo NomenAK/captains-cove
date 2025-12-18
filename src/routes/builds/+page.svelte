@@ -1,8 +1,8 @@
 <script lang="ts">
   import { buildsStore, filteredBuilds, buildFilters, buildCount, toasts } from '$lib/stores';
   import { BuildEditor, BuildDetail } from '$lib/components/builds';
-  import { Badge } from '$lib/components/ui';
-  import { PageHeader } from '$lib/components/layout';
+  import { Badge, Toolbar, FilterGroup, Stack, Grid, EmptyState } from '$lib/components/ui';
+  import { PageHeader, Breadcrumb } from '$lib/components/layout';
   import { location, querystring } from 'svelte-spa-router';
 
   // Determine current view from URL
@@ -24,6 +24,26 @@
 
   // Get current build for detail/edit views
   const currentBuild = $derived(buildId() ? buildsStore.get(buildId()!) : null);
+
+  // Breadcrumbs for different views
+  const breadcrumbs = $derived(() => {
+    const base = { label: 'Builds', href: '#/builds' };
+
+    switch (viewMode()) {
+      case 'create':
+        return [base, { label: 'New Build' }];
+      case 'detail':
+        return [base, { label: currentBuild?.name || 'Build Details' }];
+      case 'edit':
+        return [
+          base,
+          { label: currentBuild?.name || 'Build', href: `#/builds/${buildId()}` },
+          { label: 'Edit' }
+        ];
+      default:
+        return [];
+    }
+  });
 
   const archetypes = ['brawler', 'kite', 'sniper', 'pursuit', 'trade', 'siege'];
   const archetypeLabels: Record<string, string> = {
@@ -80,54 +100,63 @@
 </script>
 
 {#if viewMode() === 'create'}
-  <BuildEditor mode="create" />
+  <Stack direction="vertical" gap="md">
+    <Breadcrumb crumbs={breadcrumbs()} />
+    <BuildEditor mode="create" />
+  </Stack>
 
 {:else if viewMode() === 'edit' && currentBuild}
-  <BuildEditor mode="edit" build={currentBuild} />
+  <Stack direction="vertical" gap="md">
+    <Breadcrumb crumbs={breadcrumbs()} />
+    <BuildEditor mode="edit" build={currentBuild} />
+  </Stack>
 
 {:else if viewMode() === 'detail' && currentBuild}
-  <BuildDetail build={currentBuild} />
+  <Stack direction="vertical" gap="md">
+    <Breadcrumb crumbs={breadcrumbs()} />
+    <BuildDetail build={currentBuild} />
+  </Stack>
 
 {:else if viewMode() === 'detail' && !currentBuild}
-  <div class="not-found">
-    <span class="not-found-icon">🔍</span>
-    <h2>Build Not Found</h2>
-    <p>The build you're looking for doesn't exist or has been deleted.</p>
+  <Stack direction="vertical" gap="lg" align="center">
+    <EmptyState
+      icon="🔍"
+      title="Build Not Found"
+      message="The build you're looking for doesn't exist or has been deleted."
+    />
     <a href="#/builds" class="btn btn--primary">Back to Builds</a>
-  </div>
+  </Stack>
 
 {:else}
   <!-- List View -->
-  <div class="page">
+  <Stack direction="vertical" gap="lg">
     <PageHeader
       title="Ship Builds"
       subtitle="{$buildCount} saved builds - Create, customize, and share your ship configurations"
     />
 
-    <div class="toolbar">
-      <div class="filters">
-        <div class="filter-group">
-          <label for="archetype-filter">Archetype</label>
+    <Toolbar>
+      {#snippet children()}
+        <FilterGroup label="Archetype" for="archetype-filter">
           <select id="archetype-filter" bind:value={$buildFilters.archetype}>
             <option value="">All Archetypes</option>
             {#each archetypes as arch}
               <option value={arch}>{archetypeLabels[arch]}</option>
             {/each}
           </select>
-        </div>
+        </FilterGroup>
 
-        <div class="filter-group filter-group--search">
-          <label for="search">Search</label>
+        <FilterGroup label="Search" for="search" grow minWidth="200px">
           <input
             id="search"
             type="text"
             placeholder="Search builds..."
             bind:value={$buildFilters.search}
           />
-        </div>
-      </div>
+        </FilterGroup>
+      {/snippet}
 
-      <div class="actions">
+      {#snippet actions()}
         <a href="#/builds/new" class="btn btn--primary">
           + New Build
         </a>
@@ -144,25 +173,22 @@
           onchange={handleImport}
           style="display: none;"
         />
-      </div>
-    </div>
+      {/snippet}
+    </Toolbar>
 
     {#if $filteredBuilds.length === 0}
-      <div class="empty-state">
-        <span class="empty-icon">🚢</span>
-        <h2>No Builds Yet</h2>
-        <p>Create your first ship build to get started, or import existing builds.</p>
+      <EmptyState
+        icon="🚢"
+        title="No Builds Yet"
+        message="Create your first ship build to get started, or import existing builds."
+      >
         <div class="empty-actions">
-          <a href="#/builds/new" class="btn btn--primary">
-            Create Build
-          </a>
-          <button class="btn btn--secondary" onclick={handleImportClick}>
-            Import Builds
-          </button>
+          <a href="#/builds/new" class="btn btn--primary">Create Build</a>
+          <button class="btn btn--secondary" onclick={handleImportClick}>Import Builds</button>
         </div>
-      </div>
+      </EmptyState>
     {:else}
-      <div class="builds-grid">
+      <Grid columns="auto" minWidth="300px" gap="lg">
         {#each $filteredBuilds as build (build.id)}
           <a href="#/builds/{build.id}" class="build-card">
             <div class="build-card__header">
@@ -179,70 +205,12 @@
             </div>
           </a>
         {/each}
-      </div>
+      </Grid>
     {/if}
-  </div>
+  </Stack>
 {/if}
 
 <style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-
-  .toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: var(--space-md);
-    background: var(--bg-card);
-    border-radius: var(--radius-lg);
-    border: 2px solid var(--wood-grain);
-  }
-
-  .filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-md);
-    flex: 1;
-  }
-
-  .filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
-  }
-
-  .filter-group label {
-    font-size: var(--text-xs);
-    color: var(--brass-light);
-    text-transform: uppercase;
-  }
-
-  .filter-group select,
-  .filter-group input {
-    padding: var(--space-sm) var(--space-md);
-    background: var(--bg-tertiary);
-    border: 1px solid var(--wood-grain);
-    border-radius: var(--radius-md);
-    color: var(--canvas);
-    font-size: var(--text-sm);
-    min-width: 140px;
-  }
-
-  .filter-group--search {
-    flex: 1;
-    min-width: 200px;
-  }
-
-  .actions {
-    display: flex;
-    gap: var(--space-sm);
-  }
-
   .btn {
     padding: var(--space-sm) var(--space-md);
     font-family: var(--font-display);
@@ -282,45 +250,10 @@
     border-color: var(--brass);
   }
 
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-3xl);
-    background: var(--bg-card);
-    border: 2px dashed var(--wood-grain);
-    border-radius: var(--radius-xl);
-    min-height: 300px;
-  }
-
-  .empty-icon {
-    font-size: 64px;
-    margin-bottom: var(--space-lg);
-    opacity: 0.6;
-  }
-
-  .empty-state h2 {
-    font-family: var(--font-display);
-    color: var(--brass-light);
-    margin: 0 0 var(--space-sm);
-  }
-
-  .empty-state p {
-    color: var(--text-muted);
-    margin: 0 0 var(--space-lg);
-  }
-
   .empty-actions {
     display: flex;
     gap: var(--space-sm);
-  }
-
-  .builds-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--space-lg);
+    margin-top: var(--space-md);
   }
 
   .build-card {
@@ -340,6 +273,12 @@
     border-color: var(--brass);
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .build-card:focus-visible {
+    outline: none;
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.3);
   }
 
   .build-card__header {
@@ -387,48 +326,7 @@
     color: var(--text-muted);
   }
 
-  .not-found {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--space-3xl);
-    min-height: 400px;
-  }
-
-  .not-found-icon {
-    font-size: 64px;
-    margin-bottom: var(--space-lg);
-    opacity: 0.6;
-  }
-
-  .not-found h2 {
-    font-family: var(--font-display);
-    color: var(--brass-light);
-    margin: 0 0 var(--space-sm);
-  }
-
-  .not-found p {
-    color: var(--text-muted);
-    margin: 0 0 var(--space-lg);
-  }
-
   @media (max-width: 768px) {
-    .toolbar {
-      flex-direction: column;
-    }
-
-    .actions {
-      width: 100%;
-      justify-content: stretch;
-    }
-
-    .actions .btn {
-      flex: 1;
-      justify-content: center;
-    }
-
     .empty-actions {
       flex-direction: column;
       width: 100%;
