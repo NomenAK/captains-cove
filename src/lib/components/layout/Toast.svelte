@@ -24,7 +24,7 @@
       <span class="toast__message">{toast.message}</span>
       <button
         class="toast__close"
-        on:click={() => toasts.remove(toast.id)}
+        onclick={() => toasts.remove(toast.id)}
         aria-label="Dismiss notification"
       >
         ✕

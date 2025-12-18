@@ -137,7 +137,10 @@
   /* States */
   .btn--disabled,
   .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    border-color: var(--wood-dark);
     cursor: not-allowed;
     pointer-events: none;
   }

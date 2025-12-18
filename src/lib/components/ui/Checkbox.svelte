@@ -50,8 +50,13 @@
   }
 
   .checkbox--disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+  }
+
+  .checkbox--disabled .checkbox__box {
+    background: var(--bg-secondary);
+    border-color: var(--wood-dark);
   }
 
   .checkbox__input {
