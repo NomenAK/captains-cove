@@ -2,6 +2,7 @@
 /* Fetches game data from Supabase with caching and fallback */
 
 import { supabase } from '../supabase';
+import type { Database } from '../database.types';
 import type {
   Ship,
   Weapon,
@@ -18,6 +19,15 @@ import type {
   WeaponCategory,
   SkillCategory
 } from './types';
+
+// Database row types for type-safe queries
+type ShipRow = Database['public']['Tables']['ships']['Row'];
+type WeaponRow = Database['public']['Tables']['weapons']['Row'];
+type AmmoRow = Database['public']['Tables']['ammo']['Row'];
+type KegRow = Database['public']['Tables']['kegs']['Row'];
+type CrewRow = Database['public']['Tables']['crews']['Row'];
+type SkillRow = Database['public']['Tables']['skills']['Row'];
+type LocalizationRow = Database['public']['Tables']['localization']['Row'];
 
 // ═══════════════════════════════════════════════════
 // CACHE MANAGEMENT
@@ -66,8 +76,9 @@ async function loadLocalization(): Promise<Localization> {
     return {};
   }
 
+  const rows = data as Pick<LocalizationRow, 'key' | 'value'>[] | null;
   localization = Object.fromEntries(
-    (data || []).map(row => [row.key, row.value])
+    (rows || []).map(row => [row.key, row.value])
   );
 
   return localization;
@@ -94,7 +105,8 @@ async function loadShips(): Promise<Ship[]> {
     return [];
   }
 
-  return (data || []).map(row => ({
+  const rows = data as ShipRow[] | null;
+  return (rows || []).map(row => ({
     id: row.id,
     staticInfoId: row.static_info_id,
     name: row.name,
@@ -136,7 +148,8 @@ async function loadWeapons(): Promise<Weapon[]> {
     return [];
   }
 
-  return (data || []).map(row => ({
+  const rows = data as WeaponRow[] | null;
+  return (rows || []).map(row => ({
     id: row.id,
     name: row.name,
     class: row.class,
@@ -170,7 +183,8 @@ async function loadAmmo(): Promise<Ammo[]> {
     return [];
   }
 
-  return (data || []).map(row => ({
+  const rows = data as AmmoRow[] | null;
+  return (rows || []).map(row => ({
     id: row.id,
     name: row.name,
     speed: row.speed,
@@ -204,7 +218,8 @@ async function loadKegs(): Promise<PowderKeg[]> {
     return [];
   }
 
-  return (data || []).map(row => ({
+  const rows = data as KegRow[] | null;
+  return (rows || []).map(row => ({
     id: row.id,
     name: row.name,
     mass: row.mass,
@@ -236,7 +251,8 @@ async function loadCrewUnits(): Promise<CrewUnit[]> {
     return [];
   }
 
-  return (data || []).map(row => ({
+  const rows = data as CrewRow[] | null;
+  return (rows || []).map(row => ({
     id: row.id,
     name: row.name,
     type: row.type,
@@ -268,7 +284,8 @@ async function loadCaptainSkills(): Promise<CaptainSkill[]> {
     return [];
   }
 
-  return (data || []).map(row => ({
+  const rows = data as SkillRow[] | null;
+  return (rows || []).map(row => ({
     id: row.id,
     name: row.name,
     costPoints: row.cost_points,
