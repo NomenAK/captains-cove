@@ -1,122 +1,139 @@
 /**
- * localStorage utilities with type safety and error handling
- * Centralizes storage patterns used across the app
+ * Supabase Storage URL utilities
  */
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lewslcexldrbequixxpg.supabase.co';
+const BUCKET_NAME = 'game-icons';
 
 /**
- * Load data from localStorage with optional validation
- * @param key - Storage key
- * @param validator - Optional type guard function
- * @returns Parsed data or null if invalid/missing
+ * Get the full URL for an icon stored in Supabase Storage
+ * @param path - The relative path to the icon (e.g., 'weapons/cannons/c_bomb1.png')
+ * @returns The full public URL or null if path is empty
  */
-export function loadFromStorage<T>(
-  key: string,
-  validator?: (value: unknown) => value is T
-): T | null {
-  if (typeof window === 'undefined') return null;
+export function getIconUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
 
-  try {
-    const stored = localStorage.getItem(key);
-    if (!stored) return null;
-
-    const parsed = JSON.parse(stored);
-
-    if (validator && !validator(parsed)) {
-      if (import.meta.env.DEV) {
-        console.warn(`Storage validation failed for key: ${key}`);
-      }
-      return null;
-    }
-
-    return parsed as T;
-  } catch (e) {
-    if (import.meta.env.DEV) {
-      console.warn(`Failed to load from storage: ${key}`, e);
-    }
-    return null;
+  // Already a full URL
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
   }
+
+  // Remove leading slash if present
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+
+  // Add .png extension if not present
+  const finalPath = cleanPath.endsWith('.png') ? cleanPath : `${cleanPath}.png`;
+
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET_NAME}/${finalPath}`;
 }
 
 /**
- * Save data to localStorage
- * @param key - Storage key
- * @param data - Data to save
- * @returns true if successful
+ * Get weapon icon URL
  */
-export function saveToStorage<T>(key: string, data: T): boolean {
-  if (typeof window === 'undefined') return false;
-
-  try {
-    localStorage.setItem(key, JSON.stringify(data));
-    return true;
-  } catch (e) {
-    if (import.meta.env.DEV) {
-      console.error(`Failed to save to storage: ${key}`, e);
-    }
-    return false;
-  }
+export function getWeaponIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`weapons/cannons/${iconName}`);
 }
 
 /**
- * Remove item from localStorage
- * @param key - Storage key
+ * Get ammo icon URL
  */
-export function removeFromStorage(key: string): void {
-  if (typeof window === 'undefined') return;
-
-  try {
-    localStorage.removeItem(key);
-  } catch (e) {
-    if (import.meta.env.DEV) {
-      console.warn(`Failed to remove from storage: ${key}`, e);
-    }
-  }
+export function getAmmoIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`ammo/${iconName}`);
 }
 
 /**
- * Create a persistent store that syncs with localStorage
- * @param key - Storage key
- * @param defaultValue - Default value if nothing in storage
- * @param validator - Optional type guard
+ * Get keg icon URL
  */
-export function createPersistentValue<T>(
-  key: string,
-  defaultValue: T,
-  validator?: (value: unknown) => value is T
-): {
-  get: () => T;
-  set: (value: T) => void;
-  remove: () => void;
-} {
-  // Use symbol to track cache state - allows caching falsy values like 0, false, ''
-  const NOT_CACHED = Symbol('not-cached');
-  let cachedValue: T | typeof NOT_CACHED = NOT_CACHED;
-
-  return {
-    get() {
-      if (cachedValue !== NOT_CACHED) return cachedValue;
-
-      const stored = loadFromStorage<T>(key, validator);
-      cachedValue = stored ?? defaultValue;
-      return cachedValue;
-    },
-    set(value: T) {
-      cachedValue = value;
-      saveToStorage(key, value);
-    },
-    remove() {
-      cachedValue = NOT_CACHED;
-      removeFromStorage(key);
-    }
-  };
+export function getKegIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`kegs/${iconName}`);
 }
 
 /**
- * Storage keys used in the app
+ * Get crew unit icon URL
  */
-export const STORAGE_KEYS = {
-  BUILDS: 'captains-cove-builds',
-  THEME: 'captains-cove-theme',
-  PREFERENCES: 'captains-cove-prefs',
-  VIEW_MODES: 'captains-cove-views'
-} as const;
+export function getCrewIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`crews/${iconName}`);
+}
+
+/**
+ * Get skill icon URL
+ */
+export function getSkillIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`skills/${iconName}`);
+}
+
+/**
+ * Get upgrade icon URL
+ */
+export function getUpgradeIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`upgrades/${iconName}`);
+}
+
+/**
+ * Get ship design/cosmetic icon URL
+ */
+export function getCosmeticIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`cosmetics/designs/${iconName}`);
+}
+
+/**
+ * Get resource icon URL
+ */
+export function getResourceIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`resources/${iconName}`);
+}
+
+/**
+ * Get achievement icon URL
+ */
+export function getAchievementIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`achievements/${iconName}`);
+}
+
+/**
+ * Get consumable/powerup icon URL
+ */
+export function getConsumableIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`consumables/${iconName}`);
+}
+
+/**
+ * Get faction icon URL
+ */
+export function getFactionIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`factions/${iconName}`);
+}
+
+/**
+ * Get swivel/falconet ammo icon URL (same as regular ammo)
+ */
+export function getSwivelAmmoIconUrl(iconName: string | null | undefined): string | null {
+  if (!iconName) return null;
+  return getIconUrl(`ammo/${iconName}`);
+}
+
+// Icon folder structure in bucket:
+// game-icons/
+// ├── weapons/cannons/    # Cannon icons
+// ├── ammo/               # Ammunition icons
+// ├── kegs/               # Powder keg icons
+// ├── crews/              # Crew unit icons
+// ├── skills/             # Captain skill icons
+// ├── upgrades/           # Ship upgrade icons
+// ├── cosmetics/designs/  # Ship design icons
+// ├── resources/          # Resource icons
+// ├── achievements/       # Achievement icons
+// ├── consumables/        # Powerup/consumable icons
+// ├── factions/           # Faction emblems
+// └── misc/               # Other icons (Icons.png, FractionIcons.png)
