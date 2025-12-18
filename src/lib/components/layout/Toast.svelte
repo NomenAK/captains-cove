@@ -129,7 +129,7 @@
     opacity: 1;
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     .toast-container {
       left: var(--space-md);
       right: var(--space-md);

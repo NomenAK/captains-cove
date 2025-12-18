@@ -352,7 +352,7 @@
     gap: var(--space-md);
   }
 
-  @media (max-width: 480px) {
+  @media (max-width: 768px) {
     .cards-grid {
       grid-template-columns: 1fr;
     }

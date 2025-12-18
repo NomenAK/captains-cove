@@ -1,9 +1,18 @@
 <script lang="ts">
   import type { Cosmetic, CosmeticType } from '$lib/data/types';
-  import { dataStore } from '$lib/stores';
-  import { Badge, Tabs } from '$lib/components/ui';
+  import { dataStore, isLoading, dataError } from '$lib/stores';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Stack, Grid, Card } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
 
   const types: CosmeticType[] = ['design', 'sail', 'flag', 'guild', 'private'];
+
+  // Retry loading
+  function handleRetry() {
+    dataStore.load();
+  }
+
+  // Check for no data
+  const hasNoData = $derived($dataStore.cosmetics.length === 0);
 
   // Filters
   let activeType: CosmeticType | '' = $state('');
@@ -64,21 +73,32 @@
   }
 </script>
 
-<div class="page">
-  <header class="page-header">
-    <h1 class="page-title">Ship Cosmetics</h1>
-    <p class="page-subtitle">{$dataStore.cosmetics.length} cosmetic items - sails, designs, and decorations</p>
-  </header>
+<Stack direction="vertical" gap="lg">
+  <PageHeader
+    title="Ship Cosmetics"
+    subtitle="{$dataStore.cosmetics.length} cosmetic items - sails, designs, and decorations"
+  />
 
-  <div class="type-tabs">
-    <Tabs
-      tabs={typeTabs}
-      activeTab={activeType}
-      onchange={(id) => activeType = id as CosmeticType | ''}
+  {#if $dataError}
+    <ErrorState message={$dataError} onretry={handleRetry} />
+  {:else if $isLoading}
+    <LoadingState message="Loading cosmetics..." />
+  {:else if hasNoData}
+    <EmptyState
+      icon="🎨"
+      title="No cosmetics available"
+      message="Cosmetics data could not be loaded. Please try again."
     />
-  </div>
+  {:else}
+    <div class="type-tabs">
+      <Tabs
+        tabs={typeTabs}
+        activeTab={activeType}
+        onchange={(id) => activeType = id as CosmeticType | ''}
+      />
+    </div>
 
-  <div class="filters">
+    <div class="filters">
     <div class="filter-group">
       <label class="checkbox-label">
         <input type="checkbox" bind:checked={showShopOnly} />
@@ -157,30 +177,10 @@
       </div>
     </div>
   </div>
-</div>
+  {/if}
+</Stack>
 
 <style>
-  .page {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-lg);
-  }
-
-  .page-header {
-    text-align: center;
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
-  }
 
   .type-tabs {
     display: flex;
