@@ -1,5 +1,6 @@
 /* Captain's Cove - Filter Stores */
 /* Manages filter state for each data view */
+/* Optimized: Single-pass filtering, centralized sort utilities */
 
 import { writable, derived } from 'svelte/store';
 import type {
@@ -20,6 +21,8 @@ import type {
   SortConfig
 } from '$lib/data/types';
 import { dataStore } from './data';
+import { shipById } from './lookups';
+import { createSortComparator } from '$lib/utils/sort';
 
 // ═══════════════════════════════════════════════════
 // SHIP FILTERS
@@ -40,47 +43,24 @@ export function resetShipFilters() {
   shipFilters.set(defaultShipFilters);
 }
 
-// Filtered ships derived store
+// Filtered ships derived store - optimized single-pass filter
 export const filteredShips = derived(
   [dataStore, shipFilters, shipSort],
   ([$data, $filters, $sort]) => {
-    let ships = [...$data.ships];
+    // Pre-compute search term once
+    const searchLower = $filters.search?.toLowerCase() || '';
+    const tierNum = $filters.tier ? parseInt($filters.tier, 10) : null;
 
-    // Apply filters
-    if ($filters.class) {
-      ships = ships.filter(s => s.shipClass === $filters.class);
-    }
-    if ($filters.tier) {
-      ships = ships.filter(s => s.tier === parseInt($filters.tier, 10));
-    }
-    if ($filters.role) {
-      ships = ships.filter(s => s.pvpRole === $filters.role);
-    }
-    if ($filters.search) {
-      const search = $filters.search.toLowerCase();
-      ships = ships.filter(s =>
-        s.name.toLowerCase().includes(search) ||
-        s.subtype.toLowerCase().includes(search)
-      );
-    }
+    // Single-pass compound filter
+    const filtered = $data.ships.filter(s =>
+      (!$filters.class || s.shipClass === $filters.class) &&
+      (tierNum === null || s.tier === tierNum) &&
+      (!$filters.role || s.pvpRole === $filters.role) &&
+      (!searchLower || s.name.toLowerCase().includes(searchLower) || s.subtype.toLowerCase().includes(searchLower))
+    );
 
-    // Apply sorting
-    ships.sort((a, b) => {
-      const aVal = a[$sort.field as keyof Ship];
-      const bVal = b[$sort.field as keyof Ship];
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return $sort.direction === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return $sort.direction === 'asc'
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      }
-      return 0;
-    });
-
-    return ships;
+    // Sort using utility
+    return filtered.sort(createSortComparator($sort.field as keyof Ship, $sort.direction));
   }
 );
 
@@ -102,47 +82,24 @@ export function resetWeaponFilters() {
   weaponFilters.set(defaultWeaponFilters);
 }
 
-// Filtered weapons derived store
+// Filtered weapons derived store - optimized single-pass filter
 export const filteredWeapons = derived(
   [dataStore, weaponFilters, weaponSort],
   ([$data, $filters, $sort]) => {
-    let weapons = [...$data.weapons];
+    // Pre-compute search term once
+    const searchLower = $filters.search?.toLowerCase() || '';
+    const tierNum = $filters.tier ? parseInt($filters.tier, 10) : null;
 
-    // Apply filters
-    if ($filters.category) {
-      weapons = weapons.filter(w => w.category === $filters.category);
-    }
-    if ($filters.size) {
-      weapons = weapons.filter(w => w.sizeClass === $filters.size);
-    }
-    if ($filters.tier) {
-      weapons = weapons.filter(w => w.tier === parseInt($filters.tier, 10));
-    }
-    if ($filters.search) {
-      const search = $filters.search.toLowerCase();
-      weapons = weapons.filter(w =>
-        w.name.toLowerCase().includes(search) ||
-        w.class.toLowerCase().includes(search)
-      );
-    }
+    // Single-pass compound filter
+    const filtered = $data.weapons.filter(w =>
+      (!$filters.category || w.category === $filters.category) &&
+      (!$filters.size || w.sizeClass === $filters.size) &&
+      (tierNum === null || w.tier === tierNum) &&
+      (!searchLower || w.name.toLowerCase().includes(searchLower) || w.class.toLowerCase().includes(searchLower))
+    );
 
-    // Apply sorting
-    weapons.sort((a, b) => {
-      const aVal = a[$sort.field as keyof Weapon];
-      const bVal = b[$sort.field as keyof Weapon];
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return $sort.direction === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return $sort.direction === 'asc'
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      }
-      return 0;
-    });
-
-    return weapons;
+    // Sort using utility
+    return filtered.sort(createSortComparator($sort.field as keyof Weapon, $sort.direction));
   }
 );
 
@@ -164,47 +121,23 @@ export function resetCrewFilters() {
   crewFilters.set(defaultCrewFilters);
 }
 
-// Filtered crews derived store
+// Filtered crews derived store - optimized single-pass filter
 export const filteredCrews = derived(
   [dataStore, crewFilters, crewSort],
   ([$data, $filters, $sort]) => {
-    let crews = [...$data.crews];
+    // Pre-compute search term once
+    const searchLower = $filters.search?.toLowerCase() || '';
 
-    // Apply filters
-    if ($filters.type) {
-      crews = crews.filter(c => c.type === $filters.type);
-    }
-    if ($filters.options) {
-      crews = crews.filter(c => c.options === $filters.options);
-    }
-    if ($filters.pvpOnly) {
-      crews = crews.filter(c => c.pvpRelevant);
-    }
-    if ($filters.search) {
-      const search = $filters.search.toLowerCase();
-      crews = crews.filter(c =>
-        c.name.toLowerCase().includes(search) ||
-        c.effect.toLowerCase().includes(search)
-      );
-    }
+    // Single-pass compound filter
+    const filtered = $data.crews.filter(c =>
+      (!$filters.type || c.type === $filters.type) &&
+      (!$filters.options || c.options === $filters.options) &&
+      (!$filters.pvpOnly || c.pvpRelevant) &&
+      (!searchLower || c.name.toLowerCase().includes(searchLower) || c.effect.toLowerCase().includes(searchLower))
+    );
 
-    // Apply sorting
-    crews.sort((a, b) => {
-      const aVal = a[$sort.field as keyof CrewUnit];
-      const bVal = b[$sort.field as keyof CrewUnit];
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return $sort.direction === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        return $sort.direction === 'asc'
-          ? aVal.localeCompare(bVal)
-          : bVal.localeCompare(aVal);
-      }
-      return 0;
-    });
-
-    return crews;
+    // Sort using utility
+    return filtered.sort(createSortComparator($sort.field as keyof CrewUnit, $sort.direction));
   }
 );
 
@@ -247,8 +180,8 @@ export function clearComparison() {
   comparisonShipIds.set([]);
 }
 
-// Comparison ships derived store
+// Comparison ships derived store - optimized with O(1) lookup
 export const comparisonShips = derived(
-  [dataStore, comparisonShipIds],
-  ([$data, $ids]) => $ids.map(id => $data.ships.find(s => s.id === id)).filter(Boolean) as Ship[]
+  [shipById, comparisonShipIds],
+  ([$lookup, $ids]) => $ids.map(id => $lookup.get(id)).filter((s): s is Ship => s !== undefined)
 );
