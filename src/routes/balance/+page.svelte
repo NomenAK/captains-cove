@@ -2,6 +2,7 @@
   import { dataStore, shipsByClass, shipsByTier, isLoading, dataError } from '$lib/stores';
   import { ArchetypeAnalysis, TTKMatrix, MetaAnalysis } from '$lib/components/balance';
   import { Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
 
   // Tab state
   let activeTab = $state('overview');
@@ -52,10 +53,10 @@
 </script>
 
 <div class="page">
-  <header class="page-header">
-    <h1 class="page-title">Balance Analysis</h1>
-    <p class="page-subtitle">Meta statistics, tier rankings, and combat analysis</p>
-  </header>
+  <PageHeader
+    title="Balance Analysis"
+    subtitle="Meta statistics, tier rankings, and combat analysis"
+  />
 
   {#if $dataError}
     <ErrorState message={$dataError} onretry={handleRetry} />
@@ -175,22 +176,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-xl);
-  }
-
-  .page-header {
-    text-align: center;
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .section-title {

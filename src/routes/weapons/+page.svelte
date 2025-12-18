@@ -2,7 +2,9 @@
   import type { Weapon } from '$lib/data/types';
   import { dataStore, filteredWeapons, weaponFilters, weaponSort, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
   import { WeaponDetailModal } from '$lib/components/weapons';
+  import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
 
   const categories = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar'];
   const sizes = ['Light', 'Medium', 'Heavy'];
@@ -38,8 +40,7 @@
   }
 
   function getSortIndicator(field: string): string {
-    if ($weaponSort.field !== field) return '';
-    return $weaponSort.direction === 'asc' ? ' ▲' : ' ▼';
+    return getSortIndicatorUtil(field, $weaponSort.field, $weaponSort.direction);
   }
 
   function openWeaponModal(weapon: Weapon) {
@@ -54,10 +55,10 @@
 </script>
 
 <div class="page">
-  <header class="page-header">
-    <h1 class="page-title">💣 Weapons</h1>
-    <p class="page-subtitle">{$dataStore.weapons.length} cannons • {$dataStore.kegs.length} powder kegs</p>
-  </header>
+  <PageHeader
+    title="💣 Weapons"
+    subtitle="{$dataStore.weapons.length} cannons • {$dataStore.kegs.length} powder kegs"
+  />
 
   <div class="category-tabs">
     <Tabs
@@ -205,23 +206,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
-  }
-
-  .page-header {
-    text-align: center;
-    margin-bottom: var(--space-md);
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .category-tabs {

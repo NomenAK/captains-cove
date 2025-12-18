@@ -2,6 +2,8 @@
   import type { Resource, ResourceCategory } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
+  import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
 
   const categories: ResourceCategory[] = ['trade', 'food', 'material', 'special'];
 
@@ -65,8 +67,7 @@
   }
 
   function getSortIndicator(field: string): string {
-    if (sortField !== field) return '';
-    return sortDirection === 'asc' ? ' \u25B2' : ' \u25BC';
+    return getSortIndicatorUtil(field, sortField, sortDirection);
   }
 
   function getCategoryIcon(category: ResourceCategory): string {
@@ -89,10 +90,10 @@
 </script>
 
 <div class="page">
-  <header class="page-header">
-    <h1 class="page-title">Items & Resources</h1>
-    <p class="page-subtitle">{$dataStore.resources.length} tradeable items and resources</p>
-  </header>
+  <PageHeader
+    title="Items & Resources"
+    subtitle="{$dataStore.resources.length} tradeable items and resources"
+  />
 
   {#if $dataError}
     <ErrorState message={$dataError} onretry={handleRetry} />
@@ -214,22 +215,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
-  }
-
-  .page-header {
-    text-align: center;
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .category-tabs {

@@ -2,6 +2,7 @@
   import type { CrewUnit, CaptainSkill, SkillCategory } from '$lib/data/types';
   import { dataStore, filteredCrews, crewFilters, pvpSkills, combatSkills, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
   import { CrewDetailModal, SkillDetailModal } from '$lib/components/crew';
 
   const crewTypes = ['Sailor', 'Boarding', 'Special'];
@@ -74,10 +75,10 @@
 </script>
 
 <div class="page">
-  <header class="page-header">
-    <h1 class="page-title">Crew</h1>
-    <p class="page-subtitle">{$dataStore.crews.length} crew units - {$dataStore.skills.length} captain skills</p>
-  </header>
+  <PageHeader
+    title="Crew"
+    subtitle="{$dataStore.crews.length} crew units - {$dataStore.skills.length} captain skills"
+  />
 
   {#if $dataError}
     <ErrorState message={$dataError} onretry={handleRetry} />
@@ -241,22 +242,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
-  }
-
-  .page-header {
-    text-align: center;
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .view-tabs,

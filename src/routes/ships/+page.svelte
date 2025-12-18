@@ -2,7 +2,9 @@
   import type { Ship } from '$lib/data/types';
   import { dataStore, filteredShips, shipFilters, shipSort, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
   import { ShipDetailModal } from '$lib/components/ships';
+  import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
 
   // Derived states for empty detection
   const hasNoData = $derived($dataStore.ships.length === 0);
@@ -32,8 +34,7 @@
   }
 
   function getSortIndicator(field: string): string {
-    if ($shipSort.field !== field) return '';
-    return $shipSort.direction === 'asc' ? ' ▲' : ' ▼';
+    return getSortIndicatorUtil(field, $shipSort.field, $shipSort.direction);
   }
 
   function openShipModal(ship: Ship) {
@@ -53,10 +54,10 @@
 </script>
 
 <div class="page">
-  <header class="page-header">
-    <h1 class="page-title">⛵ Ships</h1>
-    <p class="page-subtitle">Browse all {$dataStore.ships.length} playable ships</p>
-  </header>
+  <PageHeader
+    title="⛵ Ships"
+    subtitle="Browse all {$dataStore.ships.length} playable ships"
+  />
 
   <div class="toolbar">
     <div class="filters">
@@ -211,23 +212,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
-  }
-
-  .page-header {
-    text-align: center;
-    margin-bottom: var(--space-md);
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .toolbar {

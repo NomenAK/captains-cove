@@ -2,6 +2,7 @@
   import { buildsStore, filteredBuilds, buildFilters, buildCount, toasts } from '$lib/stores';
   import { BuildEditor, BuildDetail } from '$lib/components/builds';
   import { Badge } from '$lib/components/ui';
+  import { PageHeader } from '$lib/components/layout';
   import { location, querystring } from 'svelte-spa-router';
 
   // Determine current view from URL
@@ -98,10 +99,10 @@
 {:else}
   <!-- List View -->
   <div class="page">
-    <header class="page-header">
-      <h1 class="page-title">Ship Builds</h1>
-      <p class="page-subtitle">{$buildCount} saved builds - Create, customize, and share your ship configurations</p>
-    </header>
+    <PageHeader
+      title="Ship Builds"
+      subtitle="{$buildCount} saved builds - Create, customize, and share your ship configurations"
+    />
 
     <div class="toolbar">
       <div class="filters">
@@ -188,22 +189,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-lg);
-  }
-
-  .page-header {
-    text-align: center;
-  }
-
-  .page-title {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
-    color: var(--gold-primary);
-    margin: 0 0 var(--space-xs);
-  }
-
-  .page-subtitle {
-    color: var(--text-muted);
-    margin: 0;
   }
 
   .toolbar {
