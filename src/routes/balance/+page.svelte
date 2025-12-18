@@ -27,22 +27,26 @@
       .sort((a, b) => b.count - a.count)
   );
 
-  // Top ships by various stats
-  const topByHp = $derived(
-    [...$dataStore.ships].sort((a, b) => b.health - a.health).slice(0, 5)
-  );
+  // Top ships by various stats - with early return guards
+  const topByHp = $derived.by(() => {
+    if ($dataStore.ships.length === 0) return [];
+    return [...$dataStore.ships].sort((a, b) => b.health - a.health).slice(0, 5);
+  });
 
-  const topBySpeed = $derived(
-    [...$dataStore.ships].sort((a, b) => b.speed - a.speed).slice(0, 5)
-  );
+  const topBySpeed = $derived.by(() => {
+    if ($dataStore.ships.length === 0) return [];
+    return [...$dataStore.ships].sort((a, b) => b.speed - a.speed).slice(0, 5);
+  });
 
-  const topByArmor = $derived(
-    [...$dataStore.ships].sort((a, b) => b.armor - a.armor).slice(0, 5)
-  );
+  const topByArmor = $derived.by(() => {
+    if ($dataStore.ships.length === 0) return [];
+    return [...$dataStore.ships].sort((a, b) => b.armor - a.armor).slice(0, 5);
+  });
 
-  const topByCargo = $derived(
-    [...$dataStore.ships].sort((a, b) => b.capacity - a.capacity).slice(0, 5)
-  );
+  const topByCargo = $derived.by(() => {
+    if ($dataStore.ships.length === 0) return [];
+    return [...$dataStore.ships].sort((a, b) => b.capacity - a.capacity).slice(0, 5);
+  });
 
   // Loading state detection
   const hasNoData = $derived($dataStore.ships.length === 0);

@@ -34,7 +34,7 @@ type LocalizationRow = Database['public']['Tables']['localization']['Row'];
 // ═══════════════════════════════════════════════════
 
 const cache: Map<string, unknown> = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour (static game data rarely changes)
 const cacheTimestamps: Map<string, number> = new Map();
 
 function getCached<T>(key: string): T | null {
