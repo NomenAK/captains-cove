@@ -3,6 +3,7 @@
 
 import { writable, derived } from 'svelte/store';
 import type { ToastMessage, Ship, Weapon } from '$lib/data/types';
+import { MOBILE_BREAKPOINT } from '$lib/data/constants';
 
 // ═══════════════════════════════════════════════════
 // MODAL STATE
@@ -145,14 +146,27 @@ export function openSidebar() {
 
 export const isMobile = writable<boolean>(false);
 
-// Update on resize
-if (typeof window !== 'undefined') {
+// Cleanup function for resize handler
+let resizeCleanup: (() => void) | null = null;
+
+function initMobileDetection(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
   const updateMobile = () => {
-    isMobile.set(window.innerWidth < 768);
+    isMobile.set(window.innerWidth < MOBILE_BREAKPOINT);
   };
 
   updateMobile();
   window.addEventListener('resize', updateMobile);
+
+  return () => {
+    window.removeEventListener('resize', updateMobile);
+  };
+}
+
+// Initialize and store cleanup
+if (typeof window !== 'undefined') {
+  resizeCleanup = initMobileDetection();
 }
 
 // ═══════════════════════════════════════════════════
@@ -228,9 +242,13 @@ export function registerShortcut(shortcut: ShortcutHandler): () => void {
   };
 }
 
-// Global keyboard handler
-if (typeof window !== 'undefined') {
-  window.addEventListener('keydown', (e: KeyboardEvent) => {
+// Cleanup function for keyboard handler
+let keyboardCleanup: (() => void) | null = null;
+
+function initKeyboardHandler(): () => void {
+  if (typeof window === 'undefined') return () => {};
+
+  const handleKeydown = (e: KeyboardEvent) => {
     // Don't handle if typing in input
     if (
       e.target instanceof HTMLInputElement ||
@@ -250,7 +268,18 @@ if (typeof window !== 'undefined') {
         break;
       }
     }
-  });
+  };
+
+  window.addEventListener('keydown', handleKeydown);
+
+  return () => {
+    window.removeEventListener('keydown', handleKeydown);
+  };
+}
+
+// Initialize and store cleanup
+if (typeof window !== 'undefined') {
+  keyboardCleanup = initKeyboardHandler();
 }
 
 // Register escape to close modal
@@ -258,3 +287,22 @@ registerShortcut({
   key: 'Escape',
   handler: () => modal.close()
 });
+
+// ═══════════════════════════════════════════════════
+// CLEANUP FUNCTION
+// ═══════════════════════════════════════════════════
+
+/**
+ * Cleanup all UI event listeners
+ * Call this on app unmount to prevent memory leaks
+ */
+export function cleanupUI(): void {
+  if (resizeCleanup) {
+    resizeCleanup();
+    resizeCleanup = null;
+  }
+  if (keyboardCleanup) {
+    keyboardCleanup();
+    keyboardCleanup = null;
+  }
+}
