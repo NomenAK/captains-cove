@@ -22,13 +22,17 @@ export function loadFromStorage<T>(
     const parsed = JSON.parse(stored);
 
     if (validator && !validator(parsed)) {
-      console.warn(`Storage validation failed for key: ${key}`);
+      if (import.meta.env.DEV) {
+        console.warn(`Storage validation failed for key: ${key}`);
+      }
       return null;
     }
 
     return parsed as T;
   } catch (e) {
-    console.warn(`Failed to load from storage: ${key}`, e);
+    if (import.meta.env.DEV) {
+      console.warn(`Failed to load from storage: ${key}`, e);
+    }
     return null;
   }
 }
@@ -46,7 +50,9 @@ export function saveToStorage<T>(key: string, data: T): boolean {
     localStorage.setItem(key, JSON.stringify(data));
     return true;
   } catch (e) {
-    console.error(`Failed to save to storage: ${key}`, e);
+    if (import.meta.env.DEV) {
+      console.error(`Failed to save to storage: ${key}`, e);
+    }
     return false;
   }
 }
@@ -61,7 +67,9 @@ export function removeFromStorage(key: string): void {
   try {
     localStorage.removeItem(key);
   } catch (e) {
-    console.warn(`Failed to remove from storage: ${key}`, e);
+    if (import.meta.env.DEV) {
+      console.warn(`Failed to remove from storage: ${key}`, e);
+    }
   }
 }
 

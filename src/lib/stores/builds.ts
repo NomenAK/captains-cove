@@ -48,7 +48,9 @@ function loadFromStorage(): Build[] {
 
     // Handle version mismatch with migration
     if (data.version !== STORAGE_VERSION) {
-      console.info('Migrating builds from version', data.version, 'to', STORAGE_VERSION);
+      if (import.meta.env.DEV) {
+        console.info('Migrating builds from version', data.version, 'to', STORAGE_VERSION);
+      }
       const migrated = migrateBuilds(data.builds);
       saveToStorage(migrated);
       return migrated;
@@ -56,7 +58,9 @@ function loadFromStorage(): Build[] {
 
     return data.builds;
   } catch (err) {
-    console.error('Failed to load builds from storage:', err);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load builds from storage:', err);
+    }
     return [];
   }
 }
@@ -69,7 +73,9 @@ function saveToStorage(builds: Build[]): void {
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (err) {
-    console.error('Failed to save builds to storage:', err);
+    if (import.meta.env.DEV) {
+      console.error('Failed to save builds to storage:', err);
+    }
   }
 }
 
@@ -260,7 +266,8 @@ function validateBuild(build: unknown): build is Build {
 
   // Required number fields
   if (typeof b.tier !== 'number' || b.tier < 1 || b.tier > 7) return false;
-  if (typeof b.estimatedScore !== 'number' && b.estimatedScore !== undefined) return false;
+  // estimatedScore must be a number or undefined (optional field)
+  if (b.estimatedScore !== undefined && typeof b.estimatedScore !== 'number') return false;
 
   // shipId: number | null (also accept string for migration compatibility)
   if (b.shipId !== null && typeof b.shipId !== 'number' && typeof b.shipId !== 'string') return false;

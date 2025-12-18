@@ -72,7 +72,9 @@ async function loadLocalization(): Promise<Localization> {
     .eq('language', 'en');
 
   if (error) {
-    console.warn('Failed to load localization:', error.message);
+    if (import.meta.env.DEV) {
+      console.warn('Failed to load localization:', error.message);
+    }
     return {};
   }
 
@@ -101,7 +103,9 @@ async function loadShips(): Promise<Ship[]> {
     .order('name', { ascending: true });
 
   if (error) {
-    console.error('Failed to load ships:', error.message);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load ships:', error.message);
+    }
     return [];
   }
 
@@ -144,7 +148,9 @@ async function loadWeapons(): Promise<Weapon[]> {
     .order('category', { ascending: true });
 
   if (error) {
-    console.error('Failed to load weapons:', error.message);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load weapons:', error.message);
+    }
     return [];
   }
 
@@ -179,7 +185,9 @@ async function loadAmmo(): Promise<Ammo[]> {
     .select('*');
 
   if (error) {
-    console.error('Failed to load ammo:', error.message);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load ammo:', error.message);
+    }
     return [];
   }
 
@@ -214,7 +222,9 @@ async function loadKegs(): Promise<PowderKeg[]> {
     .select('*');
 
   if (error) {
-    console.error('Failed to load kegs:', error.message);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load kegs:', error.message);
+    }
     return [];
   }
 
@@ -247,7 +257,9 @@ async function loadCrewUnits(): Promise<CrewUnit[]> {
     .select('*');
 
   if (error) {
-    console.error('Failed to load crew units:', error.message);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load crew units:', error.message);
+    }
     return [];
   }
 
@@ -280,7 +292,9 @@ async function loadCaptainSkills(): Promise<CaptainSkill[]> {
     .select('*');
 
   if (error) {
-    console.error('Failed to load skills:', error.message);
+    if (import.meta.env.DEV) {
+      console.error('Failed to load skills:', error.message);
+    }
     return [];
   }
 
