@@ -103,7 +103,7 @@ function transformShips(data) {
         subtype: raw.subtype || null,
         rank: raw.rank,
         tier,
-        rarity: raw.rarity || 'Default',
+        rarity: (raw.rarity || 'Default').split(' ')[0], // Handle compound values like "Default SailageLegend"
         faction: raw.faction || 'None',
         health: raw.stats?.health || 0,
         armor: raw.stats?.armor || 0,
