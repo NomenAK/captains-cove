@@ -1,27 +1,22 @@
 /* Captain's Cove - Data Loader */
-/* Fetches and transforms JSON game data with localization */
+/* Fetches game data from Supabase with caching and fallback */
 
+import { supabase } from '../supabase';
 import type {
   Ship,
-  ShipRaw,
   Weapon,
-  WeaponRaw,
   Ammo,
   PowderKeg,
   CrewUnit,
-  CrewUnitRaw,
   CaptainSkill,
   Upgrade,
   Cosmetic,
   Resource,
   Localization,
   AppData,
-  ShipType,
   ShipClass,
   WeaponCategory,
-  WeaponSize,
-  SkillCategory,
-  SHIP_TYPE_TO_CLASS
+  SkillCategory
 } from './types';
 
 // ═══════════════════════════════════════════════════
@@ -51,23 +46,6 @@ export function clearCache(): void {
 }
 
 // ═══════════════════════════════════════════════════
-// DATA FETCHING
-// ═══════════════════════════════════════════════════
-
-async function fetchJson<T>(path: string): Promise<T> {
-  const cached = getCached<T>(path);
-  if (cached) return cached;
-
-  const response = await fetch(`/data/${path}`);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch ${path}: ${response.statusText}`);
-  }
-  const data = await response.json();
-  setCache(path, data);
-  return data;
-}
-
-// ═══════════════════════════════════════════════════
 // LOCALIZATION
 // ═══════════════════════════════════════════════════
 
@@ -78,16 +56,20 @@ async function loadLocalization(): Promise<Localization> {
     return localization;
   }
 
-  // Load main localization and category-specific files in parallel
-  const [main, items, units, skills, ammo] = await Promise.all([
-    fetchJson<Localization>('localization/en.json'),
-    fetchJson<Localization>('localization/en_items.json'),
-    fetchJson<Localization>('localization/en_units.json'),
-    fetchJson<Localization>('localization/en_skills.json'),
-    fetchJson<Localization>('localization/en_ammo.json')
-  ]);
+  const { data, error } = await supabase
+    .from('localization')
+    .select('key, value')
+    .eq('language', 'en');
 
-  localization = { ...main, ...items, ...units, ...skills, ...ammo };
+  if (error) {
+    console.warn('Failed to load localization:', error.message);
+    return {};
+  }
+
+  localization = Object.fromEntries(
+    (data || []).map(row => [row.key, row.value])
+  );
+
   return localization;
 }
 
@@ -96,484 +78,239 @@ export function getLocalizedString(key: string): string {
 }
 
 // ═══════════════════════════════════════════════════
-// SHIP TYPE TO CLASS MAPPING
+// SHIP DATA
 // ═══════════════════════════════════════════════════
-
-const SHIP_TYPE_CLASS_MAP: Record<ShipType, ShipClass> = {
-  'Destroyer': 'Fast',
-  'Battleship': 'Combat',
-  'Hardship': 'Heavy',
-  'CargoShip': 'Transport',
-  'Mortar': 'Siege'
-};
-
-function getShipClass(type: ShipType): ShipClass {
-  return SHIP_TYPE_CLASS_MAP[type] || 'Combat';
-}
-
-// ═══════════════════════════════════════════════════
-// SHIP DATA TRANSFORMATION
-// ═══════════════════════════════════════════════════
-
-interface ShipsJsonResponse {
-  ships: ShipRaw[];
-}
 
 async function loadShips(): Promise<Ship[]> {
-  const [data, loc] = await Promise.all([
-    fetchJson<ShipsJsonResponse>('ships/stats.json'),
-    loadLocalization()
-  ]);
+  const { data, error } = await supabase
+    .from('ships')
+    .select('*')
+    .eq('is_playable', true)
+    .order('tier', { ascending: true })
+    .order('name', { ascending: true });
 
-  return data.ships
-    .filter(ship => ship.id > 0) // Filter out invalid entries
-    .map(raw => {
-      const nameKey = `ship_${raw.id}_name`;
-      const name = loc[nameKey] || `Ship ${raw.id}`;
-
-      // Convert rank to tier (rank 0 = tier 7, rank 6 = tier 1)
-      const tier = 7 - raw.rank;
-
-      // Determine if ship is playable (has valid stats)
-      const isPlayable = raw.health > 0 && tier >= 1 && tier <= 7;
-
-      // Determine PvP role based on type and stats
-      const pvpRole = determinePvPRole(raw);
-
-      return {
-        id: raw.id,
-        staticInfoId: raw.staticInfoId,
-        name,
-        health: raw.health,
-        speed: raw.speed,
-        mobility: raw.mobility,
-        armor: raw.armor,
-        capacity: raw.capacity,
-        crewSlots: raw.crewSlots,
-        rank: raw.rank,
-        tier,
-        type: raw.type,
-        shipClass: getShipClass(raw.type),
-        subtype: raw.subtype,
-        fraction: raw.fraction,
-        cost: raw.cost,
-        coolness: raw.coolness,
-        requiredRank: raw.requiredRank,
-        upgradeSlots: raw.upgradeSlots,
-        isPlayable,
-        pvpRole,
-        icon: `ships/ship_${raw.id}`
-      } as Ship;
-    })
-    .filter(ship => ship.isPlayable)
-    .sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
-}
-
-function determinePvPRole(ship: ShipRaw): string {
-  const type = ship.type;
-  const armor = ship.armor;
-  const speed = ship.speed;
-
-  if (type === 'Mortar') return 'Siege';
-  if (type === 'CargoShip') return 'Trade';
-  if (type === 'Hardship') return armor >= 8 ? 'Tank/Brawl' : 'Frontline';
-  if (type === 'Destroyer') return speed >= 9 ? 'Kite/Scout' : 'Pursuit';
-  if (type === 'Battleship') return armor >= 6 ? 'Frontline' : 'Skirmish';
-
-  return 'General';
-}
-
-// ═══════════════════════════════════════════════════
-// WEAPON DATA TRANSFORMATION
-// ═══════════════════════════════════════════════════
-
-interface CannonsJsonResponse {
-  cannons: WeaponRaw[];
-}
-
-function parseWeaponCategory(category: string): { category: WeaponCategory; sizeClass: WeaponSize } {
-  const parts = category.split(' ');
-  const size = parts[0] as WeaponSize;
-
-  // Determine category from class name
-  let cat: WeaponCategory = 'Cannon';
-  const classLower = category.toLowerCase();
-
-  if (classLower.includes('culverin') || classLower.includes('distance')) {
-    cat = 'Culverin';
-  } else if (classLower.includes('carronade') || classLower.includes('heavy')) {
-    cat = 'Carronade';
-  } else if (classLower.includes('bombard')) {
-    cat = 'Bombard';
-  } else if (classLower.includes('mortar')) {
-    cat = 'Mortar';
+  if (error) {
+    console.error('Failed to load ships:', error.message);
+    return [];
   }
 
-  return { category: cat, sizeClass: size || 'Medium' };
+  return (data || []).map(row => ({
+    id: row.id,
+    staticInfoId: row.static_info_id,
+    name: row.name,
+    health: row.health,
+    speed: row.speed,
+    mobility: row.mobility,
+    armor: row.armor,
+    capacity: row.capacity,
+    crewSlots: row.crew_slots,
+    rank: row.rank,
+    tier: row.tier,
+    type: row.type,
+    shipClass: row.ship_class as ShipClass,
+    subtype: row.subtype || '',
+    fraction: row.fraction,
+    cost: row.cost,
+    coolness: row.coolness,
+    requiredRank: row.required_rank,
+    upgradeSlots: row.upgrade_slots,
+    isPlayable: row.is_playable,
+    pvpRole: row.pvp_role || undefined,
+    icon: row.icon || undefined
+  }));
 }
 
-function extractSpeedFactor(extra: string): number {
-  const match = extra.match(/SpeedFactor:([\d.]+)/);
-  return match ? parseFloat(match[1]) : 1;
-}
-
-function determineWeaponTier(weaponClass: string): number {
-  if (weaponClass.includes('CastIron') || weaponClass.includes('Default')) return 5;
-  if (weaponClass.includes('Bronze')) return 4;
-  if (weaponClass.includes('Iron')) return 3;
-  if (weaponClass.includes('Steel')) return 2;
-  if (weaponClass.includes('Gold') || weaponClass.includes('Elite')) return 1;
-  return 4;
-}
+// ═══════════════════════════════════════════════════
+// WEAPON DATA
+// ═══════════════════════════════════════════════════
 
 async function loadWeapons(): Promise<Weapon[]> {
-  const data = await fetchJson<CannonsJsonResponse>('weapons/cannons.json');
+  const { data, error } = await supabase
+    .from('weapons')
+    .select('*')
+    .order('tier', { ascending: true })
+    .order('category', { ascending: true });
 
-  return data.cannons.map(raw => {
-    const { category, sizeClass } = parseWeaponCategory(raw.category);
-    const speedFactor = extractSpeedFactor(raw.extra);
-    const tier = determineWeaponTier(raw.category);
+  if (error) {
+    console.error('Failed to load weapons:', error.message);
+    return [];
+  }
 
-    // Generate a readable name from ID
-    const nameParts = raw.id.replace('ncs_', '').split('_');
-    const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-
-    return {
-      id: raw.id,
-      name,
-      class: raw.class,
-      category,
-      sizeClass,
-      distance: parseInt(raw.distance, 10),
-      penetration: Number(raw.penetration) || 0,
-      cooldown: Number(raw.cooldown) || 0,
-      angle: Number(raw.angle) || 0,
-      scatter: Number(raw.scatter) || 0,
-      speedFactor,
-      price: Number(raw.price) || 0,
-      icon: raw.icon,
-      model: raw.model,
-      craftingType: raw.craftingType,
-      tier
-    } as Weapon;
-  });
+  return (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    class: row.class,
+    category: row.category as WeaponCategory,
+    sizeClass: row.size_class,
+    distance: row.distance,
+    penetration: row.penetration,
+    cooldown: row.cooldown,
+    angle: row.angle,
+    scatter: row.scatter,
+    speedFactor: row.speed_factor,
+    price: row.price,
+    icon: row.icon || '',
+    model: row.model || '',
+    craftingType: row.crafting_type,
+    tier: row.tier
+  }));
 }
 
 // ═══════════════════════════════════════════════════
-// AMMO DATA TRANSFORMATION
+// AMMO DATA
 // ═══════════════════════════════════════════════════
-
-interface AmmoJsonResponse {
-  ammo: Ammo[];
-}
 
 async function loadAmmo(): Promise<Ammo[]> {
-  const [data, loc] = await Promise.all([
-    fetchJson<AmmoJsonResponse>('weapons/ammo.json'),
-    loadLocalization()
-  ]);
+  const { data, error } = await supabase
+    .from('ammo')
+    .select('*');
 
-  return data.ammo.map(raw => {
-    const nameKey = `${raw.id}_name`;
-    const name = loc[nameKey] || raw.id.replace('cball_', 'Ball ');
+  if (error) {
+    console.error('Failed to load ammo:', error.message);
+    return [];
+  }
 
-    return {
-      ...raw,
-      name,
-      isRare: raw.isRare || raw.cost > 5
-    };
-  });
+  return (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    speed: row.speed,
+    penetration: row.penetration,
+    damageFactor: row.damage_factor,
+    sailDamage: row.sail_damage,
+    crewDamage: row.crew_damage,
+    minDamage: row.min_damage,
+    effects: row.effects || '',
+    mass: row.mass,
+    radius: row.radius,
+    reloadFactor: row.reload_factor,
+    distanceFactor: row.distance_factor,
+    icon: row.icon || '',
+    cost: row.cost,
+    isRare: row.is_rare
+  }));
 }
 
 // ═══════════════════════════════════════════════════
-// POWDER KEGS DATA TRANSFORMATION
+// POWDER KEGS DATA
 // ═══════════════════════════════════════════════════
-
-interface KegsJsonResponse {
-  kegs: PowderKeg[];
-}
 
 async function loadKegs(): Promise<PowderKeg[]> {
-  const data = await fetchJson<KegsJsonResponse>('weapons/kegs.json');
+  const { data, error } = await supabase
+    .from('kegs')
+    .select('*');
 
-  return data.kegs
-    .filter(keg => keg.id !== 'removed')
-    .map(raw => {
-      // Generate name from ID
-      const name = `Powder Keg ${raw.id.replace('pkeg_', '')}`;
+  if (error) {
+    console.error('Failed to load kegs:', error.message);
+    return [];
+  }
 
-      return {
-        ...raw,
-        name
-      };
-    });
+  return (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    mass: row.mass,
+    damage: row.damage,
+    triggerRadius: row.trigger_radius,
+    damageRadius: row.damage_radius,
+    count: row.count,
+    reload: row.reload,
+    crewUsage: row.crew_usage,
+    icon: row.icon || '',
+    costGold: row.cost_gold,
+    costSkulls: row.cost_skulls,
+    costMarks: row.cost_marks,
+    isRare: row.is_rare
+  }));
 }
 
 // ═══════════════════════════════════════════════════
-// CREW DATA TRANSFORMATION
+// CREW DATA
 // ═══════════════════════════════════════════════════
-
-interface UnitsJsonResponse {
-  units: CrewUnitRaw[];
-}
-
-// PvP-relevant special crew IDs
-const PVP_RELEVANT_CREW = [
-  'unit_special_8', 'unit_special_8b', 'unit_special_8c', // Gunners
-  'unit_special_9', 'unit_special_9b', // Artillerists
-  'unit_special_11', 'unit_special_11b', 'unit_special_11c', // Sail handlers
-  'unit_special_21', // Quartermaster
-  'unit_special_28', // Powder Monkey
-  'unit_special_30', // Scout
-];
 
 async function loadCrewUnits(): Promise<CrewUnit[]> {
-  const [data, loc] = await Promise.all([
-    fetchJson<UnitsJsonResponse>('crew/units.json'),
-    loadLocalization()
-  ]);
+  const { data, error } = await supabase
+    .from('crews')
+    .select('*');
 
-  return data.units.map(raw => {
-    const nameKey = `${raw.id}_name`;
-    const name = loc[nameKey] || raw.id;
-    const pvpRelevant = raw.type === 'Sailor' ||
-                        raw.type === 'Boarding' ||
-                        PVP_RELEVANT_CREW.includes(raw.id);
+  if (error) {
+    console.error('Failed to load crew units:', error.message);
+    return [];
+  }
 
-    return {
-      ...raw,
-      name,
-      pvpRelevant
-    } as CrewUnit;
-  });
+  return (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    damage: row.damage,
+    health: row.health,
+    capacity: row.capacity,
+    cost: row.cost,
+    costMarks: row.cost_marks,
+    options: row.options,
+    effect: row.effect || '',
+    effectPerSailor: row.effect_per_sailor || '',
+    effectPerBoarding: row.effect_per_boarding || '',
+    icon: row.icon || '',
+    pvpRelevant: row.pvp_relevant
+  }));
 }
 
 // ═══════════════════════════════════════════════════
-// CAPTAIN SKILLS DATA TRANSFORMATION
+// CAPTAIN SKILLS DATA
 // ═══════════════════════════════════════════════════
-
-interface SkillsJsonResponse {
-  skills: {
-    name: string;
-    costPoints: number;
-    cost: string;
-    effect: string;
-    category: number;
-    position: string;
-    radialPosition: string;
-    dependsOn: string;
-    requiredAchievements: string;
-    requiredShips: string;
-    requiredRank: string;
-    icon: string;
-  }[];
-}
-
-const SKILL_CATEGORY_MAP: Record<number, SkillCategory> = {
-  0: 'economy',
-  1: 'logistics',
-  2: 'combat',
-  3: 'legend'
-};
-
-// PvP-relevant skill names
-const PVP_SKILL_PATTERNS = [
-  'skill_27', 'skill_28', 'skill_29', 'skill_30', 'skill_31', 'skill_32',
-  'skill_33', 'skill_34', 'skill_35', 'skill_36', 'skill_37', 'skill_38',
-  'skill_39', 'skill_40', 'skill_41', 'skill_42', 'skill_52', 'skill_53'
-];
 
 async function loadCaptainSkills(): Promise<CaptainSkill[]> {
-  const [data, loc] = await Promise.all([
-    fetchJson<SkillsJsonResponse>('crew/skills.json'),
-    loadLocalization()
-  ]);
+  const { data, error } = await supabase
+    .from('skills')
+    .select('*');
 
-  return data.skills
-    .filter(raw => raw.name !== 'removed' && raw.effect)
-    .map(raw => {
-      const nameKey = `${raw.name}_name`;
-      const name = loc[nameKey] || raw.name;
-      const category = SKILL_CATEGORY_MAP[raw.category] || 'economy';
-      const pvpRelevant = category === 'combat' ||
-                          PVP_SKILL_PATTERNS.includes(raw.name);
+  if (error) {
+    console.error('Failed to load skills:', error.message);
+    return [];
+  }
 
-      return {
-        id: raw.name,
-        name,
-        costPoints: raw.costPoints,
-        cost: raw.cost,
-        effect: raw.effect,
-        category,
-        position: raw.position,
-        radialPosition: raw.radialPosition,
-        dependsOn: raw.dependsOn,
-        requiredAchievements: raw.requiredAchievements,
-        requiredShips: raw.requiredShips,
-        requiredRank: raw.requiredRank,
-        icon: raw.icon,
-        pvpRelevant
-      } as CaptainSkill;
-    });
+  return (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    costPoints: row.cost_points,
+    cost: row.cost || '',
+    effect: row.effect || '',
+    category: row.category as SkillCategory,
+    position: row.position || '',
+    radialPosition: row.radial_position || '',
+    dependsOn: row.depends_on || '',
+    requiredAchievements: row.required_achievements || '',
+    requiredShips: row.required_ships || '',
+    requiredRank: row.required_rank || '',
+    icon: row.icon || '',
+    pvpRelevant: row.pvp_relevant
+  }));
 }
 
 // ═══════════════════════════════════════════════════
-// UPGRADES DATA (placeholder - needs upgrade file)
+// UPGRADES DATA (placeholder)
 // ═══════════════════════════════════════════════════
 
 async function loadUpgrades(): Promise<Upgrade[]> {
-  // Upgrades file not in the expected location
-  // Return empty array for now
+  // Upgrades table not yet populated
   return [];
 }
 
 // ═══════════════════════════════════════════════════
-// COSMETICS DATA TRANSFORMATION
+// COSMETICS DATA (placeholder)
 // ═══════════════════════════════════════════════════
-
-interface CosmeticRaw {
-  name: string;
-  icon: string;
-  inShop: string;
-  bonus: string | null;
-}
-
-interface CosmeticsJsonResponse {
-  cosmetics: CosmeticRaw[];
-}
-
-function parseCosmeticType(nameKey: string): 'design' | 'sail' | 'flag' | 'guild' | 'private' {
-  if (nameKey.includes('guildflag') || nameKey.includes('flag')) return 'flag';
-  if (nameKey.includes('guildsail') || nameKey.includes('sail')) return 'sail';
-  if (nameKey.includes('guild')) return 'guild';
-  if (nameKey.includes('private')) return 'private';
-  return 'design';
-}
-
-function parseInShop(inShop: string): { inShop: boolean; tierRequired: number | null; goldCost: number | null } {
-  if (!inShop || inShop === 'false' || inShop === '') {
-    return { inShop: false, tierRequired: null, goldCost: null };
-  }
-
-  // Check for tier requirements like "true Tier4"
-  const tierMatch = inShop.match(/Tier(\d+)/i);
-  const tierRequired = tierMatch ? parseInt(tierMatch[1], 10) : null;
-
-  // Check for gold cost like "ByGold 10000"
-  const goldMatch = inShop.match(/ByGold\s+(\d+)/i);
-  const goldCost = goldMatch ? parseInt(goldMatch[1], 10) : null;
-
-  return {
-    inShop: inShop.includes('true') || goldCost !== null,
-    tierRequired,
-    goldCost
-  };
-}
 
 async function loadCosmetics(): Promise<Cosmetic[]> {
-  try {
-    const [data, loc] = await Promise.all([
-      fetchJson<CosmeticsJsonResponse>('ships/cosmetics.json'),
-      loadLocalization()
-    ]);
-
-    return data.cosmetics
-      .filter(raw => raw.name && !raw.name.includes('private_d')) // Filter out private duplicates
-      .map((raw, index) => {
-        const nameKey = raw.name;
-        const name = loc[nameKey] || nameKey.replace(/_name$/, '').replace(/_/g, ' ');
-        const type = parseCosmeticType(nameKey);
-        const { inShop, tierRequired, goldCost } = parseInShop(raw.inShop || '');
-
-        return {
-          id: `cosmetic_${index}`,
-          name,
-          nameKey,
-          type,
-          icon: raw.icon || '',
-          inShop,
-          tierRequired,
-          goldCost,
-          bonus: raw.bonus
-        } as Cosmetic;
-      });
-  } catch {
-    return [];
-  }
+  // Cosmetics table not yet populated
+  return [];
 }
 
 // ═══════════════════════════════════════════════════
-// RESOURCES DATA TRANSFORMATION
+// RESOURCES DATA (placeholder)
 // ═══════════════════════════════════════════════════
-
-interface ResourceRaw {
-  id: string;
-  status: string;
-  mediumCost: number;
-  mass: number;
-  icon: string;
-  effects: string;
-}
-
-interface ResourcesJsonResponse {
-  resources: ResourceRaw[];
-}
-
-function parseResourceCategory(effects: string): { category: 'trade' | 'food' | 'material' | 'special'; isFood: boolean; isTradeable: boolean; corruption: number } {
-  const effectsLower = effects.toLowerCase();
-  const isFood = effectsLower.includes('foodvalue');
-  const isTradeable = effectsLower.includes('tradingitem');
-
-  // Extract corruption value
-  let corruption = 0;
-  const corruptionMatch = effects.match(/Corruption\s+([\d.]+)/i);
-  if (corruptionMatch) {
-    corruption = parseFloat(corruptionMatch[1]);
-  }
-
-  // Determine category
-  let category: 'trade' | 'food' | 'material' | 'special' = 'material';
-  if (isFood) {
-    category = 'food';
-  } else if (isTradeable) {
-    category = 'trade';
-  } else if (effectsLower.includes('cannotbestoredinport') || effectsLower.includes('special')) {
-    category = 'special';
-  }
-
-  return { category, isFood, isTradeable, corruption };
-}
 
 async function loadResources(): Promise<Resource[]> {
-  try {
-    const [data, loc] = await Promise.all([
-      fetchJson<ResourcesJsonResponse>('world/resources.json'),
-      loadLocalization()
-    ]);
-
-    return data.resources
-      .filter(raw => raw.status === 'ok')
-      .map(raw => {
-        const nameKey = `${raw.id}_name`;
-        const name = loc[nameKey] || raw.id.replace('res_', 'Resource ');
-        const { category, isFood, isTradeable, corruption } = parseResourceCategory(raw.effects || '');
-
-        return {
-          id: raw.id,
-          name,
-          category,
-          mediumCost: raw.mediumCost,
-          mass: raw.mass,
-          icon: raw.icon,
-          effects: raw.effects || '',
-          isFood,
-          isTradeable,
-          corruption
-        } as Resource;
-      });
-  } catch {
-    return [];
-  }
+  // Resources table not yet populated
+  return [];
 }
 
 // ═══════════════════════════════════════════════════
