@@ -155,4 +155,16 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+  /* Mobile touch target compliance (44x44px minimum) */
+  @media (max-width: 768px) {
+    .btn {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    .btn--sm {
+      padding: var(--space-sm) var(--space-md);
+    }
+  }
 </style>

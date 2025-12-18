@@ -184,9 +184,9 @@
 
   .search-clear {
     position: absolute;
-    right: var(--space-sm);
-    width: 20px;
-    height: 20px;
+    right: var(--space-xs);
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -194,7 +194,7 @@
     border: none;
     border-radius: var(--radius-sm);
     color: var(--text-muted);
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     cursor: pointer;
     transition: all var(--transition-fast);
   }
@@ -202,6 +202,20 @@
   .search-clear:hover {
     background: var(--error);
     color: var(--canvas);
+  }
+
+  .search-clear:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.3);
+  }
+
+  /* Touch target compliance */
+  @media (max-width: 768px) {
+    .search-clear {
+      width: 44px;
+      height: 44px;
+      right: 0;
+    }
   }
 
   .filter-bar__right {

@@ -28,14 +28,30 @@
     clearTimeout(timeout);
     showTooltip = false;
   }
+
+  function handleTouch(e: TouchEvent) {
+    e.preventDefault();
+    showTooltip = !showTooltip;
+  }
+
+  function handleClickOutside(e: MouseEvent) {
+    const target = e.target as Node;
+    const wrapper = (e.currentTarget as HTMLElement).closest('.tooltip-wrapper');
+    if (wrapper && !wrapper.contains(target)) {
+      showTooltip = false;
+    }
+  }
 </script>
 
 <div
   class="tooltip-wrapper"
+  role="button"
+  tabindex="0"
   onmouseenter={handleMouseEnter}
   onmouseleave={handleMouseLeave}
   onfocus={handleMouseEnter}
   onblur={handleMouseLeave}
+  ontouchstart={handleTouch}
 >
   {@render children()}
   {#if showTooltip}

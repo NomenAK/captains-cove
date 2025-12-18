@@ -8,7 +8,7 @@
   <div class="header__left">
     <button
       class="header__menu-btn"
-      on:click={toggleSidebar}
+      onclick={toggleSidebar}
       aria-label={$sidebarOpen ? 'Close menu' : 'Open menu'}
       aria-expanded={$sidebarOpen}
     >
@@ -38,7 +38,7 @@
   <div class="header__right">
     <button
       class="header__theme-btn"
-      on:click={toggleTheme}
+      onclick={toggleTheme}
       aria-label={$theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
     >
       {$theme === 'dark' ? '☀️' : '🌙'}
@@ -68,10 +68,18 @@
 
   .header__menu-btn {
     display: none;
+    min-width: 44px;
+    min-height: 44px;
     padding: var(--space-sm);
     background: transparent;
     border: none;
     cursor: pointer;
+  }
+
+  .header__menu-btn:focus {
+    outline: none;
+    background: var(--bg-hover);
+    border-radius: var(--radius-md);
   }
 
   .header__menu-icon {
@@ -178,6 +186,8 @@
   }
 
   .header__theme-btn {
+    min-width: 44px;
+    min-height: 44px;
     padding: var(--space-sm);
     font-size: var(--text-lg);
     background: transparent;
@@ -190,6 +200,12 @@
   .header__theme-btn:hover {
     background: var(--bg-hover);
     border-color: var(--brass);
+  }
+
+  .header__theme-btn:focus {
+    outline: none;
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 0 2px rgba(212, 168, 83, 0.3);
   }
 
   @media (max-width: 1024px) {
