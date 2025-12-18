@@ -8,6 +8,7 @@ export { default as EmptyState } from './EmptyState.svelte';
 export { default as ErrorState } from './ErrorState.svelte';
 export { default as FilterGroup } from './FilterGroup.svelte';
 export { default as Grid } from './Grid.svelte';
+export { default as HeroSection } from './HeroSection.svelte';
 export { default as ImageWithFallback } from './ImageWithFallback.svelte';
 export { default as Input } from './Input.svelte';
 export { default as LoadingState } from './LoadingState.svelte';
