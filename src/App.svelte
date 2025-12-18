@@ -14,6 +14,11 @@
   import Design from './routes/design/+page.svelte';
   import Builds from './routes/builds/+page.svelte';
   import Balance from './routes/balance/+page.svelte';
+  import Upgrades from './routes/upgrades/+page.svelte';
+  import Swivels from './routes/swivels/+page.svelte';
+  import Ports from './routes/ports/+page.svelte';
+  import Progression from './routes/progression/+page.svelte';
+  import Arena from './routes/arena/+page.svelte';
   import NotFound from './routes/NotFound.svelte';
 
   // Route definitions
@@ -30,6 +35,11 @@
     '/builds/:id': Builds,
     '/builds/:id/edit': Builds,
     '/balance': Balance,
+    '/upgrades': Upgrades,
+    '/swivels': Swivels,
+    '/ports': Ports,
+    '/progression': Progression,
+    '/arena': Arena,
     '*': NotFound
   };
 

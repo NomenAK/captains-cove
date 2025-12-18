@@ -6,12 +6,19 @@ import type {
   Ship,
   Weapon,
   Ammo,
+  SwivelAmmo,
   PowderKeg,
   CrewUnit,
   CaptainSkill,
   Upgrade,
   Cosmetic,
+  Consumable,
   Resource,
+  Port,
+  Achievement,
+  Rank,
+  Guild,
+  ArenaBonus,
   Localization,
   AppData,
   ShipClass
@@ -27,12 +34,19 @@ interface DataState {
   ships: Ship[];
   weapons: Weapon[];
   ammo: Ammo[];
+  swivelAmmo: SwivelAmmo[];
   kegs: PowderKeg[];
   crews: CrewUnit[];
   skills: CaptainSkill[];
   upgrades: Upgrade[];
   cosmetics: Cosmetic[];
+  consumables: Consumable[];
   resources: Resource[];
+  ports: Port[];
+  achievements: Achievement[];
+  ranks: Rank[];
+  guilds: Guild[];
+  arenaBonuses: ArenaBonus[];
   localization: Localization;
   isLoading: boolean;
   error: string | null;
@@ -47,12 +61,19 @@ const initialState: DataState = {
   ships: [],
   weapons: [],
   ammo: [],
+  swivelAmmo: [],
   kegs: [],
   crews: [],
   skills: [],
   upgrades: [],
   cosmetics: [],
+  consumables: [],
   resources: [],
+  ports: [],
+  achievements: [],
+  ranks: [],
+  guilds: [],
+  arenaBonuses: [],
   localization: {},
   isLoading: false,
   error: null,
@@ -79,12 +100,19 @@ function createDataStore() {
           ships: data.ships,
           weapons: data.weapons,
           ammo: data.ammo,
+          swivelAmmo: data.swivelAmmo,
           kegs: data.kegs,
           crews: data.crews,
           skills: data.skills,
           upgrades: data.upgrades,
           cosmetics: data.cosmetics,
+          consumables: data.consumables,
           resources: data.resources,
+          ports: data.ports,
+          achievements: data.achievements,
+          ranks: data.ranks,
+          guilds: data.guilds,
+          arenaBonuses: data.arenaBonuses,
           localization: data.localization,
           isLoading: false,
           lastUpdated: Date.now()
