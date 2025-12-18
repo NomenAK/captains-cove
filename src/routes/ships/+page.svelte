@@ -171,7 +171,7 @@
               <td class="col-numeric">{ship.health.toLocaleString()}</td>
               <td class="col-numeric">{ship.speed.toFixed(1)}</td>
               <td class="col-numeric">{ship.armor.toFixed(1)}</td>
-              <td class="col-numeric hide-mobile">{ship.capacity.toLocaleString()}</td>
+              <td class="col-numeric hide-mobile">{ship.cargo.toLocaleString()}</td>
               <td class="col-numeric col-muted hide-mobile">{ship.crewSlots}</td>
             </tr>
           {/each}
@@ -202,7 +202,7 @@
             </div>
             <div class="stat-item">
               <span class="stat-label">Cargo</span>
-              <span class="stat-value">{ship.capacity.toLocaleString()}</span>
+              <span class="stat-value">{ship.cargo.toLocaleString()}</span>
             </div>
           </div>
         </button>

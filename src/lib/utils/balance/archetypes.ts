@@ -42,7 +42,7 @@ export function calculateStatMaximums(ships: Ship[]): StatMaximums {
     health: safeMax(ships.map(s => s.health), 1),
     speed: safeMax(ships.map(s => s.speed), 1),
     armor: safeMax(ships.map(s => s.armor), 1),
-    cargo: safeMax(ships.map(s => s.capacity), 1),
+    cargo: safeMax(ships.map(s => s.cargo), 1),
     crew: safeMax(ships.map(s => s.crewSlots), 1)
   };
 }
@@ -64,7 +64,7 @@ export function calculateArchetypeScore(
   score += (ship.health / maxStats.health) * weights.hp * 100;
   score += (ship.speed / maxStats.speed) * weights.speed * 100;
   score += (ship.armor / maxStats.armor) * weights.armor * 100;
-  score += (ship.capacity / maxStats.cargo) * weights.cargo * 100;
+  score += (ship.cargo / maxStats.cargo) * weights.cargo * 100;
   score += (ship.crewSlots / maxStats.crew) * weights.crew * 100;
 
   // DPS, range, accuracy would come from weapons - simplified for now

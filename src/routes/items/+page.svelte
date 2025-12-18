@@ -28,7 +28,7 @@
       result = result.filter(r =>
         r.name.toLowerCase().includes(query) ||
         r.id.toLowerCase().includes(query) ||
-        r.effects.toLowerCase().includes(query)
+        r.effects?.toLowerCase().includes(query)
       );
     }
 

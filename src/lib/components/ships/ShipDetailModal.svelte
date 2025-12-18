@@ -76,7 +76,7 @@
           <div class="stats-grid">
             <StatBar
               label="Cargo"
-              value={ship.capacity}
+              value={ship.cargo}
               max={maxValues.cargo}
               variant="cargo"
               format={(v) => v.toLocaleString()}

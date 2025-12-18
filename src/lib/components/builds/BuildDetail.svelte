@@ -2,6 +2,7 @@
   import { buildsStore, dataStore, createShipLookup, createWeaponLookup, createAmmoLookup, toasts } from '$lib/stores';
   import { safeMax } from '$lib/utils/safe-math';
   import type { Build } from '$lib/data/types';
+  import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
   import { Badge } from '$lib/components/ui';
   import { StatBar } from '$lib/components/data';
   import { push } from 'svelte-spa-router';
@@ -120,7 +121,7 @@
           <div class="ship-header">
             <h3>{ship.name}</h3>
             <div class="ship-badges">
-              <Badge variant="class" value={ship.shipClass} />
+              <Badge variant="class" value={SHIP_TYPE_TO_CLASS[ship.type] || ship.type} />
             </div>
           </div>
           <div class="ship-stats">
@@ -138,7 +139,7 @@
             </div>
             <div class="stat-row">
               <span class="stat-label">Cargo</span>
-              <span class="stat-value">{ship.capacity}</span>
+              <span class="stat-value">{ship.cargo}</span>
             </div>
             <div class="stat-row">
               <span class="stat-label">Crew</span>

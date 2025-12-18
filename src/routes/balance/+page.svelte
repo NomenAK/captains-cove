@@ -45,7 +45,7 @@
 
   const topByCargo = $derived.by(() => {
     if ($dataStore.ships.length === 0) return [];
-    return [...$dataStore.ships].sort((a, b) => b.capacity - a.capacity).slice(0, 5);
+    return [...$dataStore.ships].sort((a, b) => b.cargo - a.cargo).slice(0, 5);
   });
 
   // Loading state detection
@@ -156,7 +156,7 @@
             <div class="top-item">
               <span class="top-item__rank">#{i + 1}</span>
               <span class="top-item__name">{ship.name}</span>
-              <span class="top-item__value">{ship.capacity.toLocaleString()}</span>
+              <span class="top-item__value">{ship.cargo.toLocaleString()}</span>
             </div>
           {/each}
         </div>

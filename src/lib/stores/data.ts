@@ -16,6 +16,7 @@ import type {
   AppData,
   ShipClass
 } from '$lib/data/types';
+import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
 import { loadAllData, getStatBounds } from '$lib/data/loader';
 
 // ═══════════════════════════════════════════════════
@@ -111,7 +112,7 @@ export const dataStore = createDataStore();
 // DERIVED STORES
 // ═══════════════════════════════════════════════════
 
-// Ships by class
+// Ships by class (computed from type)
 export const shipsByClass: Readable<Record<ShipClass, Ship[]>> = derived(
   dataStore,
   $data => {
@@ -125,8 +126,9 @@ export const shipsByClass: Readable<Record<ShipClass, Ship[]>> = derived(
     };
 
     for (const ship of $data.ships) {
-      if (grouped[ship.shipClass]) {
-        grouped[ship.shipClass].push(ship);
+      const shipClass = SHIP_TYPE_TO_CLASS[ship.type];
+      if (shipClass && grouped[shipClass]) {
+        grouped[shipClass].push(ship);
       }
     }
 

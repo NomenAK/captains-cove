@@ -76,7 +76,7 @@
     <span class="ship-card__capacity">
       <span class="capacity-icon" aria-hidden="true">📦</span>
       <span class="sr-only">Cargo capacity:</span>
-      {ship.capacity.toLocaleString()}
+      {ship.cargo.toLocaleString()}
     </span>
     <span class="ship-card__crew">
       <span class="crew-icon" aria-hidden="true">👥</span>

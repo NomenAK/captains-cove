@@ -2,6 +2,7 @@
   import { dataStore } from '$lib/stores';
   import { Badge } from '$lib/components/ui';
   import type { Ship, Weapon } from '$lib/data/types';
+  import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
   import { safeMin, safeMax } from '$lib/utils/safe-math';
 
   // Combat mechanics from datamined data
@@ -42,8 +43,9 @@
     const byClass: Record<string, Ship[]> = {};
 
     for (const ship of ships) {
-      if (!byClass[ship.shipClass]) byClass[ship.shipClass] = [];
-      byClass[ship.shipClass].push(ship);
+      const shipClass = SHIP_TYPE_TO_CLASS[ship.type] || 'Combat';
+      if (!byClass[shipClass]) byClass[shipClass] = [];
+      byClass[shipClass].push(ship);
     }
 
     // Get the highest tier (best) ship from each class
@@ -133,7 +135,7 @@
               {#each representativeShips() as ship}
                 <th class="ship-header">
                   <span class="ship-name">{ship.name}</span>
-                  <Badge variant="class" value={ship.shipClass} size="sm" />
+                  <Badge variant="class" value={SHIP_TYPE_TO_CLASS[ship.type] || ship.type} size="sm" />
                   <span class="ship-stats">
                     HP: {ship.health.toLocaleString()} | Armor: {ship.armor.toFixed(1)}
                   </span>

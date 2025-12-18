@@ -2,6 +2,7 @@
   import { dataStore, buildsStore, createShipLookup, createWeaponLookup, createAmmoLookup, toasts } from '$lib/stores';
   import { safeMax, safePercentage } from '$lib/utils/safe-math';
   import type { Build, Archetype, Ship, Weapon, Ammo, Upgrade } from '$lib/data/types';
+  import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
   import { Badge } from '$lib/components/ui';
   import { push } from 'svelte-spa-router';
 
@@ -122,6 +123,7 @@
         secondary: secondaryAmmo || undefined
       },
       upgrades: selectedUpgrades,
+      consumables: [] as string[],
       strategy: strategy.trim(),
       strengths: strengths.split('\n').filter(s => s.trim()),
       weaknesses: weaknesses.split('\n').filter(s => s.trim()),
@@ -242,12 +244,12 @@
             </div>
             <div class="stat">
               <span class="stat-label">Cargo</span>
-              <span class="stat-value">{selectedShip.capacity}</span>
+              <span class="stat-value">{selectedShip.cargo}</span>
             </div>
           </div>
           <div class="ship-slots">
             <Badge variant="tier" value={selectedShip.tier} />
-            <Badge variant="class" value={selectedShip.shipClass} />
+            <Badge variant="class" value={SHIP_TYPE_TO_CLASS[selectedShip.type] || selectedShip.type} />
           </div>
         </div>
       {/if}

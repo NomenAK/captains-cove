@@ -40,7 +40,7 @@
     const maxHp = safeMax(ships.map(s => s.health), 1);
     const maxSpeed = safeMax(ships.map(s => s.speed), 1);
     const maxArmor = safeMax(ships.map(s => s.armor), 1);
-    const maxCargo = safeMax(ships.map(s => s.capacity), 1);
+    const maxCargo = safeMax(ships.map(s => s.cargo), 1);
     const maxCrew = safeMax(ships.map(s => s.crewSlots), 1);
 
     const weights = archetypeWeights[archetype];
@@ -49,7 +49,7 @@
     score += (ship.health / maxHp) * weights.hp * 100;
     score += (ship.speed / maxSpeed) * weights.speed * 100;
     score += (ship.armor / maxArmor) * weights.armor * 100;
-    score += (ship.capacity / maxCargo) * weights.cargo * 100;
+    score += (ship.cargo / maxCargo) * weights.cargo * 100;
     score += (ship.crewSlots / maxCrew) * weights.crew * 100;
     // DPS, range, accuracy would come from weapons - simplified for now
     score += 30 * (weights.dps + weights.range + weights.accuracy);

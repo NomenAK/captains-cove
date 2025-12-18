@@ -25,7 +25,7 @@
       const query = searchQuery.toLowerCase();
       result = result.filter(a =>
         a.name.toLowerCase().includes(query) ||
-        a.effects.toLowerCase().includes(query)
+        a.effects?.toLowerCase().includes(query)
       );
     }
 

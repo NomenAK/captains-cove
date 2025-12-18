@@ -37,7 +37,7 @@
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(c =>
-        c.name.toLowerCase().includes(query) ||
+        c.name?.toLowerCase().includes(query) ||
         c.nameKey.toLowerCase().includes(query)
       );
     }
@@ -67,9 +67,16 @@
 
   function getAvailabilityText(cosmetic: Cosmetic): string {
     if (!cosmetic.inShop) return 'Not Available';
-    if (cosmetic.goldCost) return `${cosmetic.goldCost.toLocaleString()} gold`;
-    if (cosmetic.tierRequired) return `Tier ${cosmetic.tierRequired}+`;
+    // inShop can be "true", "true Tier2", "true Tier4", etc.
+    const tierMatch = cosmetic.inShop.match(/Tier(\d+)/);
+    if (tierMatch) return `Tier ${tierMatch[1]}+`;
     return 'Available';
+  }
+
+  function getTierFromInShop(inShop: string | null): number | null {
+    if (!inShop) return null;
+    const match = inShop.match(/Tier(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
   }
 </script>
 
@@ -131,8 +138,8 @@
           <span class="availability" class:available={cosmetic.inShop}>
             {getAvailabilityText(cosmetic)}
           </span>
-          {#if cosmetic.tierRequired}
-            <Badge variant="tier" value={cosmetic.tierRequired} size="sm" />
+          {#if getTierFromInShop(cosmetic.inShop)}
+            <Badge variant="tier" value={getTierFromInShop(cosmetic.inShop) as number} size="sm" />
           {/if}
         </div>
       </div>

@@ -2,6 +2,7 @@
   import { dataStore, buildsStore, buildsByArchetype, buildCount } from '$lib/stores';
   import { Badge } from '$lib/components/ui';
   import type { Ship, Weapon, Archetype } from '$lib/data/types';
+  import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
 
   // Analyze current meta based on user builds and game data
   const metaInsights = $derived(() => {
@@ -76,7 +77,8 @@
     const shipClassCount: Record<string, number> = {};
     for (const { ship, count } of topShips) {
       if (ship) {
-        shipClassCount[ship.shipClass] = (shipClassCount[ship.shipClass] || 0) + count;
+        const shipClass = SHIP_TYPE_TO_CLASS[ship.type] || 'Combat';
+        shipClassCount[shipClass] = (shipClassCount[shipClass] || 0) + count;
       }
     }
     const topClass = Object.entries(shipClassCount).sort((a, b) => b[1] - a[1])[0];
@@ -217,7 +219,7 @@
               <div class="top-item">
                 <span class="item-rank">#{i + 1}</span>
                 <span class="item-name">{ship.name}</span>
-                <Badge variant="class" value={ship.shipClass} size="sm" />
+                <Badge variant="class" value={SHIP_TYPE_TO_CLASS[ship.type] || ship.type} size="sm" />
                 <span class="item-count">{count} build{count !== 1 ? 's' : ''}</span>
               </div>
             {/if}

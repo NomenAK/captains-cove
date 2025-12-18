@@ -20,6 +20,7 @@ import type {
   BuildFilters,
   SortConfig
 } from '$lib/data/types';
+import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
 import { dataStore } from './data';
 import { shipById } from './lookups';
 import { createSortComparator } from '$lib/utils/sort';
@@ -52,12 +53,15 @@ export const filteredShips = derived(
     const tierNum = $filters.tier ? parseInt($filters.tier, 10) : null;
 
     // Single-pass compound filter
-    const filtered = $data.ships.filter(s =>
-      (!$filters.class || s.shipClass === $filters.class) &&
-      (tierNum === null || s.tier === tierNum) &&
-      (!$filters.role || s.pvpRole === $filters.role) &&
-      (!searchLower || s.name.toLowerCase().includes(searchLower) || s.subtype.toLowerCase().includes(searchLower))
-    );
+    const filtered = $data.ships.filter(s => {
+      const shipClass = SHIP_TYPE_TO_CLASS[s.type];
+      return (
+        (!$filters.class || shipClass === $filters.class) &&
+        (tierNum === null || s.tier === tierNum) &&
+        (!$filters.role || s.pvpRole === $filters.role) &&
+        (!searchLower || s.name.toLowerCase().includes(searchLower) || s.subtype?.toLowerCase().includes(searchLower))
+      );
+    });
 
     // Sort using utility
     return filtered.sort(createSortComparator($sort.field as keyof Ship, $sort.direction));
@@ -95,7 +99,7 @@ export const filteredWeapons = derived(
       (!$filters.category || w.category === $filters.category) &&
       (!$filters.size || w.sizeClass === $filters.size) &&
       (tierNum === null || w.tier === tierNum) &&
-      (!searchLower || w.name.toLowerCase().includes(searchLower) || w.class.toLowerCase().includes(searchLower))
+      (!searchLower || w.name.toLowerCase().includes(searchLower) || w.weaponClass?.toLowerCase().includes(searchLower))
     );
 
     // Sort using utility
@@ -133,7 +137,7 @@ export const filteredCrews = derived(
       (!$filters.type || c.type === $filters.type) &&
       (!$filters.options || c.options === $filters.options) &&
       (!$filters.pvpOnly || c.pvpRelevant) &&
-      (!searchLower || c.name.toLowerCase().includes(searchLower) || c.effect.toLowerCase().includes(searchLower))
+      (!searchLower || c.name.toLowerCase().includes(searchLower) || c.effect?.toLowerCase().includes(searchLower))
     );
 
     // Sort using utility
