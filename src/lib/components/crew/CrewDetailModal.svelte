@@ -30,6 +30,12 @@
         <p class="crew-id">{crew.id}</p>
       </div>
 
+      {#if crew.description}
+        <div class="crew-description">
+          <p>{crew.description}</p>
+        </div>
+      {/if}
+
       <div class="crew-detail__content">
         <section class="stats-section">
           <h3 class="section-title">Combat Stats</h3>
@@ -134,6 +140,20 @@
     font-size: var(--text-xs);
     color: var(--text-muted);
     margin: 0;
+  }
+
+  .crew-description {
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--gold-primary);
+  }
+
+  .crew-description p {
+    font-size: var(--text-sm);
+    color: var(--canvas);
+    margin: 0;
+    line-height: var(--leading-relaxed);
   }
 
   .crew-detail__content {

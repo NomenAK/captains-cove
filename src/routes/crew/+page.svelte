@@ -179,6 +179,9 @@
                   </div>
                 </div>
                 <h3 class="crew-card__name">{crew.name}</h3>
+                {#if crew.description}
+                  <p class="crew-card__description">{crew.description}</p>
+                {/if}
                 <div class="crew-card__stats">
                   <div class="stat">
                     <span class="stat__label">DMG</span>
@@ -230,6 +233,9 @@
                     {/if}
                   </div>
                 </div>
+                {#if crew.description}
+                  <p class="special-card__description">{crew.description}</p>
+                {/if}
                 <p class="special-card__effect">{crew.effect || 'No special effect'}</p>
                 <div class="special-card__footer">
                   <span class="special-card__cost">{crew.cost.toLocaleString()} gold</span>
@@ -408,6 +414,17 @@
     margin: 0;
   }
 
+  .crew-card__description {
+    font-size: var(--text-xs);
+    color: var(--canvas-aged);
+    margin: 0;
+    line-height: var(--leading-relaxed);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
   .crew-card__stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -504,6 +521,17 @@
     font-size: var(--text-base);
     color: var(--gold-primary);
     margin: 0;
+  }
+
+  .special-card__description {
+    font-size: var(--text-xs);
+    color: var(--canvas-aged);
+    margin: 0;
+    line-height: var(--leading-relaxed);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .special-card__effect {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { ResourceCategory } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card, ImageWithFallback } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card, ImageWithFallback, Tooltip } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
   import { getResourceIconUrl } from '$lib/utils/storage';
@@ -169,7 +169,13 @@
                 <Badge variant="category" value={resource.category} />
               </td>
               <td class="col-name">
-                {resource.name}
+                {#if resource.description}
+                  <Tooltip content={resource.description} position="right">
+                    <span class="has-tooltip">{resource.name}</span>
+                  </Tooltip>
+                {:else}
+                  {resource.name}
+                {/if}
               </td>
               <td class="col-numeric">{resource.mediumCost}</td>
               <td class="col-numeric">{resource.mass}</td>
@@ -269,6 +275,17 @@
 
   .resource-icon__fallback {
     font-size: var(--text-xl);
+  }
+
+  .has-tooltip {
+    cursor: help;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--text-muted);
+    text-underline-offset: 2px;
+  }
+
+  .has-tooltip:hover {
+    text-decoration-color: var(--gold-primary);
   }
 
   .effects {
