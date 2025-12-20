@@ -1,14 +1,22 @@
 #!/usr/bin/env node
 /**
- * Captain's Cove - Supabase Seed Script (v2)
+ * Captain's Cove - Supabase Seed Script (v3)
  * Populates database from datawosb/output data sources
  *
- * Usage: SUPABASE_SERVICE_KEY=xxx node scripts/seed-supabase.js
+ * Usage:
+ *   SUPABASE_SERVICE_KEY=xxx node scripts/seed-supabase.js
+ *   SUPABASE_SERVICE_KEY=xxx node scripts/seed-supabase.js --truncate    # Full resync
+ *   SUPABASE_SERVICE_KEY=xxx node scripts/seed-supabase.js --english-only # English localization only
  */
 
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
+
+// Command line flags
+const args = process.argv.slice(2);
+const TRUNCATE_MODE = args.includes('--truncate') || args.includes('-t');
+const ENGLISH_ONLY = args.includes('--english-only') || args.includes('-e') || TRUNCATE_MODE;
 
 // Data source directory
 const DATA_DIR = '/home/anton/datawosb/output/data';
@@ -473,6 +481,60 @@ async function clearTable(tableName) {
   }
 }
 
+/**
+ * Truncate all tables in dependency order for full resync.
+ * Deletes from dependent tables first, then core tables.
+ */
+async function truncateAllTables() {
+  console.log('\n[TRUNCATE MODE] Clearing all tables for full resync...\n');
+
+  // Order matters: delete dependent tables first
+  const tables = [
+    // User-created data (depends on ships)
+    'builds',
+    // Localization (no FKs)
+    'localization',
+    // Independent tables
+    'cosmetics', 'guilds', 'arena_bonuses',
+    // World tables
+    'resources', 'ports', 'achievements',
+    // Meta tables
+    'ranks',
+    // Equipment tables
+    'upgrades', 'consumables',
+    // Core game tables (crews/skills before ships due to potential FKs)
+    'skills', 'crews', 'kegs', 'swivel_ammo', 'ammo', 'weapons', 'ships'
+  ];
+
+  for (const table of tables) {
+    try {
+      // Use delete with impossible condition to delete all rows
+      const { error } = await supabase.from(table).delete().neq('id', -99999);
+      if (error) {
+        // Try text PK variant
+        const { error: error2 } = await supabase.from(table).delete().neq('id', '___nonexistent___');
+        if (error2) {
+          // Try without any condition using RPC or alternative
+          const { error: error3 } = await supabase.from(table).delete().gte('id', 0);
+          if (error3) {
+            console.warn(`  Warning: Could not truncate ${table}: ${error3.message}`);
+          } else {
+            console.log(`  Truncated: ${table}`);
+          }
+        } else {
+          console.log(`  Truncated: ${table}`);
+        }
+      } else {
+        console.log(`  Truncated: ${table}`);
+      }
+    } catch (err) {
+      console.warn(`  Warning: Error truncating ${table}:`, err.message);
+    }
+  }
+
+  console.log('\n  All tables cleared.\n');
+}
+
 async function seedTable(tableName, data, options = {}) {
   const { primaryKey = 'id', batchSize = 100, useInsert = false } = options;
 
@@ -534,11 +596,25 @@ async function seedTable(tableName, data, options = {}) {
 
 async function main() {
   console.log('╔══════════════════════════════════════════════════════╗');
-  console.log('║  Captain\'s Cove - Supabase Seeder v2                 ║');
+  console.log('║  Captain\'s Cove - Supabase Seeder v3                 ║');
   console.log('║  Data source: datawosb/output                        ║');
   console.log('╚══════════════════════════════════════════════════════╝\n');
 
+  // Show mode
+  if (TRUNCATE_MODE) {
+    console.log('Mode: FULL RESYNC (truncate all tables first)');
+  }
+  if (ENGLISH_ONLY) {
+    console.log('Localization: English only');
+  }
   console.log('Loading data files from:', DATA_DIR);
+
+  // ─────────────────────────────────────────────
+  // TRUNCATE (if requested)
+  // ─────────────────────────────────────────────
+  if (TRUNCATE_MODE) {
+    await truncateAllTables();
+  }
 
   // ─────────────────────────────────────────────
   // PHASE 1: Meta tables (no dependencies)
@@ -641,11 +717,11 @@ async function main() {
   await seedTable('consumables', consumables);
 
   // ─────────────────────────────────────────────
-  // PHASE 5: Localization (all languages)
+  // PHASE 5: Localization
   // ─────────────────────────────────────────────
   console.log('\n[Phase 5] Localization...');
 
-  const LANGUAGES = ['en', 'ru', 'de', 'fr', 'es', 'pl', 'ja', 'ko', 'zh'];
+  const LANGUAGES = ENGLISH_ONLY ? ['en'] : ['en', 'ru', 'de', 'fr', 'es', 'pl', 'ja', 'ko', 'zh'];
   let allLocalization = [];
 
   for (const lang of LANGUAGES) {

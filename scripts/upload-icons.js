@@ -3,12 +3,18 @@
  * Captain's Cove - Icon Upload Script
  * Uploads game icons to Supabase Storage bucket
  *
- * Usage: SUPABASE_SERVICE_KEY=xxx node scripts/upload-icons.js
+ * Usage:
+ *   SUPABASE_SERVICE_KEY=xxx node scripts/upload-icons.js
+ *   SUPABASE_SERVICE_KEY=xxx node scripts/upload-icons.js --clear    # Clear bucket before upload
  */
 
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync, readdirSync, statSync } from 'fs';
 import { join, basename, extname } from 'path';
+
+// Command line flags
+const args = process.argv.slice(2);
+const CLEAR_MODE = args.includes('--clear') || args.includes('-c');
 
 // Source directory
 const TEXTURES_DIR = '/home/anton/datawosb/output/textures/items';
@@ -138,6 +144,80 @@ async function ensureBucketExists() {
   return true;
 }
 
+/**
+ * Clear all files from the bucket for a fresh upload.
+ * Iterates through all folders and removes all files.
+ */
+async function clearBucket() {
+  console.log('\n[CLEAR MODE] Removing all files from bucket...\n');
+
+  // All folders we might have uploaded to
+  const folders = [
+    'weapons/cannons',
+    'ammo',
+    'kegs',
+    'crews',
+    'skills',
+    'upgrades',
+    'cosmetics/designs',
+    'resources',
+    'achievements',
+    'consumables',
+    'factions',
+    'misc'
+  ];
+
+  let totalRemoved = 0;
+
+  for (const folder of folders) {
+    try {
+      // List all files in this folder (with pagination)
+      let allFiles = [];
+      let offset = 0;
+      const limit = 1000;
+
+      while (true) {
+        const { data: files, error } = await supabase.storage
+          .from(BUCKET_NAME)
+          .list(folder, { limit, offset });
+
+        if (error) {
+          // Folder might not exist, which is fine
+          if (!error.message.includes('not found')) {
+            console.warn(`  Warning listing ${folder}:`, error.message);
+          }
+          break;
+        }
+
+        if (!files || files.length === 0) break;
+
+        allFiles = allFiles.concat(files);
+        if (files.length < limit) break;
+        offset += limit;
+      }
+
+      if (allFiles.length > 0) {
+        // Remove all files in this folder
+        const filePaths = allFiles.map(f => `${folder}/${f.name}`);
+        const { error: removeError } = await supabase.storage
+          .from(BUCKET_NAME)
+          .remove(filePaths);
+
+        if (removeError) {
+          console.warn(`  Warning removing files from ${folder}:`, removeError.message);
+        } else {
+          console.log(`  Cleared: ${folder} (${allFiles.length} files)`);
+          totalRemoved += allFiles.length;
+        }
+      }
+    } catch (err) {
+      console.warn(`  Error clearing ${folder}:`, err.message);
+    }
+  }
+
+  console.log(`\n  Total files removed: ${totalRemoved}\n`);
+}
+
 // ═══════════════════════════════════════════════════
 // UPLOAD FUNCTIONS
 // ═══════════════════════════════════════════════════
@@ -201,11 +281,21 @@ async function main() {
   console.log('║  Source: datawosb/output/textures/items              ║');
   console.log('╚══════════════════════════════════════════════════════╝\n');
 
+  // Show mode
+  if (CLEAR_MODE) {
+    console.log('Mode: CLEAR (remove all files before upload)');
+  }
+
   // Step 1: Ensure bucket exists
   const bucketReady = await ensureBucketExists();
   if (!bucketReady) {
     console.error('Failed to ensure bucket exists. Exiting.');
     process.exit(1);
+  }
+
+  // Step 1.5: Clear bucket if requested
+  if (CLEAR_MODE) {
+    await clearBucket();
   }
 
   // Step 2: Collect all files
