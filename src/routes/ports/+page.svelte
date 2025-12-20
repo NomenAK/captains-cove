@@ -116,16 +116,14 @@
   </div>
 
   <Toolbar>
-    {#snippet children()}
-      <FilterGroup label="Search" for="search" grow minWidth="200px">
-        <input
-          id="search"
-          type="text"
-          placeholder="Search ports..."
-          bind:value={searchQuery}
-        />
-      </FilterGroup>
-    {/snippet}
+    <FilterGroup label="Search" for="search" grow minWidth="200px">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search ports..."
+        bind:value={searchQuery}
+      />
+    </FilterGroup>
 
     {#snippet actions()}
       <span class="filter-count">{filteredPorts.length} ports</span>
@@ -190,7 +188,7 @@
               <div class="port-card__flags">
                 <span class="flags-label">Flags:</span>
                 <div class="flags-list">
-                  {#each parseFlags(port.flags) as flag}
+                  {#each parseFlags(port.flags) as flag (flag)}
                     <span class="flag-badge">{flag}</span>
                   {/each}
                 </div>
@@ -240,7 +238,7 @@
                   <div class="port-card__flags">
                     <span class="flags-label">Flags:</span>
                     <div class="flags-list">
-                      {#each parseFlags(port.flags) as flag}
+                      {#each parseFlags(port.flags) as flag (flag)}
                         <span class="flag-badge">{flag}</span>
                       {/each}
                     </div>

@@ -2,7 +2,7 @@
 /* Manages user builds with localStorage persistence */
 
 import { writable, derived, get } from 'svelte/store';
-import type { Build, Archetype, BuildWeapons, BuildAmmo } from '$lib/data/types';
+import type { Build, Archetype } from '$lib/data/types';
 import { buildFilters, buildSort } from './filters';
 
 // ═══════════════════════════════════════════════════

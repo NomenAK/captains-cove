@@ -81,7 +81,7 @@
   <p class="section-desc">Optimal ship selections and scoring weights for each playstyle</p>
 
   <div class="archetype-grid">
-    {#each archetypeStats() as stat}
+    {#each archetypeStats() as stat (stat.archetype)}
       <div class="archetype-card">
         <div class="archetype-header">
           <span class="archetype-icon">{stat.info.icon}</span>
@@ -96,7 +96,7 @@
         <div class="weights-section">
           <h4 class="weights-title">Scoring Weights</h4>
           <div class="weights-grid">
-            {#each Object.entries(stat.weights).filter(([_, v]) => v > 0) as [key, value]}
+            {#each Object.entries(stat.weights).filter(([_, v]) => v > 0) as [key, value] (key)}
               <div class="weight-item">
                 <span class="weight-label">{key.toUpperCase()}</span>
                 <div class="weight-bar">
@@ -112,7 +112,7 @@
           <h4 class="ships-title">Top Ships</h4>
           {#if stat.topShips.length > 0}
             <div class="top-ships">
-              {#each stat.topShips as { ship, score }, i}
+              {#each stat.topShips as { ship, score }, i (ship.id)}
                 <div class="top-ship">
                   <span class="ship-rank">#{i + 1}</span>
                   <span class="ship-name">{ship.name}</span>

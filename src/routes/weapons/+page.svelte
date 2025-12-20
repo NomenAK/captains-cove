@@ -76,25 +76,23 @@
   </div>
 
   <Toolbar>
-    {#snippet children()}
-      <FilterGroup label="Size" for="size-filter">
-        <select id="size-filter" bind:value={$weaponFilters.size}>
-          <option value="">All Sizes</option>
-          {#each sizes as size}
-            <option value={size}>{size}</option>
-          {/each}
-        </select>
-      </FilterGroup>
+    <FilterGroup label="Size" for="size-filter">
+      <select id="size-filter" bind:value={$weaponFilters.size}>
+        <option value="">All Sizes</option>
+        {#each sizes as size (size)}
+          <option value={size}>{size}</option>
+        {/each}
+      </select>
+    </FilterGroup>
 
-      <FilterGroup label="Search" for="search" grow minWidth="200px">
-        <input
-          id="search"
-          type="text"
-          placeholder="Search weapons..."
-          bind:value={$weaponFilters.search}
-        />
-      </FilterGroup>
-    {/snippet}
+    <FilterGroup label="Search" for="search" grow minWidth="200px">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search weapons..."
+        bind:value={$weaponFilters.search}
+      />
+    </FilterGroup>
 
     {#snippet actions()}
       <span class="filter-count">{$filteredWeapons.length} weapons</span>

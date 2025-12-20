@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { Ammo, PowderKeg } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Card, Stack, Grid } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';

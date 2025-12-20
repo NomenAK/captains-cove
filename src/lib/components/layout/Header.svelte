@@ -115,7 +115,7 @@
 
   <div class="header__center">
     <nav class="header__nav" aria-label="Main navigation">
-      {#each navItems as item}
+      {#each navItems as item (isDropdown(item) ? item.id : item.href)}
         {#if isDropdown(item)}
           <div
             class="header__dropdown"
@@ -135,7 +135,7 @@
             </button>
             {#if openDropdown === item.id}
               <div class="header__dropdown-menu">
-                {#each item.items as subItem}
+                {#each item.items as subItem (subItem.href)}
                   <a
                     href={subItem.href}
                     class="header__dropdown-item"

@@ -43,11 +43,11 @@ function isValidString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-function isOptionalString(value: unknown): value is string | null {
+function _isOptionalString(value: unknown): value is string | null {
   return value === null || typeof value === 'string';
 }
 
-function isValidBoolean(value: unknown): value is boolean {
+function _isValidBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean';
 }
 

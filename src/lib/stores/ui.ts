@@ -2,7 +2,7 @@
 /* Manages UI state: modals, toasts, selections */
 
 import { writable, derived } from 'svelte/store';
-import type { ToastMessage, Ship, Weapon } from '$lib/data/types';
+import type { ToastMessage } from '$lib/data/types';
 import { MOBILE_BREAKPOINT } from '$lib/data/constants';
 
 // ═══════════════════════════════════════════════════

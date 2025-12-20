@@ -80,7 +80,7 @@
       <div class="stat-section">
         <h2 class="section-title">Ships by Tier</h2>
         <div class="tier-bars">
-          {#each tierCounts as { tier, count }}
+          {#each tierCounts as { tier, count } (tier)}
             <div class="tier-bar">
               <span class="tier-bar__label">Tier {tier}</span>
               <div class="tier-bar__track">
@@ -98,7 +98,7 @@
       <div class="stat-section">
         <h2 class="section-title">Ships by Class</h2>
         <div class="class-bars">
-          {#each classCounts as { class: cls, count }}
+          {#each classCounts as { class: cls, count } (cls)}
             <div class="class-bar">
               <span class="class-bar__label">{cls}</span>
               <div class="class-bar__track">
@@ -119,7 +119,7 @@
       <div class="top-ships-grid">
         <div class="top-card">
           <h3 class="top-card__title">Highest HP</h3>
-          {#each topByHp as ship, i}
+          {#each topByHp as ship, i (ship.id)}
             <div class="top-item">
               <span class="top-item__rank">#{i + 1}</span>
               <span class="top-item__name">{ship.name}</span>
@@ -130,7 +130,7 @@
 
         <div class="top-card">
           <h3 class="top-card__title">Fastest Speed</h3>
-          {#each topBySpeed as ship, i}
+          {#each topBySpeed as ship, i (ship.id)}
             <div class="top-item">
               <span class="top-item__rank">#{i + 1}</span>
               <span class="top-item__name">{ship.name}</span>
@@ -141,7 +141,7 @@
 
         <div class="top-card">
           <h3 class="top-card__title">Best Armor</h3>
-          {#each topByArmor as ship, i}
+          {#each topByArmor as ship, i (ship.id)}
             <div class="top-item">
               <span class="top-item__rank">#{i + 1}</span>
               <span class="top-item__name">{ship.name}</span>
@@ -152,7 +152,7 @@
 
         <div class="top-card">
           <h3 class="top-card__title">Largest Cargo</h3>
-          {#each topByCargo as ship, i}
+          {#each topByCargo as ship, i (ship.id)}
             <div class="top-item">
               <span class="top-item__rank">#{i + 1}</span>
               <span class="top-item__name">{ship.name}</span>

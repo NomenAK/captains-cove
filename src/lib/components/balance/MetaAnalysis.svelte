@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { dataStore, buildsStore, buildsByArchetype, buildCount } from '$lib/stores';
+  import { dataStore, buildsStore } from '$lib/stores';
   import { Badge } from '$lib/components/ui';
-  import type { Ship, Weapon, Archetype } from '$lib/data/types';
+  import type { Archetype } from '$lib/data/types';
   import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
 
   // Analyze current meta based on user builds and game data
@@ -190,7 +190,7 @@
       <h3 class="card-title">Archetype Distribution</h3>
       {#if metaInsights().totalBuilds > 0}
         <div class="distribution-chart">
-          {#each metaInsights().archetypeDistribution as { archetype, count, percentage }}
+          {#each metaInsights().archetypeDistribution as { archetype, count, percentage } (archetype)}
             <div class="dist-row">
               <Badge variant="archetype" value={archetype} size="sm" />
               <div class="dist-bar-container">
@@ -214,7 +214,7 @@
       <h3 class="card-title">Popular Ships</h3>
       {#if metaInsights().topShips.length > 0}
         <div class="top-list">
-          {#each metaInsights().topShips as { ship, count }, i}
+          {#each metaInsights().topShips as { ship, count }, i (ship?.id ?? i)}
             {#if ship}
               <div class="top-item">
                 <span class="item-rank">#{i + 1}</span>
@@ -235,7 +235,7 @@
       <h3 class="card-title">Popular Weapons</h3>
       {#if metaInsights().topWeapons.length > 0}
         <div class="top-list">
-          {#each metaInsights().topWeapons as { weapon, count }, i}
+          {#each metaInsights().topWeapons as { weapon, count }, i (weapon?.id ?? i)}
             {#if weapon}
               <div class="top-item">
                 <span class="item-rank">#{i + 1}</span>
@@ -255,7 +255,7 @@
     <div class="meta-card meta-card--wide">
       <h3 class="card-title">Meta Observations</h3>
       <ul class="observations-list">
-        {#each metaInsights().observations as observation}
+        {#each metaInsights().observations as observation (observation)}
           <li class="observation-item">{observation}</li>
         {/each}
       </ul>
@@ -301,7 +301,7 @@
           <h4 class="balance-title">Balance Notes</h4>
           {#if balanceInsights()?.concerns.length ?? 0 > 0}
             <ul class="concerns-list">
-              {#each balanceInsights()?.concerns ?? [] as concern}
+              {#each balanceInsights()?.concerns ?? [] as concern (concern)}
                 <li class="concern-item">{concern}</li>
               {/each}
             </ul>

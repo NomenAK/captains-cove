@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Cosmetic, CosmeticType } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Stack, Grid, Card } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Stack } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
 
   const types: CosmeticType[] = ['design', 'sail', 'flag', 'guild', 'private'];

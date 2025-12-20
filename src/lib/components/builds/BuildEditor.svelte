@@ -2,7 +2,7 @@
   import { untrack } from 'svelte';
   import { dataStore, buildsStore, createShipLookup, createWeaponLookup, createAmmoLookup, toasts } from '$lib/stores';
   import { safeMax, safePercentage } from '$lib/utils/safe-math';
-  import type { Build, Archetype, Ship, Weapon, Ammo, Upgrade } from '$lib/data/types';
+  import type { Build, Archetype } from '$lib/data/types';
   import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
   import { ARCHETYPE_WEIGHTS } from '$lib/data/constants';
   import { Badge } from '$lib/components/ui';
@@ -53,7 +53,7 @@
   // Lookups
   const shipLookup = $derived(createShipLookup($dataStore.ships));
   const weaponLookup = $derived(createWeaponLookup($dataStore.weapons));
-  const ammoLookup = $derived(createAmmoLookup($dataStore.ammo));
+  const _ammoLookup = $derived(createAmmoLookup($dataStore.ammo));
 
   // Selected ship details
   const selectedShip = $derived(shipId !== null ? shipLookup.get(shipId) ?? null : null);
@@ -219,7 +219,7 @@
       <fieldset class="form-group">
         <legend>Archetype</legend>
         <div class="archetype-grid" role="radiogroup" aria-label="Select archetype">
-          {#each archetypes as arch}
+          {#each archetypes as arch (arch.value)}
             <button
               class="archetype-card"
               class:active={archetype === arch.value}
@@ -238,7 +238,7 @@
         <div class="form-group">
           <label for="tier">Tier</label>
           <select id="tier" bind:value={tier} onchange={handleTierChange}>
-            {#each [1, 2, 3, 4, 5, 6, 7] as t}
+            {#each [1, 2, 3, 4, 5, 6, 7] as t (t)}
               <option value={t}>Tier {t}</option>
             {/each}
           </select>
@@ -261,7 +261,7 @@
           }}
         >
           <option value="">-- Select a Ship --</option>
-          {#each availableShips as ship}
+          {#each availableShips as ship (ship.id)}
             <option value={ship.id.toString()}>{ship.name} ({ship.shipClass})</option>
           {/each}
         </select>
@@ -304,7 +304,7 @@
         <label for="broadside">Broadside Cannons</label>
         <select id="broadside" bind:value={broadside}>
           <option value="">-- None --</option>
-          {#each cannons as weapon}
+          {#each cannons as weapon (weapon.id)}
             <option value={weapon.id}>{weapon.name} ({weapon.category})</option>
           {/each}
         </select>
@@ -315,7 +315,7 @@
           <label for="bow">Bow Weapon</label>
           <select id="bow" bind:value={bow}>
             <option value="">-- None --</option>
-            {#each cannons as weapon}
+            {#each cannons as weapon (weapon.id)}
               <option value={weapon.id}>{weapon.name}</option>
             {/each}
           </select>
@@ -325,7 +325,7 @@
           <label for="stern">Stern Weapon</label>
           <select id="stern" bind:value={stern}>
             <option value="">-- None --</option>
-            {#each cannons as weapon}
+            {#each cannons as weapon (weapon.id)}
               <option value={weapon.id}>{weapon.name}</option>
             {/each}
           </select>
@@ -336,7 +336,7 @@
         <label for="mortar">Mortar</label>
         <select id="mortar" bind:value={mortar}>
           <option value="">-- None --</option>
-          {#each mortars as weapon}
+          {#each mortars as weapon (weapon.id)}
             <option value={weapon.id}>{weapon.name}</option>
           {/each}
         </select>
@@ -352,7 +352,7 @@
           <label for="primary-ammo">Primary Ammo</label>
           <select id="primary-ammo" bind:value={primaryAmmo}>
             <option value="">-- Select --</option>
-            {#each $dataStore.ammo as ammo}
+            {#each $dataStore.ammo as ammo (ammo.id)}
               <option value={ammo.id}>{ammo.name}</option>
             {/each}
           </select>
@@ -362,7 +362,7 @@
           <label for="secondary-ammo">Secondary Ammo</label>
           <select id="secondary-ammo" bind:value={secondaryAmmo}>
             <option value="">-- Select --</option>
-            {#each $dataStore.ammo as ammo}
+            {#each $dataStore.ammo as ammo (ammo.id)}
               <option value={ammo.id}>{ammo.name}</option>
             {/each}
           </select>
@@ -375,7 +375,7 @@
       <h2>Upgrades ({selectedUpgrades.length}/6)</h2>
 
       <div class="upgrades-grid">
-        {#each $dataStore.upgrades as upgrade}
+        {#each $dataStore.upgrades as upgrade (upgrade.id)}
           <button
             class="upgrade-card"
             class:selected={selectedUpgrades.includes(upgrade.id)}

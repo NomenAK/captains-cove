@@ -14,7 +14,7 @@
     onclose
   }: Props = $props();
 
-  function getCategoryColor(category: string): string {
+  function _getCategoryColor(category: string): string {
     const colors: Record<string, string> = {
       economy: 'var(--class-transport)',
       logistics: 'var(--class-fast)',

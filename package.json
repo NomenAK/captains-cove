@@ -8,15 +8,22 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
     "seed": "node scripts/seed-supabase.js"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
     "@tsconfig/svelte": "^5.0.6",
     "@types/node": "^24.10.1",
+    "eslint": "^9.39.2",
+    "eslint-plugin-svelte": "^3.13.1",
+    "globals": "^16.5.0",
     "svelte": "^5.43.8",
     "svelte-check": "^4.3.4",
     "typescript": "~5.9.3",
+    "typescript-eslint": "^8.50.0",
     "vite": "^7.2.4"
   },
   "dependencies": {

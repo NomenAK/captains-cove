@@ -1,7 +1,6 @@
 <script lang="ts">
-  import type { ArenaBonus } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
-  import { Badge, LoadingState, EmptyState, ErrorState, Stack, Grid, Card } from '$lib/components/ui';
+  import { LoadingState, EmptyState, ErrorState, Stack, Grid, Card } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
 
   const hasNoData = $derived($dataStore.arenaBonuses.length === 0);
@@ -153,7 +152,7 @@
             </div>
 
             <div class="bonus-card__effects">
-              {#each effects as effect}
+              {#each effects as effect (effect.stat)}
                 <div class="effect-item">
                   <span class="effect-stat" style="color: {getEffectColor(effect.stat)}">
                     {getEffectDescription(effect.stat)}
@@ -206,7 +205,7 @@
               <tr>
                 <td>
                   <div class="effect-cell">
-                    {#each effects as effect}
+                    {#each effects as effect (effect.stat)}
                       <span class="effect-badge" style="color: {getEffectColor(effect.stat)}">
                         {effect.stat} {effect.value}
                       </span>

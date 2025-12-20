@@ -13,7 +13,7 @@
 
 <nav class="breadcrumb" aria-label="Breadcrumb navigation">
   <ol class="breadcrumb__list">
-    {#each crumbs as crumb, index}
+    {#each crumbs as crumb, index (index)}
       <li class="breadcrumb__item">
         {#if crumb.href}
           <a href={crumb.href} class="breadcrumb__link">{crumb.label}</a>

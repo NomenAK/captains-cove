@@ -81,7 +81,7 @@
     </div>
 
     <div class="hero__stats">
-      {#each stats as stat}
+      {#each stats as stat (stat.label)}
         <div class="stat-card">
           <div class="stat-card__corner stat-card__corner--tl" aria-hidden="true"></div>
           <div class="stat-card__corner stat-card__corner--tr" aria-hidden="true"></div>
@@ -97,7 +97,7 @@
   <section class="features">
     <h2 class="section-title">Set Sail</h2>
     <div class="feature-grid">
-      {#each features as feature}
+      {#each features as feature (feature.href)}
         <a href={feature.href} class="feature-card">
           <span class="feature-card__icon">{feature.icon}</span>
           <h3 class="feature-card__title">{feature.title}</h3>

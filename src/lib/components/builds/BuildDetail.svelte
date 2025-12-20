@@ -222,7 +222,7 @@
       <h2>Upgrades ({selectedUpgrades.length}/6)</h2>
       {#if selectedUpgrades.length > 0}
         <div class="upgrades-list">
-          {#each selectedUpgrades as upgrade}
+          {#each selectedUpgrades as upgrade (upgrade?.id)}
             <div class="upgrade-item">
               <span class="upgrade-name">{upgrade?.name}</span>
               <span class="upgrade-slot">{upgrade?.category}</span>
@@ -249,7 +249,7 @@
       <h2>Strengths</h2>
       {#if build.strengths.length > 0}
         <ul class="pros-cons-list pros">
-          {#each build.strengths as strength}
+          {#each build.strengths as strength (strength)}
             <li>{strength}</li>
           {/each}
         </ul>
@@ -262,7 +262,7 @@
       <h2>Weaknesses</h2>
       {#if build.weaknesses.length > 0}
         <ul class="pros-cons-list cons">
-          {#each build.weaknesses as weakness}
+          {#each build.weaknesses as weakness (weakness)}
             <li>{weakness}</li>
           {/each}
         </ul>

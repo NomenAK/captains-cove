@@ -20,7 +20,6 @@ import type {
   Guild,
   ArenaBonus,
   Localization,
-  AppData,
   ShipClass
 } from '$lib/data/types';
 import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';

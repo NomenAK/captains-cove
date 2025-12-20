@@ -92,16 +92,14 @@
   </div>
 
   <Toolbar>
-    {#snippet children()}
-      <FilterGroup label="Search" for="search" grow minWidth="200px">
-        <input
-          id="search"
-          type="text"
-          placeholder="Search upgrades..."
-          bind:value={searchQuery}
-        />
-      </FilterGroup>
-    {/snippet}
+    <FilterGroup label="Search" for="search" grow minWidth="200px">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search upgrades..."
+        bind:value={searchQuery}
+      />
+    </FilterGroup>
 
     {#snippet actions()}
       <span class="filter-count">{filteredUpgrades.length} upgrades</span>
@@ -158,7 +156,7 @@
               <div class="upgrade-card__effects">
                 <span class="effects-label">Effects:</span>
                 <div class="effects-list">
-                  {#each parseEffects(upgrade.effects) as effect}
+                  {#each parseEffects(upgrade.effects) as effect, i (i)}
                     <span class="effect-badge">{effect}</span>
                   {/each}
                 </div>
@@ -205,7 +203,7 @@
                   <div class="upgrade-card__effects">
                     <span class="effects-label">Effects:</span>
                     <div class="effects-list">
-                      {#each parseEffects(upgrade.effects) as effect}
+                      {#each parseEffects(upgrade.effects) as effect, i (i)}
                         <span class="effect-badge">{effect}</span>
                       {/each}
                     </div>

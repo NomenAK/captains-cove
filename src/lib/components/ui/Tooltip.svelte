@@ -34,7 +34,7 @@
     showTooltip = !showTooltip;
   }
 
-  function handleClickOutside(e: MouseEvent) {
+  function _handleClickOutside(e: MouseEvent) {
     const target = e.target as Node;
     const wrapper = (e.currentTarget as HTMLElement).closest('.tooltip-wrapper');
     if (wrapper && !wrapper.contains(target)) {

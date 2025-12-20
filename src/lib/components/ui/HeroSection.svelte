@@ -97,7 +97,7 @@
     <!-- Stats grid -->
     {#if stats.length > 0}
       <div class="hero__stats">
-        {#each stats as stat}
+        {#each stats as stat (stat.label)}
           <div class="stat-card">
             <div class="stat-card__corner stat-card__corner--tl" aria-hidden="true"></div>
             <div class="stat-card__corner stat-card__corner--tr" aria-hidden="true"></div>

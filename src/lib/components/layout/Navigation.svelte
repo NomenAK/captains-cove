@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity';
   import { sidebarOpen, closeSidebar } from '$lib/stores';
   import { location } from 'svelte-spa-router';
 
@@ -22,7 +23,7 @@
   }
 
   // Collapsible group state
-  let expandedGroups = $state<Set<string>>(new Set(['equipment', 'items', 'world']));
+  let expandedGroups = new SvelteSet(['equipment', 'items', 'world']);
 
   const navItems: NavItem[] = [
     { href: '#/ships', label: 'Ships', icon: '⛵' },
@@ -74,13 +75,11 @@
   }
 
   function toggleGroup(id: string) {
-    const newSet = new Set(expandedGroups);
-    if (newSet.has(id)) {
-      newSet.delete(id);
+    if (expandedGroups.has(id)) {
+      expandedGroups.delete(id);
     } else {
-      newSet.add(id);
+      expandedGroups.add(id);
     }
-    expandedGroups = newSet;
   }
 
   function handleNavClick() {
@@ -119,7 +118,7 @@
   </div>
 
   <ul class="nav__list">
-    {#each navItems as item}
+    {#each navItems as item (isGroup(item) ? item.id : item.href)}
       {#if isGroup(item)}
         <li class="nav__group">
           <button
@@ -134,7 +133,7 @@
           </button>
           {#if expandedGroups.has(item.id)}
             <ul class="nav__sublist">
-              {#each item.items as subItem}
+              {#each item.items as subItem (subItem.href)}
                 <li class="nav__subitem">
                   <a
                     href={subItem.href}

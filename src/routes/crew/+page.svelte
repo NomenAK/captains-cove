@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { CrewUnit, CaptainSkill, SkillCategory } from '$lib/data/types';
-  import { dataStore, filteredCrews, crewFilters, pvpSkills, combatSkills, isLoading, dataError } from '$lib/stores';
+  import { dataStore, filteredCrews, crewFilters, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { CrewDetailModal, SkillDetailModal } from '$lib/components/crew';
@@ -67,7 +67,7 @@
 
   // Loading state detection
   const hasNoData = $derived($dataStore.crews.length === 0 && $dataStore.skills.length === 0);
-  const hasNoCrewResults = $derived($filteredCrews.length === 0 && $dataStore.crews.length > 0);
+  const _hasNoCrewResults = $derived($filteredCrews.length === 0 && $dataStore.crews.length > 0);
 
   function handleRetry() {
     dataStore.load();
@@ -101,32 +101,30 @@
 
     {#if activeView === 'crew'}
       <Toolbar>
-        {#snippet children()}
-          <FilterGroup label="Type" for="type-filter">
-            <select id="type-filter" bind:value={$crewFilters.type}>
-              <option value="">All Types</option>
-              {#each crewTypes as type}
-                <option value={type}>{type}</option>
-              {/each}
-            </select>
-          </FilterGroup>
+        <FilterGroup label="Type" for="type-filter">
+          <select id="type-filter" bind:value={$crewFilters.type}>
+            <option value="">All Types</option>
+            {#each crewTypes as type (type)}
+              <option value={type}>{type}</option>
+            {/each}
+          </select>
+        </FilterGroup>
 
-          <div class="checkbox-wrapper">
-            <label class="checkbox-label">
-              <input type="checkbox" bind:checked={$crewFilters.pvpOnly} />
-              PvP Relevant Only
-            </label>
-          </div>
+        <div class="checkbox-wrapper">
+          <label class="checkbox-label">
+            <input type="checkbox" bind:checked={$crewFilters.pvpOnly} />
+            PvP Relevant Only
+          </label>
+        </div>
 
-          <FilterGroup label="Search" for="search" grow minWidth="200px">
-            <input
-              id="search"
-              type="text"
-              placeholder="Search crew..."
-              bind:value={$crewFilters.search}
-            />
-          </FilterGroup>
-        {/snippet}
+        <FilterGroup label="Search" for="search" grow minWidth="200px">
+          <input
+            id="search"
+            type="text"
+            placeholder="Search crew..."
+            bind:value={$crewFilters.search}
+          />
+        </FilterGroup>
 
         {#snippet actions()}
           <span class="filter-count">{$filteredCrews.length} crew</span>

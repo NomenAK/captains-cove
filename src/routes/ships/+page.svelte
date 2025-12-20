@@ -67,34 +67,32 @@
   />
 
   <Toolbar>
-    {#snippet children()}
-      <FilterGroup label="Class" for="class-filter">
-        <select id="class-filter" bind:value={$shipFilters.class}>
-          <option value="">All Classes</option>
-          {#each shipClasses as cls}
-            <option value={cls}>{cls}</option>
-          {/each}
-        </select>
-      </FilterGroup>
+    <FilterGroup label="Class" for="class-filter">
+      <select id="class-filter" bind:value={$shipFilters.class}>
+        <option value="">All Classes</option>
+        {#each shipClasses as cls (cls)}
+          <option value={cls}>{cls}</option>
+        {/each}
+      </select>
+    </FilterGroup>
 
-      <FilterGroup label="Tier" for="tier-filter">
-        <select id="tier-filter" bind:value={$shipFilters.tier}>
-          <option value="">All Tiers</option>
-          {#each tiers as tier}
-            <option value={tier}>Tier {tier}</option>
-          {/each}
-        </select>
-      </FilterGroup>
+    <FilterGroup label="Tier" for="tier-filter">
+      <select id="tier-filter" bind:value={$shipFilters.tier}>
+        <option value="">All Tiers</option>
+        {#each tiers as tier (tier)}
+          <option value={tier}>Tier {tier}</option>
+        {/each}
+      </select>
+    </FilterGroup>
 
-      <FilterGroup label="Search" for="search" grow minWidth="200px">
-        <input
-          id="search"
-          type="text"
-          placeholder="Search ships..."
-          bind:value={$shipFilters.search}
-        />
-      </FilterGroup>
-    {/snippet}
+    <FilterGroup label="Search" for="search" grow minWidth="200px">
+      <input
+        id="search"
+        type="text"
+        placeholder="Search ships..."
+        bind:value={$shipFilters.search}
+      />
+    </FilterGroup>
 
     {#snippet actions()}
       <span class="filter-count">{$filteredShips.length} ships</span>

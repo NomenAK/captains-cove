@@ -68,7 +68,7 @@
 <div class="comparison-chart">
   <svg width={size} height={size} viewBox="0 0 {size} {size}">
     <!-- Grid circles -->
-    {#each gridLevels as level}
+    {#each gridLevels as level (level)}
       <circle
         cx={centerX}
         cy={centerY}
@@ -79,7 +79,7 @@
     {/each}
 
     <!-- Axis lines -->
-    {#each labels as _, i}
+    {#each labels as _, i (i)}
       {@const point = getPoint(i, 1, 1)}
       <line
         x1={centerX}
@@ -91,7 +91,7 @@
     {/each}
 
     <!-- Data polygons -->
-    {#each items as item, itemIndex}
+    {#each items as item, itemIndex (item.name)}
       <path
         d={getPolygonPath(item)}
         class="data-polygon"
@@ -102,8 +102,8 @@
     {/each}
 
     <!-- Data points -->
-    {#each items as item}
-      {#each item.data as point, i}
+    {#each items as item (item.name)}
+      {#each item.data as point, i (i)}
         {@const { x, y } = getPoint(i, point.value, point.maxValue)}
         <circle
           cx={x}
@@ -117,7 +117,7 @@
 
     <!-- Labels -->
     {#if showLabels}
-      {#each labels as label, i}
+      {#each labels as label, i (i)}
         {@const { x, y } = getLabelPoint(i)}
         <text
           x={x}
@@ -134,7 +134,7 @@
 
   {#if showLegend && items.length > 1}
     <div class="legend">
-      {#each items as item}
+      {#each items as item (item.name)}
         <div class="legend-item">
           <span class="legend-dot" style:background={item.color}></span>
           <span class="legend-label">{item.name}</span>

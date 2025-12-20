@@ -1,5 +1,4 @@
 <script lang="ts">
-  import type { SwivelAmmo } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
   import { Badge, LoadingState, EmptyState, ErrorState, Stack, Card } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';

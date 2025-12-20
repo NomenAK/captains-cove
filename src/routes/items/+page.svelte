@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Resource, ResourceCategory } from '$lib/data/types';
+  import type { ResourceCategory } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
@@ -82,7 +82,7 @@
 
   // Loading state detection
   const hasNoData = $derived($dataStore.resources.length === 0);
-  const hasNoResults = $derived(filteredResources().length === 0 && !hasNoData);
+  const _hasNoResults = $derived(filteredResources().length === 0 && !hasNoData);
 
   function handleRetry() {
     dataStore.load();
@@ -115,16 +115,14 @@
     </div>
 
     <Toolbar>
-      {#snippet children()}
-        <FilterGroup label="Search" for="search" grow minWidth="200px">
-          <input
-            id="search"
-            type="text"
-            placeholder="Search items..."
-            bind:value={searchQuery}
-          />
-        </FilterGroup>
-      {/snippet}
+      <FilterGroup label="Search" for="search" grow minWidth="200px">
+        <input
+          id="search"
+          type="text"
+          placeholder="Search items..."
+          bind:value={searchQuery}
+        />
+      </FilterGroup>
 
       {#snippet actions()}
         <span class="filter-count">{filteredResources().length} items</span>

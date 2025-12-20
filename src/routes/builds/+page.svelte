@@ -3,7 +3,7 @@
   import { BuildEditor, BuildDetail } from '$lib/components/builds';
   import { Badge, Toolbar, FilterGroup, Stack, Grid, EmptyState } from '$lib/components/ui';
   import { PageHeader, Breadcrumb } from '$lib/components/layout';
-  import { location, querystring } from 'svelte-spa-router';
+  import { location } from 'svelte-spa-router';
 
   // Determine current view from URL
   const currentPath = $derived($location);
@@ -136,25 +136,23 @@
     />
 
     <Toolbar>
-      {#snippet children()}
-        <FilterGroup label="Archetype" for="archetype-filter">
-          <select id="archetype-filter" bind:value={$buildFilters.archetype}>
-            <option value="">All Archetypes</option>
-            {#each archetypes as arch}
-              <option value={arch}>{archetypeLabels[arch]}</option>
-            {/each}
-          </select>
-        </FilterGroup>
+      <FilterGroup label="Archetype" for="archetype-filter">
+        <select id="archetype-filter" bind:value={$buildFilters.archetype}>
+          <option value="">All Archetypes</option>
+          {#each archetypes as arch (arch)}
+            <option value={arch}>{archetypeLabels[arch]}</option>
+          {/each}
+        </select>
+      </FilterGroup>
 
-        <FilterGroup label="Search" for="search" grow minWidth="200px">
-          <input
-            id="search"
-            type="text"
-            placeholder="Search builds..."
-            bind:value={$buildFilters.search}
-          />
-        </FilterGroup>
-      {/snippet}
+      <FilterGroup label="Search" for="search" grow minWidth="200px">
+        <input
+          id="search"
+          type="text"
+          placeholder="Search builds..."
+          bind:value={$buildFilters.search}
+        />
+      </FilterGroup>
 
       {#snippet actions()}
         <a href="#/builds/new" class="btn btn--primary">

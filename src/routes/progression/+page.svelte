@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Achievement, AchievementCategory, Rank, Guild, GuildPlace, Fraction } from '$lib/data/types';
+  import type { AchievementCategory, Guild, GuildPlace, Fraction } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
   import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
@@ -13,7 +13,7 @@
   let achievementSearch = $state<string>('');
 
   // Guild filter state
-  const guildPlaces: GuildPlace[] = ['Gold', 'Silver', 'Bronze', 'Copper'];
+  const _guildPlaces: GuildPlace[] = ['Gold', 'Silver', 'Bronze', 'Copper'];
   let selectedGuildFaction = $state<string>('');
 
   // Derived data
@@ -256,16 +256,14 @@
       </div>
 
       <Toolbar>
-        {#snippet children()}
-          <FilterGroup label="Search" for="achievement-search" grow minWidth="200px">
-            <input
-              id="achievement-search"
-              type="text"
-              placeholder="Search achievements..."
-              bind:value={achievementSearch}
-            />
-          </FilterGroup>
-        {/snippet}
+        <FilterGroup label="Search" for="achievement-search" grow minWidth="200px">
+          <input
+            id="achievement-search"
+            type="text"
+            placeholder="Search achievements..."
+            bind:value={achievementSearch}
+          />
+        </FilterGroup>
 
         {#snippet actions()}
           <span class="filter-count">{filteredAchievements.length} achievements</span>
@@ -319,16 +317,14 @@
       />
     {:else}
       <Toolbar>
-        {#snippet children()}
-          <FilterGroup label="Faction" for="faction-filter">
-            <select id="faction-filter" bind:value={selectedGuildFaction}>
-              <option value="">All Factions</option>
-              {#each guildFactions as faction}
-                <option value={faction}>{faction}</option>
-              {/each}
-            </select>
-          </FilterGroup>
-        {/snippet}
+        <FilterGroup label="Faction" for="faction-filter">
+          <select id="faction-filter" bind:value={selectedGuildFaction}>
+            <option value="">All Factions</option>
+            {#each guildFactions as faction (faction)}
+              <option value={faction}>{faction}</option>
+            {/each}
+          </select>
+        </FilterGroup>
 
         {#snippet actions()}
           <span class="filter-count">{filteredGuilds.length} guild tiers</span>

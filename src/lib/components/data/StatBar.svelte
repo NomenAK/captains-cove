@@ -42,7 +42,7 @@
       aria-valuemax={max}
     ></div>
     <div class="stat-bar__segments">
-      {#each Array(10) as _, i}
+      {#each Array(10) as _, i (i)}
         <div class="stat-bar__segment"></div>
       {/each}
     </div>

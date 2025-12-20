@@ -18,7 +18,7 @@
   }
 
   // Estimate DPS from weapon cooldown (assume base damage of 100 for simplicity)
-  function estimateDps(weapon: Weapon): number {
+  function _estimateDps(weapon: Weapon): number {
     const baseDamage = 100;
     return baseDamage / weapon.cooldown;
   }
@@ -132,7 +132,7 @@
           <thead>
             <tr>
               <th class="weapon-header">Weapon</th>
-              {#each representativeShips() as ship}
+              {#each representativeShips() as ship (ship.id)}
                 <th class="ship-header">
                   <span class="ship-name">{ship.name}</span>
                   <Badge variant="class" value={SHIP_TYPE_TO_CLASS[ship.type] || ship.type} size="sm" />
@@ -144,7 +144,7 @@
             </tr>
           </thead>
           <tbody>
-            {#each ttkMatrix() as row}
+            {#each ttkMatrix() as row (row.weapon.id)}
               {@const allTTKs = row.ttks.map(t => t.ttk)}
               <tr>
                 <td class="weapon-cell">
@@ -153,7 +153,7 @@
                     Pen: {row.weapon.penetration} | CD: {row.weapon.cooldown}s
                   </span>
                 </td>
-                {#each row.ttks as { ship, ttk, effectiveness }}
+                {#each row.ttks as { ship: _ship, ttk, effectiveness } (_ship.id)}
                   <td
                     class="ttk-cell"
                     style="--ttk-color: {getTTKColor(ttk, allTTKs)}"
