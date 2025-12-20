@@ -199,6 +199,19 @@ export function getLocalizedName(id: string | number, fallback?: string): string
   return localized || fallback || String(id);
 }
 
+/**
+ * Get localized description for an entity using its ID and a custom suffix.
+ * Different entities use different description key patterns:
+ * - Crew: "{id}_text" (e.g., unit_sailor_1_text)
+ * - Upgrades: "{id}_tt" (e.g., upgrade_1_tt - tooltip)
+ * - Resources: "{id}_desc" (e.g., res_1_desc)
+ */
+export function getLocalizedDescription(id: string, suffix: string, fallback?: string | null): string | null {
+  const key = `${id}_${suffix}`;
+  const localized = localization[key];
+  return localized || fallback || null;
+}
+
 // ═══════════════════════════════════════════════════
 // SHIP DATA
 // ═══════════════════════════════════════════════════
@@ -445,7 +458,7 @@ async function loadCrewUnits(): Promise<CrewUnit[]> {
   return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
     name: getLocalizedName(row.id as string, row.name as string),
-    description: row.description as string | null,
+    description: getLocalizedDescription(row.id as string, 'text', row.description as string | null),
     type: row.type as CrewUnit['type'],
     damage: row.damage as number,
     health: row.health as number,
@@ -515,7 +528,7 @@ async function loadUpgrades(): Promise<Upgrade[]> {
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
     name: getLocalizedName(row.id as string, row.name as string),
-    description: row.description as string | null,
+    description: getLocalizedDescription(row.id as string, 'tt', row.description as string | null),
     effects: row.effects as string | null,
     icon: row.icon as string | null,
     cost: row.cost as boolean,
@@ -609,7 +622,7 @@ async function loadResources(): Promise<Resource[]> {
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
     name: getLocalizedName(row.id as string, row.name as string),
-    description: row.description as string | null,
+    description: getLocalizedDescription(row.id as string, 'desc', row.description as string | null),
     status: row.status as string,
     category: row.category as Resource['category'],
     mediumCost: row.medium_cost as number,
