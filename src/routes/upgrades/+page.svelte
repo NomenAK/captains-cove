@@ -192,6 +192,18 @@
             <Card variant="wood" padding="md">
               <div class="upgrade-card">
                 <div class="upgrade-card__header">
+                  <div class="upgrade-card__icon-container">
+                    {#if upgrade.icon}
+                      <ImageWithFallback
+                        src={getUpgradeIconUrl(upgrade.icon)}
+                        alt={upgrade.name}
+                        fallback={getCategoryIcon(upgrade.category)}
+                        class="upgrade-card__icon-img"
+                      />
+                    {:else}
+                      <span class="upgrade-card__icon">{getCategoryIcon(upgrade.category)}</span>
+                    {/if}
+                  </div>
                   <h3 class="upgrade-card__name">{upgrade.name}</h3>
                 </div>
 
