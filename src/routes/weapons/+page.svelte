@@ -5,7 +5,7 @@
   import { PageHeader } from '$lib/components/layout';
   import { WeaponDetailModal } from '$lib/components/weapons';
   import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
-  import { getWeaponIconUrl, getKegIconUrl } from '$lib/utils/storage';
+  import { getWeaponIconUrl, getKegIconUrl, getAmmoIconUrl } from '$lib/utils/storage';
 
   const categories = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar'];
   const sizes = ['Light', 'Medium', 'Heavy'];
@@ -76,7 +76,7 @@
 <Stack direction="vertical" gap="lg">
   <PageHeader
     title="Weapons"
-    subtitle="{$dataStore.weapons.length} cannons - {$dataStore.kegs.length} powder kegs"
+    subtitle="{$dataStore.weapons.length} cannons - {$dataStore.ammo.length} ammo types - {$dataStore.kegs.length} powder kegs"
   />
 
   <div class="category-tabs">
@@ -202,6 +202,82 @@
     </div>
   {/if}
 
+  <!-- Ammunition Section -->
+  {#if $dataStore.ammo.length > 0}
+    <section class="ammo-section">
+      <h2 class="section-title">Ammunition</h2>
+      <Grid columns="auto" minWidth="280px" gap="md">
+        {#each $dataStore.ammo as ammo (ammo.id)}
+          <Card variant="wood" padding="md">
+            <div class="ammo-card">
+              <div class="ammo-card__header">
+                <div class="ammo-card__icon-container">
+                  {#if ammo.icon}
+                    <ImageWithFallback
+                      src={getAmmoIconUrl(ammo.icon)}
+                      alt={ammo.name}
+                      fallback="🔴"
+                      class="ammo-card__icon-img"
+                    />
+                  {:else}
+                    <span class="ammo-card__icon">🔴</span>
+                  {/if}
+                </div>
+                <div class="ammo-card__info">
+                  <h3 class="ammo-card__name">{ammo.name}</h3>
+                  {#if ammo.isRare}
+                    <Badge variant="status" value="Rare" size="sm" />
+                  {/if}
+                </div>
+              </div>
+
+              {#if ammo.description}
+                <p class="ammo-card__description">{ammo.description}</p>
+              {/if}
+
+              <div class="ammo-card__stats">
+                <div class="stat">
+                  <span class="stat__label">Damage</span>
+                  <span class="stat__value" class:stat__value--positive={ammo.damageFactor > 1} class:stat__value--negative={ammo.damageFactor < 1}>
+                    {ammo.damageFactor > 1 ? '+' : ''}{((ammo.damageFactor - 1) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div class="stat">
+                  <span class="stat__label">Penetration</span>
+                  <span class="stat__value">{ammo.penetration.toFixed(1)}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat__label">Reload</span>
+                  <span class="stat__value" class:stat__value--positive={ammo.reloadFactor < 1} class:stat__value--negative={ammo.reloadFactor > 1}>
+                    {ammo.reloadFactor > 1 ? '+' : ''}{((ammo.reloadFactor - 1) * 100).toFixed(0)}%
+                  </span>
+                </div>
+                <div class="stat">
+                  <span class="stat__label">Range</span>
+                  <span class="stat__value" class:stat__value--positive={ammo.distanceFactor > 1} class:stat__value--negative={ammo.distanceFactor < 1}>
+                    {ammo.distanceFactor > 1 ? '+' : ''}{((ammo.distanceFactor - 1) * 100).toFixed(0)}%
+                  </span>
+                </div>
+              </div>
+
+              <div class="ammo-card__effects">
+                {#if ammo.sailDamage > 0}
+                  <span class="effect-tag effect-tag--sail">Sail +{ammo.sailDamage}</span>
+                {/if}
+                {#if ammo.crewDamage > 0}
+                  <span class="effect-tag effect-tag--crew">Crew +{ammo.crewDamage}</span>
+                {/if}
+                {#if ammo.effects}
+                  <span class="effect-tag effect-tag--special">{ammo.effects}</span>
+                {/if}
+              </div>
+            </div>
+          </Card>
+        {/each}
+      </Grid>
+    </section>
+  {/if}
+
   <!-- Powder Kegs Section -->
   {#if $dataStore.kegs.length > 0}
     <section class="kegs-section">
@@ -289,6 +365,107 @@
 
   .weapon-icon__fallback {
     font-size: var(--text-xl);
+  }
+
+  /* Ammo Section */
+  .ammo-section {
+    margin-top: var(--space-md);
+  }
+
+  .ammo-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .ammo-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .ammo-card__icon-container {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ammo-card__icon-container :global(.ammo-card__icon-img) {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .ammo-card__icon {
+    font-size: var(--text-2xl);
+  }
+
+  .ammo-card__info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+  }
+
+  .ammo-card__name {
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    color: var(--gold-primary);
+    margin: 0;
+  }
+
+  .ammo-card__description {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .ammo-card__stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+    margin-top: var(--space-xs);
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--wood-medium);
+  }
+
+  .stat__value--positive {
+    color: var(--teal);
+  }
+
+  .stat__value--negative {
+    color: var(--error-light);
+  }
+
+  .ammo-card__effects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+  }
+
+  .effect-tag {
+    font-size: var(--text-xs);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+  }
+
+  .effect-tag--sail {
+    color: var(--class-transport);
+  }
+
+  .effect-tag--crew {
+    color: var(--archetype-brawler);
+  }
+
+  .effect-tag--special {
+    color: var(--brass);
   }
 
   /* Kegs Section */
