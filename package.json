@@ -10,7 +10,16 @@
     "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "seed": "node scripts/seed-supabase.js"
+    "seed": "node scripts/seed-supabase.js",
+    "seed:full": "node scripts/seed-supabase.js --truncate",
+    "upload": "node scripts/upload-icons.js",
+    "upload:full": "node scripts/upload-icons.js --clear",
+    "verify": "node scripts/verify-sync.js",
+    "sync": "npm run seed:full && npm run upload:full && npm run verify",
+    "db:types": "supabase gen types typescript --project-id lewslcexldrbequixxpg --schema public 2>/dev/null > src/lib/database.types.ts",
+    "db:diff": "supabase db diff --linked",
+    "db:push": "supabase db push --linked",
+    "db:status": "supabase migration list --linked"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
