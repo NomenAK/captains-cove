@@ -3,6 +3,7 @@
   import { safeMax, safePercentage } from '$lib/utils/safe-math';
   import type { Build, Archetype, Ship, Weapon, Ammo, Upgrade } from '$lib/data/types';
   import { SHIP_TYPE_TO_CLASS } from '$lib/data/types';
+  import { ARCHETYPE_WEIGHTS } from '$lib/data/constants';
   import { Badge } from '$lib/components/ui';
   import { push } from 'svelte-spa-router';
 
@@ -72,28 +73,46 @@
     }
   }
 
-  // Calculate estimated score (simplified)
+  // Calculate estimated score using full 8-weight archetype system
   function calculateScore(): number {
     if (!selectedShip) return 0;
 
-    const archetypeWeights: Record<Archetype, { hp: number; speed: number; damage: number }> = {
-      brawler: { hp: 0.35, speed: 0.1, damage: 0.35 },
-      kite: { hp: 0.15, speed: 0.35, damage: 0.2 },
-      sniper: { hp: 0.15, speed: 0.1, damage: 0.25 },
-      pursuit: { hp: 0.1, speed: 0.4, damage: 0.3 },
-      trade: { hp: 0.25, speed: 0.25, damage: 0.1 },
-      siege: { hp: 0.3, speed: 0.05, damage: 0.3 }
-    };
+    const weights = ARCHETYPE_WEIGHTS[archetype];
+    const ships = $dataStore.ships;
+    const weapons = $dataStore.weapons;
 
-    const weights = archetypeWeights[archetype];
-    const maxHp = safeMax($dataStore.ships.map(s => s.health), 1);
-    const maxSpeed = safeMax($dataStore.ships.map(s => s.speed), 1);
+    // Calculate max values for normalization
+    const maxHp = safeMax(ships.map(s => s.health), 1);
+    const maxSpeed = safeMax(ships.map(s => s.speed), 1);
+    const maxArmor = safeMax(ships.map(s => s.armor), 1);
+    const maxCargo = safeMax(ships.map(s => s.cargo), 1);
+    const maxCrew = safeMax(ships.map(s => s.crewSlots), 1);
+    const maxRange = safeMax(weapons.map(w => w.distance), 1);
+    const maxDps = safeMax(weapons.map(w => w.penetration / Math.max(w.cooldown, 0.1)), 1);
 
-    const hpScore = safePercentage(selectedShip.health, maxHp) * weights.hp;
-    const speedScore = safePercentage(selectedShip.speed, maxSpeed) * weights.speed;
-    const damageScore = broadside ? 30 * weights.damage : 0;
+    // Ship-based scores (0-100 scale)
+    let score = 0;
+    score += safePercentage(selectedShip.health, maxHp) * weights.hp;
+    score += safePercentage(selectedShip.speed, maxSpeed) * weights.speed;
+    score += safePercentage(selectedShip.armor, maxArmor) * weights.armor;
+    score += safePercentage(selectedShip.cargo, maxCargo) * weights.cargo;
+    score += safePercentage(selectedShip.crewSlots, maxCrew) * weights.crew;
 
-    return Math.round(hpScore + speedScore + damageScore);
+    // Weapon-based scores (if weapon selected)
+    const selectedWeapon = broadside ? weaponLookup.get(broadside) : null;
+    if (selectedWeapon) {
+      const dps = selectedWeapon.penetration / Math.max(selectedWeapon.cooldown, 0.1);
+      score += safePercentage(dps, maxDps) * weights.dps;
+      score += safePercentage(selectedWeapon.distance, maxRange) * weights.range;
+      // Accuracy: lower scatter = higher accuracy (invert the percentage)
+      const accuracyScore = 100 - Math.min(selectedWeapon.scatter * 10, 100);
+      score += accuracyScore * weights.accuracy;
+    } else {
+      // Base scores if no weapon selected (30% of potential)
+      score += 30 * (weights.dps + weights.range + weights.accuracy);
+    }
+
+    return Math.round(score);
   }
 
   // Save build

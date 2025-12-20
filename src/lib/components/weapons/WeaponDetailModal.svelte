@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Weapon } from '$lib/data/types';
+  import { MAX_WEAPON_VALUES } from '$lib/data/constants';
   import { Modal, Badge } from '$lib/components/ui';
   import { StatBar } from '$lib/components/data';
 
@@ -14,15 +15,6 @@
     open = false,
     onclose
   }: Props = $props();
-
-  // Max values for stat bars
-  const maxValues = {
-    penetration: 35,
-    distance: 800,
-    cooldown: 12,
-    angle: 180,
-    scatter: 10
-  };
 </script>
 
 <Modal {open} title={weapon?.name || 'Weapon Details'} size="md" {onclose}>
@@ -46,28 +38,28 @@
             <StatBar
               label="Penetration"
               value={weapon.penetration}
-              max={maxValues.penetration}
+              max={MAX_WEAPON_VALUES.penetration}
               variant="damage"
               format={(v) => v.toFixed(1)}
             />
             <StatBar
               label="Range"
               value={weapon.distance}
-              max={maxValues.distance}
+              max={MAX_WEAPON_VALUES.distance}
               variant="range"
               format={(v) => `${v}m`}
             />
             <StatBar
               label="Reload Time"
               value={weapon.cooldown}
-              max={maxValues.cooldown}
+              max={MAX_WEAPON_VALUES.cooldown}
               variant="default"
               format={(v) => `${v.toFixed(1)}s`}
             />
             <StatBar
               label="Firing Angle"
               value={weapon.angle}
-              max={maxValues.angle}
+              max={MAX_WEAPON_VALUES.angle}
               variant="default"
               format={(v) => `${v}°`}
             />

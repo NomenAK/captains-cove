@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { CrewUnit } from '$lib/data/types';
+  import { MAX_CREW_VALUES } from '$lib/data/constants';
   import { Modal, Badge } from '$lib/components/ui';
   import { StatBar } from '$lib/components/data';
 
@@ -14,13 +15,6 @@
     open = false,
     onclose
   }: Props = $props();
-
-  const maxValues = {
-    damage: 50,
-    health: 200,
-    capacity: 5,
-    cost: 500
-  };
 </script>
 
 <Modal {open} title={crew?.name || 'Crew Details'} size="md" {onclose}>
@@ -43,19 +37,19 @@
             <StatBar
               label="Damage"
               value={crew.damage}
-              max={maxValues.damage}
+              max={MAX_CREW_VALUES.damage}
               variant="damage"
             />
             <StatBar
               label="Health"
               value={crew.health}
-              max={maxValues.health}
+              max={MAX_CREW_VALUES.health}
               variant="hp"
             />
             <StatBar
               label="Capacity"
               value={crew.capacity}
-              max={maxValues.capacity}
+              max={MAX_CREW_VALUES.capacity}
               variant="cargo"
             />
           </div>

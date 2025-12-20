@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Ship } from '$lib/data/types';
+  import { MAX_STAT_VALUES } from '$lib/data/constants';
   import { Modal, Badge } from '$lib/components/ui';
   import { StatBar } from '$lib/components/data';
 
@@ -14,15 +15,6 @@
     open = false,
     onclose
   }: Props = $props();
-
-  // Max values for stat bars (from game data analysis)
-  const maxValues = {
-    health: 12000,
-    speed: 14,
-    armor: 12,
-    cargo: 6000,
-    crew: 150
-  };
 </script>
 
 <Modal {open} title={ship?.name || 'Ship Details'} size="lg" {onclose}>
@@ -43,28 +35,28 @@
             <StatBar
               label="Health"
               value={ship.health}
-              max={maxValues.health}
+              max={MAX_STAT_VALUES.health}
               variant="hp"
               format={(v) => v.toLocaleString()}
             />
             <StatBar
               label="Armor"
               value={ship.armor}
-              max={maxValues.armor}
+              max={MAX_STAT_VALUES.armor}
               variant="armor"
               format={(v) => v.toFixed(1)}
             />
             <StatBar
               label="Speed"
               value={ship.speed}
-              max={maxValues.speed}
+              max={MAX_STAT_VALUES.speed}
               variant="speed"
               format={(v) => v.toFixed(1)}
             />
             <StatBar
               label="Mobility"
               value={ship.mobility}
-              max={maxValues.speed}
+              max={MAX_STAT_VALUES.speed}
               variant="speed"
               format={(v) => v.toFixed(1)}
             />
@@ -77,14 +69,14 @@
             <StatBar
               label="Cargo"
               value={ship.cargo}
-              max={maxValues.cargo}
+              max={MAX_STAT_VALUES.cargo}
               variant="cargo"
               format={(v) => v.toLocaleString()}
             />
             <StatBar
               label="Crew Slots"
               value={ship.crewSlots}
-              max={maxValues.crew}
+              max={MAX_STAT_VALUES.crew}
               variant="default"
             />
           </div>

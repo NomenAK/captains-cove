@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Ship } from '$lib/data/types';
+  import { MAX_STAT_VALUES } from '$lib/data/constants';
   import { Badge } from '$lib/components/ui';
   import { StatBar } from '$lib/components/data';
 
@@ -12,12 +13,6 @@
     ship,
     onclick
   }: Props = $props();
-
-  const maxValues = {
-    health: 12000,
-    speed: 14,
-    armor: 12
-  };
 </script>
 
 <button
@@ -37,7 +32,7 @@
   <div class="ship-card__stats">
     <StatBar
       value={ship.health}
-      max={maxValues.health}
+      max={MAX_STAT_VALUES.health}
       variant="hp"
       size="sm"
       showValue={false}
@@ -49,7 +44,7 @@
 
     <StatBar
       value={ship.speed}
-      max={maxValues.speed}
+      max={MAX_STAT_VALUES.speed}
       variant="speed"
       size="sm"
       showValue={false}
@@ -61,7 +56,7 @@
 
     <StatBar
       value={ship.armor}
-      max={maxValues.armor}
+      max={MAX_STAT_VALUES.armor}
       variant="armor"
       size="sm"
       showValue={false}

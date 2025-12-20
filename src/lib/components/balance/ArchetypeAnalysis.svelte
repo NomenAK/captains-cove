@@ -2,35 +2,8 @@
   import { dataStore, buildsByArchetype } from '$lib/stores';
   import { Badge } from '$lib/components/ui';
   import type { Archetype, Ship } from '$lib/data/types';
+  import { ARCHETYPE_WEIGHTS, ARCHETYPE_INFO, ARCHETYPES } from '$lib/data/constants';
   import { safeMax } from '$lib/utils/safe-math';
-
-  // Archetype scoring weights from game data
-  const archetypeWeights: Record<Archetype, {
-    hp: number;
-    speed: number;
-    dps: number;
-    range: number;
-    accuracy: number;
-    cargo: number;
-    crew: number;
-    armor: number;
-  }> = {
-    brawler: { hp: 0.30, speed: 0.05, dps: 0.35, range: 0.00, accuracy: 0.10, cargo: 0.00, crew: 0.10, armor: 0.10 },
-    kite: { hp: 0.10, speed: 0.30, dps: 0.15, range: 0.25, accuracy: 0.05, cargo: 0.00, crew: 0.00, armor: 0.00 },
-    sniper: { hp: 0.10, speed: 0.05, dps: 0.20, range: 0.30, accuracy: 0.25, cargo: 0.00, crew: 0.00, armor: 0.00 },
-    pursuit: { hp: 0.05, speed: 0.35, dps: 0.25, range: 0.10, accuracy: 0.05, cargo: 0.00, crew: 0.05, armor: 0.00 },
-    trade: { hp: 0.20, speed: 0.20, dps: 0.05, range: 0.00, accuracy: 0.00, cargo: 0.40, crew: 0.00, armor: 0.10 },
-    siege: { hp: 0.25, speed: 0.00, dps: 0.25, range: 0.30, accuracy: 0.10, cargo: 0.00, crew: 0.00, armor: 0.10 }
-  };
-
-  const archetypeInfo: Record<Archetype, { name: string; description: string; icon: string }> = {
-    brawler: { name: 'Brawler', description: 'Close-range combat focused on HP and damage', icon: '⚔️' },
-    kite: { name: 'Kite', description: 'Fast ships that keep distance and harass', icon: '🎯' },
-    sniper: { name: 'Sniper', description: 'Long-range precision strikes', icon: '🔭' },
-    pursuit: { name: 'Pursuit', description: 'Speed-focused hunters that chase down targets', icon: '⚡' },
-    trade: { name: 'Trade', description: 'Cargo capacity with defensive capability', icon: '📦' },
-    siege: { name: 'Siege', description: 'Heavy damage at range, slow but powerful', icon: '💣' }
-  };
 
   // Calculate archetype score for a ship
   function calculateArchetypeScore(ship: Ship, archetype: Archetype): number {
@@ -43,7 +16,7 @@
     const maxCargo = safeMax(ships.map(s => s.cargo), 1);
     const maxCrew = safeMax(ships.map(s => s.crewSlots), 1);
 
-    const weights = archetypeWeights[archetype];
+    const weights = ARCHETYPE_WEIGHTS[archetype];
 
     let score = 0;
     score += (ship.health / maxHp) * weights.hp * 100;
@@ -69,7 +42,7 @@
       siege: []
     };
 
-    for (const archetype of Object.keys(archetypeWeights) as Archetype[]) {
+    for (const archetype of ARCHETYPES) {
       const scored = ships.map(ship => ({
         ship,
         score: calculateArchetypeScore(ship, archetype)
@@ -83,7 +56,7 @@
 
   // Get archetype stats summary
   const archetypeStats = $derived(() => {
-    const archetypes = Object.keys(archetypeWeights) as Archetype[];
+    const archetypes = ARCHETYPES;
     return archetypes.map(arch => {
       const builds = $buildsByArchetype[arch] || [];
       const topShips = archetypeTopShips()[arch];
@@ -93,8 +66,8 @@
 
       return {
         archetype: arch,
-        info: archetypeInfo[arch],
-        weights: archetypeWeights[arch],
+        info: ARCHETYPE_INFO[arch],
+        weights: ARCHETYPE_WEIGHTS[arch],
         buildCount: builds.length,
         avgScore,
         topShips

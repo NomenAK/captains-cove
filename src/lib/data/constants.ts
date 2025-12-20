@@ -142,3 +142,30 @@ export const MOBILE_BREAKPOINT = 768;
  * Auto-save debounce delay in milliseconds
  */
 export const AUTO_SAVE_DEBOUNCE_MS = 500;
+
+// =============================================================================
+// MAX VALUES FOR STAT NORMALIZATION
+// =============================================================================
+
+/**
+ * Maximum weapon stat values for normalizing weapon stats (0-100% bars)
+ * Used in: WeaponDetailModal
+ */
+export const MAX_WEAPON_VALUES = {
+  penetration: 35,
+  distance: 800,
+  cooldown: 12,
+  angle: 180,
+  scatter: 10
+} as const;
+
+/**
+ * Maximum crew stat values for normalizing crew stats (0-100% bars)
+ * Used in: CrewDetailModal
+ */
+export const MAX_CREW_VALUES = {
+  damage: 50,
+  health: 200,
+  capacity: 5,
+  cost: 500
+} as const;
