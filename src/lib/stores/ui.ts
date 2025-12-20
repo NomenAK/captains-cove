@@ -40,6 +40,7 @@ export const modal = {
 // ═══════════════════════════════════════════════════
 
 const toastStore = writable<ToastMessage[]>([]);
+const toastTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
 let toastCounter = 0;
 
@@ -56,21 +57,33 @@ export const toasts = {
 
     toastStore.update(toasts => [...toasts, newToast]);
 
-    // Auto-remove after duration
+    // Auto-remove after duration (with cleanup tracking)
     if (newToast.duration && newToast.duration > 0) {
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         toasts.remove(id);
       }, newToast.duration);
+      toastTimeouts.set(id, timeoutId);
     }
 
     return id;
   },
 
   remove(id: string) {
+    // Clear timeout if exists (prevents memory leak)
+    const timeoutId = toastTimeouts.get(id);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      toastTimeouts.delete(id);
+    }
     toastStore.update(toasts => toasts.filter(t => t.id !== id));
   },
 
   clear() {
+    // Clear all pending timeouts
+    for (const timeoutId of toastTimeouts.values()) {
+      clearTimeout(timeoutId);
+    }
+    toastTimeouts.clear();
     toastStore.set([]);
   },
 

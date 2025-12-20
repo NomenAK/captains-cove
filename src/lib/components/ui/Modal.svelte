@@ -251,11 +251,14 @@
     border: 5px solid transparent;
     border-radius: inherit;
     background: var(--texture-rope) border-box;
+    mask:
+      linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
     -webkit-mask:
       linear-gradient(#fff 0 0) padding-box,
       linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
     mask-composite: exclude;
+    -webkit-mask-composite: xor;
   }
 
   /* Rope knots at corners */

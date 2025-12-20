@@ -17,7 +17,8 @@
     onsort
   }: Props = $props();
 
-  const isActive = currentField === field;
+  // Use $derived for reactive comparison
+  const isActive = $derived(currentField === field);
 
   function handleClick() {
     onsort?.(field);
@@ -36,7 +37,7 @@
   onclick={handleClick}
   onkeydown={(e) => e.key === 'Enter' && handleClick()}
   tabindex={0}
-  role="button"
+  role="columnheader"
   aria-sort={isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'}
 >
   <span class="sortable-header__label">{label}</span>
