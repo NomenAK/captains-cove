@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { CrewUnit, CaptainSkill, SkillCategory } from '$lib/data/types';
   import { dataStore, filteredCrews, crewFilters, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, ImageWithFallback } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { CrewDetailModal, SkillDetailModal } from '$lib/components/crew';
+  import { getCrewIconUrl, getSkillIconUrl } from '$lib/utils/storage';
 
   const crewTypes = ['Sailor', 'Boarding', 'Special'];
   const skillCategories: SkillCategory[] = ['combat', 'logistics', 'economy', 'legend'];
@@ -72,6 +73,25 @@
   function handleRetry() {
     dataStore.load();
   }
+
+  function getCrewTypeIcon(type: string): string {
+    switch (type) {
+      case 'Sailor': return '⚓';
+      case 'Boarding': return '⚔️';
+      case 'Special': return '✨';
+      default: return '👤';
+    }
+  }
+
+  function getSkillCategoryIcon(category: SkillCategory): string {
+    switch (category) {
+      case 'combat': return '⚔️';
+      case 'logistics': return '📦';
+      case 'economy': return '💰';
+      case 'legend': return '👑';
+      default: return '📜';
+    }
+  }
 </script>
 
 <Stack direction="vertical" gap="lg">
@@ -139,10 +159,24 @@
             {#each regularCrew as crew (crew.id)}
               <button class="crew-card" onclick={() => openCrewModal(crew)}>
                 <div class="crew-card__header">
-                  <Badge variant="category" value={crew.type} />
-                  {#if crew.pvpRelevant}
-                    <Badge variant="status" value="PvP" size="sm" />
-                  {/if}
+                  <div class="crew-card__icon-container">
+                    {#if crew.icon}
+                      <ImageWithFallback
+                        src={getCrewIconUrl(crew.icon)}
+                        alt={crew.name}
+                        fallback={getCrewTypeIcon(crew.type)}
+                        class="crew-card__icon-img"
+                      />
+                    {:else}
+                      <span class="crew-card__icon">{getCrewTypeIcon(crew.type)}</span>
+                    {/if}
+                  </div>
+                  <div class="crew-card__meta">
+                    <Badge variant="category" value={crew.type} />
+                    {#if crew.pvpRelevant}
+                      <Badge variant="status" value="PvP" size="sm" />
+                    {/if}
+                  </div>
                 </div>
                 <h3 class="crew-card__name">{crew.name}</h3>
                 <div class="crew-card__stats">
@@ -177,10 +211,24 @@
             {#each specialCrew as crew (crew.id)}
               <button class="special-card" class:pvp-relevant={crew.pvpRelevant} onclick={() => openCrewModal(crew)}>
                 <div class="special-card__header">
-                  <h3 class="special-card__name">{crew.name}</h3>
-                  {#if crew.pvpRelevant}
-                    <Badge variant="status" value="PvP" size="sm" />
-                  {/if}
+                  <div class="special-card__icon-container">
+                    {#if crew.icon}
+                      <ImageWithFallback
+                        src={getCrewIconUrl(crew.icon)}
+                        alt={crew.name}
+                        fallback="✨"
+                        class="special-card__icon-img"
+                      />
+                    {:else}
+                      <span class="special-card__icon">✨</span>
+                    {/if}
+                  </div>
+                  <div class="special-card__title">
+                    <h3 class="special-card__name">{crew.name}</h3>
+                    {#if crew.pvpRelevant}
+                      <Badge variant="status" value="PvP" size="sm" />
+                    {/if}
+                  </div>
                 </div>
                 <p class="special-card__effect">{crew.effect || 'No special effect'}</p>
                 <div class="special-card__footer">
@@ -205,10 +253,24 @@
         {#each filteredSkills as skill (skill.id)}
           <button class="skill-card" class:pvp-relevant={skill.pvpRelevant} onclick={() => openSkillModal(skill)}>
             <div class="skill-card__header">
-              <Badge variant="category" value={skill.category} />
-              {#if skill.pvpRelevant}
-                <Badge variant="status" value="PvP" size="sm" />
-              {/if}
+              <div class="skill-card__icon-container">
+                {#if skill.icon}
+                  <ImageWithFallback
+                    src={getSkillIconUrl(skill.icon)}
+                    alt={skill.name}
+                    fallback={getSkillCategoryIcon(skill.category)}
+                    class="skill-card__icon-img"
+                  />
+                {:else}
+                  <span class="skill-card__icon">{getSkillCategoryIcon(skill.category)}</span>
+                {/if}
+              </div>
+              <div class="skill-card__meta">
+                <Badge variant="category" value={skill.category} />
+                {#if skill.pvpRelevant}
+                  <Badge variant="status" value="PvP" size="sm" />
+                {/if}
+              </div>
             </div>
             <h3 class="skill-card__name">{skill.name}</h3>
             <p class="skill-card__effect">{skill.effect}</p>
@@ -309,8 +371,34 @@
 
   .crew-card__header {
     display: flex;
-    justify-content: space-between;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+
+  .crew-card__icon-container {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
     align-items: center;
+    justify-content: center;
+  }
+
+  .crew-card__icon-container :global(.crew-card__icon-img) {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .crew-card__icon {
+    font-size: var(--text-2xl);
+  }
+
+  .crew-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
   }
 
   .crew-card__name {
@@ -380,8 +468,35 @@
 
   .special-card__header {
     display: flex;
-    justify-content: space-between;
+    gap: var(--space-sm);
     align-items: flex-start;
+  }
+
+  .special-card__icon-container {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .special-card__icon-container :global(.special-card__icon-img) {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .special-card__icon {
+    font-size: var(--text-xl);
+  }
+
+  .special-card__title {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
   }
 
   .special-card__name {
@@ -444,8 +559,34 @@
 
   .skill-card__header {
     display: flex;
-    justify-content: space-between;
+    gap: var(--space-sm);
+    align-items: flex-start;
+  }
+
+  .skill-card__icon-container {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
     align-items: center;
+    justify-content: center;
+  }
+
+  .skill-card__icon-container :global(.skill-card__icon-img) {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .skill-card__icon {
+    font-size: var(--text-2xl);
+  }
+
+  .skill-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
   }
 
   .skill-card__name {

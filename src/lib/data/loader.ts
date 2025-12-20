@@ -187,6 +187,18 @@ export function getLocalizedString(key: string): string {
   return localization[key] || key;
 }
 
+/**
+ * Get localized name for an entity using its ID.
+ * - For ships (numeric ID): uses "ship_{id}_name" pattern
+ * - For other entities (string ID): uses "{id}_name" pattern
+ * Falls back to the ID itself if no localization found.
+ */
+export function getLocalizedName(id: string | number, fallback?: string): string {
+  const key = typeof id === 'number' ? `ship_${id}_name` : `${id}_name`;
+  const localized = localization[key];
+  return localized || fallback || String(id);
+}
+
 // ═══════════════════════════════════════════════════
 // SHIP DATA
 // ═══════════════════════════════════════════════════
@@ -212,7 +224,7 @@ async function loadShips(): Promise<Ship[]> {
   return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as number,
     staticInfoId: row.static_id as number,
-    name: row.name as string,
+    name: getLocalizedName(row.id as number, row.name as string),
     nameKey: row.name_key as string || `ship_${row.id}_name`,
     description: row.description as string | null,
     model: row.model as string | null,
@@ -275,7 +287,7 @@ async function loadWeapons(): Promise<Weapon[]> {
 
   return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     weaponClass: row.weapon_class as string,
     material: row.material as string | null,
     category: row.category as WeaponCategory,
@@ -316,7 +328,7 @@ async function loadAmmo(): Promise<Ammo[]> {
   return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
     index: row.index as number | null,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     speed: Number(row.speed),
     penetration: Number(row.penetration),
@@ -355,7 +367,7 @@ async function loadSwivelAmmo(): Promise<SwivelAmmo[]> {
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
     index: row.index as number,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     speed: Number(row.speed),
     penetration: Number(row.penetration),
@@ -393,7 +405,7 @@ async function loadKegs(): Promise<PowderKeg[]> {
 
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     mass: Number(row.mass),
     damage: row.damage as number,
@@ -432,7 +444,7 @@ async function loadCrewUnits(): Promise<CrewUnit[]> {
 
   return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     type: row.type as CrewUnit['type'],
     damage: row.damage as number,
@@ -467,7 +479,7 @@ async function loadCaptainSkills(): Promise<CaptainSkill[]> {
 
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     costPoints: row.cost_points as number,
     cost: row.cost as string | null,
@@ -502,7 +514,7 @@ async function loadUpgrades(): Promise<Upgrade[]> {
 
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     effects: row.effects as string | null,
     icon: row.icon as string | null,
@@ -596,7 +608,7 @@ async function loadResources(): Promise<Resource[]> {
 
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     description: row.description as string | null,
     status: row.status as string,
     category: row.category as Resource['category'],
@@ -628,7 +640,7 @@ async function loadPorts(): Promise<Port[]> {
 
   return (data || []).map((row: Record<string, unknown>) => ({
     id: row.id as string,
-    name: row.name as string,
+    name: getLocalizedName(row.id as string, row.name as string),
     type: row.type as Port['type'],
     buildRanks: row.build_ranks as number,
     teamLimit: row.team_limit as number | null,

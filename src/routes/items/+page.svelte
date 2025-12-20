@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { ResourceCategory } from '$lib/data/types';
   import { dataStore, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card, ImageWithFallback } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
+  import { getResourceIconUrl } from '$lib/utils/storage';
 
   const categories: ResourceCategory[] = ['trade', 'food', 'material', 'special'];
 
@@ -133,6 +134,7 @@
       <table>
         <thead>
           <tr>
+            <th scope="col" class="col-icon"></th>
             <th scope="col">Category</th>
             <th scope="col" class="sortable" onclick={() => handleSort('name')}>
               Name{getSortIndicator('name')}
@@ -149,11 +151,24 @@
         <tbody>
           {#each filteredResources() as resource (resource.id)}
             <tr>
+              <td class="col-icon">
+                <div class="resource-icon">
+                  {#if resource.icon}
+                    <ImageWithFallback
+                      src={getResourceIconUrl(resource.icon)}
+                      alt={resource.name}
+                      fallback={getCategoryIcon(resource.category)}
+                      class="resource-icon__img"
+                    />
+                  {:else}
+                    <span class="resource-icon__fallback">{getCategoryIcon(resource.category)}</span>
+                  {/if}
+                </div>
+              </td>
               <td>
                 <Badge variant="category" value={resource.category} />
               </td>
-              <td class="item-name col-name">
-                <span class="item-icon">{getCategoryIcon(resource.category)}</span>
+              <td class="col-name">
                 {resource.name}
               </td>
               <td class="col-numeric">{resource.mediumCost}</td>
@@ -231,15 +246,29 @@
     font-size: var(--text-sm);
   }
 
-  /* Item-specific table styling */
-  .item-name {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
+  /* Resource Icons */
+  .col-icon {
+    width: 48px;
+    padding: var(--space-xs) !important;
   }
 
-  .item-icon {
-    font-size: var(--text-lg);
+  .resource-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .resource-icon :global(.resource-icon__img) {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .resource-icon__fallback {
+    font-size: var(--text-xl);
   }
 
   .effects {

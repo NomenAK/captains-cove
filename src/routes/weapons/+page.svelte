@@ -1,10 +1,11 @@
 <script lang="ts">
   import type { Weapon } from '$lib/data/types';
   import { dataStore, filteredWeapons, weaponFilters, weaponSort, isLoading, dataError } from '$lib/stores';
-  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card } from '$lib/components/ui';
+  import { Badge, Tabs, LoadingState, EmptyState, ErrorState, Toolbar, FilterGroup, Stack, Grid, Card, ImageWithFallback } from '$lib/components/ui';
   import { PageHeader } from '$lib/components/layout';
   import { WeaponDetailModal } from '$lib/components/weapons';
   import { getSortIndicator as getSortIndicatorUtil } from '$lib/utils/sort';
+  import { getWeaponIconUrl, getKegIconUrl } from '$lib/utils/storage';
 
   const categories = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar'];
   const sizes = ['Light', 'Medium', 'Heavy'];
@@ -57,6 +58,17 @@
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       openWeaponModal(weapon);
+    }
+  }
+
+  function getCategoryIcon(category: string): string {
+    switch (category) {
+      case 'Cannon': return '💣';
+      case 'Culverin': return '🎯';
+      case 'Carronade': return '⚔️';
+      case 'Bombard': return '💥';
+      case 'Mortar': return '🔥';
+      default: return '💣';
     }
   }
 </script>
@@ -121,6 +133,7 @@
       <table>
         <thead>
           <tr>
+            <th scope="col" class="col-icon"></th>
             <th scope="col" class="sortable" onclick={() => handleSort('category')}>
               Category{getSortIndicator('category')}
             </th>
@@ -154,6 +167,20 @@
               onclick={() => openWeaponModal(weapon)}
               onkeydown={(e) => handleRowKeydown(e, weapon)}
             >
+              <td class="col-icon">
+                <div class="weapon-icon">
+                  {#if weapon.icon}
+                    <ImageWithFallback
+                      src={getWeaponIconUrl(weapon.icon)}
+                      alt={weapon.name}
+                      fallback={getCategoryIcon(weapon.category)}
+                      class="weapon-icon__img"
+                    />
+                  {:else}
+                    <span class="weapon-icon__fallback">{getCategoryIcon(weapon.category)}</span>
+                  {/if}
+                </div>
+              </td>
               <td>
                 <Badge variant="category" value={weapon.category} />
               </td>
@@ -182,7 +209,21 @@
       <Grid columns="auto" minWidth="200px" gap="md">
         {#each $dataStore.kegs as keg (keg.id)}
           <Card variant="wood" padding="md">
-            <h3 class="keg-card__name">{keg.name}</h3>
+            <div class="keg-card__header">
+              <div class="keg-card__icon-container">
+                {#if keg.icon}
+                  <ImageWithFallback
+                    src={getKegIconUrl(keg.icon)}
+                    alt={keg.name}
+                    fallback="🛢️"
+                    class="keg-card__icon-img"
+                  />
+                {:else}
+                  <span class="keg-card__icon">🛢️</span>
+                {/if}
+              </div>
+              <h3 class="keg-card__name">{keg.name}</h3>
+            </div>
             <div class="keg-card__stats">
               <div class="stat">
                 <span class="stat__label">Damage</span>
@@ -225,6 +266,31 @@
     font-size: var(--text-sm);
   }
 
+  /* Weapon Icons */
+  .col-icon {
+    width: 48px;
+    padding: var(--space-xs) !important;
+  }
+
+  .weapon-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .weapon-icon :global(.weapon-icon__img) {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .weapon-icon__fallback {
+    font-size: var(--text-xl);
+  }
+
   /* Kegs Section */
   .kegs-section {
     margin-top: var(--space-md);
@@ -237,11 +303,38 @@
     margin: 0 0 var(--space-md);
   }
 
+  .keg-card__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+  }
+
+  .keg-card__icon-container {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .keg-card__icon-container :global(.keg-card__icon-img) {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  .keg-card__icon {
+    font-size: var(--text-xl);
+  }
+
   .keg-card__name {
     font-family: var(--font-display);
     font-size: var(--text-base);
     color: var(--gold-primary);
-    margin: 0 0 var(--space-sm);
+    margin: 0;
   }
 
   .keg-card__stats {
