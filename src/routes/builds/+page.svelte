@@ -67,10 +67,10 @@
     toasts.success('Builds exported successfully');
   }
 
-  let importInput: HTMLInputElement;
+  let importInput = $state<HTMLInputElement | null>(null);
 
   function handleImportClick() {
-    importInput.click();
+    importInput?.click();
   }
 
   async function handleImport(e: Event) {
@@ -301,6 +301,7 @@
     margin: 0;
     line-height: var(--leading-relaxed);
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;

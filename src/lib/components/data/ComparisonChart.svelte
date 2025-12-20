@@ -25,14 +25,14 @@
     showLegend = true
   }: Props = $props();
 
-  const centerX = size / 2;
-  const centerY = size / 2;
-  const radius = (size / 2) - 40;
+  const centerX = $derived(size / 2);
+  const centerY = $derived(size / 2);
+  const radius = $derived((size / 2) - 40);
 
   // Get all unique labels from first item
-  const labels = items[0]?.data.map(d => d.label) || [];
-  const numPoints = labels.length;
-  const angleStep = (2 * Math.PI) / numPoints;
+  const labels = $derived(items[0]?.data.map(d => d.label) || []);
+  const numPoints = $derived(labels.length);
+  const angleStep = $derived((2 * Math.PI) / numPoints);
 
   function getPoint(index: number, value: number, maxValue: number): { x: number; y: number } {
     const angle = (index * angleStep) - (Math.PI / 2);

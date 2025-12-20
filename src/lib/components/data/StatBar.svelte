@@ -19,7 +19,7 @@
     format = (v) => v.toString()
   }: Props = $props();
 
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+  const percentage = $derived(Math.min(100, Math.max(0, (value / max) * 100)));
 </script>
 
 <div class="stat-bar stat-bar--{variant} stat-bar--{size}">

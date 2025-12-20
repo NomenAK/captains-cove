@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { dataStore, buildsStore, createShipLookup, createWeaponLookup, createAmmoLookup, toasts } from '$lib/stores';
   import { safeMax, safePercentage } from '$lib/utils/safe-math';
   import type { Build, Archetype, Ship, Weapon, Ammo, Upgrade } from '$lib/data/types';
@@ -14,21 +15,40 @@
 
   let { build, mode }: Props = $props();
 
-  // Form state
-  let name = $state(build?.name || 'New Build');
-  let archetype = $state<Archetype>(build?.archetype || 'brawler');
-  let tier = $state(build?.tier || 4);
-  let shipId = $state<number | null>(build?.shipId ?? null);
-  let broadside = $state(build?.weapons.broadside || '');
-  let bow = $state(build?.weapons.bow || '');
-  let stern = $state(build?.weapons.stern || '');
-  let mortar = $state(build?.weapons.mortar || '');
-  let primaryAmmo = $state(build?.ammo.primary || '');
-  let secondaryAmmo = $state(build?.ammo.secondary || '');
-  let selectedUpgrades = $state<string[]>(build?.upgrades || []);
-  let strategy = $state(build?.strategy || '');
-  let strengths = $state<string>(build?.strengths?.join('\n') || '');
-  let weaknesses = $state<string>(build?.weaknesses?.join('\n') || '');
+  // Capture initial values from build prop (intentional one-time initialization for form editing)
+  // Using untrack() to explicitly opt out of reactive tracking since this is form initialization
+  const initialValues = untrack(() => ({
+    name: build?.name || 'New Build',
+    archetype: build?.archetype || 'brawler',
+    tier: build?.tier || 4,
+    shipId: build?.shipId ?? null,
+    broadside: build?.weapons.broadside || '',
+    bow: build?.weapons.bow || '',
+    stern: build?.weapons.stern || '',
+    mortar: build?.weapons.mortar || '',
+    primaryAmmo: build?.ammo.primary || '',
+    secondaryAmmo: build?.ammo.secondary || '',
+    upgrades: build?.upgrades || [],
+    strategy: build?.strategy || '',
+    strengths: build?.strengths?.join('\n') || '',
+    weaknesses: build?.weaknesses?.join('\n') || ''
+  }));
+
+  // Form state (initialized from captured values)
+  let name = $state(initialValues.name);
+  let archetype = $state<Archetype>(initialValues.archetype as Archetype);
+  let tier = $state(initialValues.tier);
+  let shipId = $state<number | null>(initialValues.shipId);
+  let broadside = $state(initialValues.broadside);
+  let bow = $state(initialValues.bow);
+  let stern = $state(initialValues.stern);
+  let mortar = $state(initialValues.mortar);
+  let primaryAmmo = $state(initialValues.primaryAmmo);
+  let secondaryAmmo = $state(initialValues.secondaryAmmo);
+  let selectedUpgrades = $state<string[]>(initialValues.upgrades);
+  let strategy = $state(initialValues.strategy);
+  let strengths = $state<string>(initialValues.strengths);
+  let weaknesses = $state<string>(initialValues.weaknesses);
 
   // Lookups
   const shipLookup = $derived(createShipLookup($dataStore.ships));
@@ -196,21 +216,23 @@
         />
       </div>
 
-      <div class="form-group">
-        <label>Archetype</label>
-        <div class="archetype-grid">
+      <fieldset class="form-group">
+        <legend>Archetype</legend>
+        <div class="archetype-grid" role="radiogroup" aria-label="Select archetype">
           {#each archetypes as arch}
             <button
               class="archetype-card"
               class:active={archetype === arch.value}
               onclick={() => archetype = arch.value}
+              role="radio"
+              aria-checked={archetype === arch.value}
             >
               <Badge variant="archetype" value={arch.value} />
               <span class="archetype-desc">{arch.description}</span>
             </button>
           {/each}
         </div>
-      </div>
+      </fieldset>
 
       <div class="form-row">
         <div class="form-group">
@@ -505,10 +527,17 @@
     margin-bottom: 0;
   }
 
-  .form-group label {
+  .form-group label,
+  fieldset.form-group legend {
     font-size: var(--text-sm);
     color: var(--brass-light);
     font-weight: var(--font-medium);
+  }
+
+  fieldset.form-group {
+    border: none;
+    padding: 0;
+    margin: 0;
   }
 
   .form-group input,

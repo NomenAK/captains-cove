@@ -17,7 +17,8 @@
     onchange
   }: Props = $props();
 
-  const checkboxId = id || `checkbox-${Math.random().toString(36).slice(2)}`;
+  const fallbackId = `checkbox-${Math.random().toString(36).slice(2)}`;
+  const checkboxId = $derived(id || fallbackId);
 </script>
 
 <label class="checkbox" class:checkbox--disabled={disabled}>

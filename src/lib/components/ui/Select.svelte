@@ -31,7 +31,8 @@
     onchange
   }: Props = $props();
 
-  const selectId = id || `select-${Math.random().toString(36).slice(2)}`;
+  const fallbackId = `select-${Math.random().toString(36).slice(2)}`;
+  const selectId = $derived(id || fallbackId);
 </script>
 
 <div class="select-wrapper" class:select-wrapper--error={error}>
