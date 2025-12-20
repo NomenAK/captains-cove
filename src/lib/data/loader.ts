@@ -27,6 +27,107 @@ import type {
 } from './types';
 
 // ═══════════════════════════════════════════════════
+// DATA VALIDATION HELPERS
+// ═══════════════════════════════════════════════════
+
+/**
+ * Type guards for validating Supabase data before casting
+ * Prevents runtime errors from invalid or unexpected database responses
+ */
+
+function isValidNumber(value: unknown): value is number {
+  return typeof value === 'number' && !Number.isNaN(value);
+}
+
+function isValidString(value: unknown): value is string {
+  return typeof value === 'string';
+}
+
+function isOptionalString(value: unknown): value is string | null {
+  return value === null || typeof value === 'string';
+}
+
+function isValidBoolean(value: unknown): value is boolean {
+  return typeof value === 'boolean';
+}
+
+/**
+ * Validates essential Ship row fields
+ * Non-essential fields are handled with fallbacks during mapping
+ */
+function validateShipRow(row: Record<string, unknown>): boolean {
+  return (
+    isValidNumber(row.id) &&
+    isValidString(row.name) &&
+    isValidNumber(row.health) &&
+    isValidNumber(row.tier)
+  );
+}
+
+/**
+ * Validates essential Weapon row fields
+ */
+function validateWeaponRow(row: Record<string, unknown>): boolean {
+  return (
+    isValidString(row.id) &&
+    isValidString(row.name) &&
+    isValidNumber(row.penetration) &&
+    isValidNumber(row.distance)
+  );
+}
+
+/**
+ * Validates essential Ammo row fields
+ */
+function validateAmmoRow(row: Record<string, unknown>): boolean {
+  return (
+    isValidString(row.id) &&
+    isValidString(row.name) &&
+    isValidNumber(row.damage_factor)
+  );
+}
+
+/**
+ * Validates essential CrewUnit row fields
+ */
+function validateCrewRow(row: Record<string, unknown>): boolean {
+  return (
+    isValidString(row.id) &&
+    isValidString(row.name) &&
+    isValidNumber(row.capacity)
+  );
+}
+
+/**
+ * Generic row validator with DEV-mode warning
+ */
+function filterValidRows<T extends Record<string, unknown>>(
+  rows: T[],
+  validator: (row: T) => boolean,
+  entityName: string
+): T[] {
+  const validRows: T[] = [];
+  let invalidCount = 0;
+
+  for (const row of rows) {
+    if (validator(row)) {
+      validRows.push(row);
+    } else {
+      invalidCount++;
+      if (import.meta.env.DEV && invalidCount <= 3) {
+        console.warn(`Invalid ${entityName} row:`, row);
+      }
+    }
+  }
+
+  if (import.meta.env.DEV && invalidCount > 0) {
+    console.warn(`Filtered out ${invalidCount} invalid ${entityName} rows`);
+  }
+
+  return validRows;
+}
+
+// ═══════════════════════════════════════════════════
 // CACHE MANAGEMENT
 // ═══════════════════════════════════════════════════
 
@@ -105,7 +206,10 @@ async function loadShips(): Promise<Ship[]> {
     return [];
   }
 
-  return (data || []).map((row: Record<string, unknown>) => ({
+  // Validate rows before mapping to catch invalid database responses
+  const validRows = filterValidRows(data || [], validateShipRow, 'ship');
+
+  return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as number,
     staticInfoId: row.static_id as number,
     name: row.name as string,
@@ -166,7 +270,10 @@ async function loadWeapons(): Promise<Weapon[]> {
     return [];
   }
 
-  return (data || []).map((row: Record<string, unknown>) => ({
+  // Validate rows before mapping
+  const validRows = filterValidRows(data || [], validateWeaponRow, 'weapon');
+
+  return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
     name: row.name as string,
     weaponClass: row.weapon_class as string,
@@ -203,7 +310,10 @@ async function loadAmmo(): Promise<Ammo[]> {
     return [];
   }
 
-  return (data || []).map((row: Record<string, unknown>) => ({
+  // Validate rows before mapping
+  const validRows = filterValidRows(data || [], validateAmmoRow, 'ammo');
+
+  return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
     index: row.index as number | null,
     name: row.name as string,
@@ -317,7 +427,10 @@ async function loadCrewUnits(): Promise<CrewUnit[]> {
     return [];
   }
 
-  return (data || []).map((row: Record<string, unknown>) => ({
+  // Validate rows before mapping
+  const validRows = filterValidRows(data || [], validateCrewRow, 'crew');
+
+  return validRows.map((row: Record<string, unknown>) => ({
     id: row.id as string,
     name: row.name as string,
     description: row.description as string | null,

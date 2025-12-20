@@ -76,7 +76,7 @@ export const SHIP_TYPE_TO_CLASS: Record<ShipType, ShipClass> = {
 // WEAPON TYPES
 // ═══════════════════════════════════════════════════
 
-export type WeaponCategory = 'Cannon' | 'Culverin' | 'Carronade' | 'Bombard' | 'Mortar';
+export type WeaponCategory = 'Cannon' | 'Culverin' | 'Carronade' | 'Bombard' | 'Mortar' | 'Long Gun';
 export type WeaponSize = 'Light' | 'Medium' | 'Heavy';
 export type CraftingType = 'ByGold' | 'ByCraft' | 'NotAvailable' | 'ByMarks' | 'ByResources';
 

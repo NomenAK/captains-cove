@@ -85,7 +85,7 @@ export const BOW_STERN_CATEGORIES = new Set(['Cannon', 'Culverin', 'Carronade'])
 /**
  * All weapon categories
  */
-export const WEAPON_CATEGORIES = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar'] as const;
+export const WEAPON_CATEGORIES = ['Cannon', 'Culverin', 'Carronade', 'Bombard', 'Mortar', 'Long Gun'] as const;
 
 /**
  * Weapon size classes
