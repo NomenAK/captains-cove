@@ -26,9 +26,9 @@
       <h4 class="footer__heading">Resources</h4>
       <nav class="footer__nav">
         <a href="#/about">About</a>
-        <a href="https://world-of-sea-battle.fandom.com/" target="_blank" rel="noopener">Wiki</a>
-        <a href="https://store.steampowered.com/app/2948190/World_of_Sea_Battle/" target="_blank" rel="noopener">Steam</a>
-        <a href="https://discord.com/invite/3XJyVctcTd" target="_blank" rel="noopener">Discord</a>
+        <a href="https://world-of-sea-battle.fandom.com/" target="_blank" rel="noopener noreferrer">Wiki</a>
+        <a href="https://store.steampowered.com/app/2948190/World_of_Sea_Battle/" target="_blank" rel="noopener noreferrer">Steam</a>
+        <a href="https://discord.com/invite/3XJyVctcTd" target="_blank" rel="noopener noreferrer">Discord</a>
       </nav>
     </div>
 

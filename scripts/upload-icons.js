@@ -21,7 +21,13 @@ const TEXTURES_DIR = '/home/anton/datawosb/output/textures/items';
 const BUCKET_NAME = 'game-icons';
 
 // Supabase config
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lewslcexldrbequixxpg.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+
+if (!SUPABASE_URL) {
+  console.error('Error: SUPABASE_URL environment variable is required');
+  console.error('Usage: SUPABASE_URL=xxx SUPABASE_SERVICE_KEY=xxx node scripts/upload-icons.js');
+  process.exit(1);
+}
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
 if (!SUPABASE_SERVICE_KEY) {

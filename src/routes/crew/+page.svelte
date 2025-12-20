@@ -420,6 +420,7 @@
     margin: 0;
     line-height: var(--leading-relaxed);
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -529,6 +530,7 @@
     margin: 0;
     line-height: var(--leading-relaxed);
     display: -webkit-box;
+    line-clamp: 3;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
