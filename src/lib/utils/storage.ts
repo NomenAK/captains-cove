@@ -2,7 +2,11 @@
  * Supabase Storage URL utilities
  */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lewslcexldrbequixxpg.supabase.co';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
+if (!SUPABASE_URL) {
+  throw new Error('Missing VITE_SUPABASE_URL environment variable');
+}
 const BUCKET_NAME = 'game-icons';
 
 /**

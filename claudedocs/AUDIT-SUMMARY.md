@@ -1,88 +1,96 @@
 # Captain's Cove - Audit Summary
 
-**Date**: December 20, 2025
-**Scope**: Database, Codebase, Security, Performance
+**Date**: January 25, 2026
+**Scope**: Database, Codebase, Security, Performance, Accessibility
+**Previous Audit**: December 20, 2025
 
 ---
 
 ## Overall Scores
 
-| Category | Score | Grade |
-|----------|-------|-------|
-| Database | 85/100 | B+ |
-| Codebase | 85/100 | A- |
-| Security | 75/100 | C+ (improved from C) |
-| Performance | 75/100 | C+ |
-| **Overall** | **80/100** | **B** |
+| Category | Score | Grade | Change |
+|----------|-------|-------|--------|
+| Database | 85/100 | B+ | - |
+| Codebase | 90/100 | A | +5 |
+| Security | 85/100 | B | +10 |
+| Performance | 75/100 | C+ | - |
+| Accessibility | 80/100 | B- | NEW |
+| **Overall** | **83/100** | **B+** | +3 |
 
 ---
 
-## Critical Issues Fixed (Commit 6ba1233)
+## Issues Fixed in This Audit
 
-### 1. Hardcoded Supabase URL Removed
-- **Files**: `scripts/seed-supabase.js`, `scripts/upload-icons.js`, `scripts/verify-sync.js`
-- **Issue**: Production URL was hardcoded as fallback
-- **Fix**: Made SUPABASE_URL required environment variable
+### 1. Hardcoded Supabase URL Removed (storage.ts)
+- **File**: `src/lib/utils/storage.ts`
+- **Issue**: Production URL was hardcoded as fallback (missed in previous audit)
+- **Fix**: Made `VITE_SUPABASE_URL` required with runtime error if missing
 
-### 2. External Links Security
-- **File**: `src/lib/components/layout/Footer.svelte`
-- **Issue**: Links had `rel="noopener"` but missing `noreferrer`
-- **Fix**: Added `noreferrer` to prevent referrer leakage
-
-### 3. CSS Compatibility
+### 2. Accessibility Improvements - Crew Page
 - **File**: `src/routes/crew/+page.svelte`
-- **Issue**: Only webkit-prefixed line-clamp, missing standard property
-- **Fix**: Added `line-clamp: 3;` alongside webkit prefix
+- **Issue**: Interactive card buttons lacked `aria-label` attributes
+- **Fix**: Added `aria-label` to crew, special crew, and skill card buttons
 
-### 4. Mortar Data Integrity
-- **Migration**: `20250120000001_fix_mortar_penetration.sql`
-- **Issue**: ncs_cannon_41, ncs_cannon_42 had penetration=0
-- **Fix**: Set penetration=100, cooldown=10
+### 3. Dead Code Removed
+- **File**: `src/routes/crew/+page.svelte` - Removed unused `_hasNoCrewResults`
+- **File**: `src/routes/progression/+page.svelte` - Removed unused `_guildPlaces`
+- **File**: `src/lib/data/loader.ts` - Removed unused `_isOptionalString`, `_isValidBoolean`
 
-### 5. Environment Documentation
-- **File**: `.env.example`
-- **Fix**: Added script environment variables (SUPABASE_URL, SUPABASE_SERVICE_KEY)
+### 4. npm Security Vulnerabilities Fixed
+- **devalue** (5.1.0 → 5.6.1+): HIGH severity DoS vulnerability
+- **svelte** (5.46.0 → 5.46.3+): MODERATE XSS vulnerability
+- **Fix**: `npm audit fix` applied
 
 ---
 
-## Remaining Issues (Lower Priority)
+## Previous Audit Issues (December 2025) - Fixed
 
-### Database (Medium)
-- **Schema Enum Outdated**: upgrade_category missing 4 values (Mortars, PvP, Sailes, Modification)
-- **Partial Localization**: Only English loaded (~5,419 entries)
-- **Storage Bucket**: May need public access verification
+### Commit 6ba1233
+1. Hardcoded Supabase URLs in scripts (seed, upload, verify)
+2. External links missing `noreferrer`
+3. CSS compatibility (webkit line-clamp)
+4. Mortar data integrity (penetration=0)
+5. Environment documentation
 
-### Codebase (Low)
-- **Large Components**: crew/+page.svelte at 654 lines (consider splitting)
-- **Unused Type Guards**: `_isOptionalString`, `_isValidBoolean` in loader.ts
+---
 
-### Security (Medium)
-- **Builds Table RLS**: Could restrict anonymous delete operations
-- **Build Import Validation**: Missing validation on imported build JSON
+## Remaining Issues (Prioritized)
 
-### Performance (High)
+### High Priority - Performance
 - **No Code Splitting**: 436KB JS bundle loads entirely upfront
-- **Sequential Localization**: Waterfall loading pattern
-- **No Image Lazy Loading**: All images load immediately
 - **CSS Bundle Size**: 160KB unpurged
+- **No Image Lazy Loading**: All images load immediately
+
+### Medium Priority - Architecture
+- **Large Components**:
+  - `crew/+page.svelte` (654 lines)
+  - `Home.svelte` (631 lines)
+  - `progression/+page.svelte` (606 lines)
+  - Consider extracting card components
+
+### Medium Priority - Security
+- **Builds Table RLS**: Could restrict anonymous delete operations
+- **Build Import Validation**: Has validation but could be stricter
+
+### Low Priority - Database
+- **Schema Enum Outdated**: `upgrade_category` missing 4 values
+- **Partial Localization**: Only English loaded (~5,419 entries)
 
 ---
 
-## Recommendations
+## Code Quality Highlights
 
-### Short Term
-1. Apply mortar migration to production database
-2. Consider restricting builds table RLS for non-owners
+### Excellent Patterns Found
+- **Memory Management**: Proper cleanup in UI store, onDestroy handlers
+- **Type Safety**: TypeScript strict mode, comprehensive validation
+- **Svelte 5 Runes**: Correct usage of `$state`, `$derived`, `$effect`, `$props`
+- **Modal Accessibility**: Focus trap, aria attributes, keyboard handling
+- **Store Architecture**: Efficient derived stores with single-pass filtering
 
-### Medium Term
-1. Implement route-based code splitting with dynamic imports
-2. Add image lazy loading via Intersection Observer
-3. Parallelize localization loading with other data
-
-### Long Term
-1. Split large components (crew page → separate card components)
-2. Implement CSS purging in build pipeline
-3. Add build import JSON schema validation
+### Areas for Improvement
+- **Tab Calculations**: Some derived stores re-filter on every data change
+- **Component Size**: Several routes exceed 500 lines
+- **Accessibility**: More pages need aria-label audit
 
 ---
 
@@ -99,13 +107,40 @@ npm run lint   # 0 errors, 0 warnings
 npm audit      # 0 vulnerabilities
 
 # Build
-npm run build  # Success (436KB JS, 160KB CSS)
+npm run build  # Success
 ```
 
 ---
 
-## Git History for Audit Fixes
+## Recommendations
 
-- `573f47a` - feat: Display localized descriptions in Crew and Items pages
-- `4c5db4d` - feat: Add localized descriptions for crew, upgrades, and resources
-- `6ba1233` - fix: Address security and code quality audit findings
+### Immediate (Done This Audit)
+1. ~~Remove hardcoded Supabase URL in storage.ts~~
+2. ~~Add accessibility attributes to crew page buttons~~
+3. ~~Remove dead code~~
+4. ~~Fix npm vulnerabilities~~
+
+### Short Term
+1. Audit other route pages for missing aria-labels
+2. Implement code splitting with dynamic imports
+3. Add image lazy loading
+
+### Medium Term
+1. Split large components into smaller, reusable cards
+2. Implement CSS purging in build pipeline
+3. Strengthen build import JSON validation
+
+### Long Term
+1. Consider server-side rendering for SEO
+2. Add E2E testing for critical paths
+3. Performance monitoring/observability
+
+---
+
+## Audit History
+
+| Date | Commit | Summary |
+|------|--------|---------|
+| Jan 25, 2026 | (current) | Security fix, accessibility, dead code removal |
+| Dec 20, 2025 | 38b854f | Initial comprehensive audit |
+| Dec 20, 2025 | 6ba1233 | First round of fixes |

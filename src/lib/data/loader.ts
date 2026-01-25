@@ -43,14 +43,6 @@ function isValidString(value: unknown): value is string {
   return typeof value === 'string';
 }
 
-function _isOptionalString(value: unknown): value is string | null {
-  return value === null || typeof value === 'string';
-}
-
-function _isValidBoolean(value: unknown): value is boolean {
-  return typeof value === 'boolean';
-}
-
 /**
  * Validates essential Ship row fields
  * Non-essential fields are handled with fallbacks during mapping

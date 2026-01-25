@@ -68,7 +68,6 @@
 
   // Loading state detection
   const hasNoData = $derived($dataStore.crews.length === 0 && $dataStore.skills.length === 0);
-  const _hasNoCrewResults = $derived($filteredCrews.length === 0 && $dataStore.crews.length > 0);
 
   function handleRetry() {
     dataStore.load();
@@ -157,7 +156,7 @@
           <h2 class="section-title">Combat Crew</h2>
           <Grid columns="auto" minWidth="200px" gap="md">
             {#each regularCrew as crew (crew.id)}
-              <button class="crew-card" onclick={() => openCrewModal(crew)}>
+              <button class="crew-card" aria-label="View {crew.name} details" onclick={() => openCrewModal(crew)}>
                 <div class="crew-card__header">
                   <div class="crew-card__icon-container">
                     {#if crew.icon}
@@ -212,7 +211,7 @@
           <h2 class="section-title">Special Crew</h2>
           <Grid columns="auto" minWidth="250px" gap="md">
             {#each specialCrew as crew (crew.id)}
-              <button class="special-card" class:pvp-relevant={crew.pvpRelevant} onclick={() => openCrewModal(crew)}>
+              <button class="special-card" class:pvp-relevant={crew.pvpRelevant} aria-label="View {crew.name} details" onclick={() => openCrewModal(crew)}>
                 <div class="special-card__header">
                   <div class="special-card__icon-container">
                     {#if crew.icon}
@@ -257,7 +256,7 @@
 
       <Grid columns="auto" minWidth="280px" gap="md">
         {#each filteredSkills as skill (skill.id)}
-          <button class="skill-card" class:pvp-relevant={skill.pvpRelevant} onclick={() => openSkillModal(skill)}>
+          <button class="skill-card" class:pvp-relevant={skill.pvpRelevant} aria-label="View {skill.name} skill details" onclick={() => openSkillModal(skill)}>
             <div class="skill-card__header">
               <div class="skill-card__icon-container">
                 {#if skill.icon}

@@ -13,7 +13,6 @@
   let achievementSearch = $state<string>('');
 
   // Guild filter state
-  const _guildPlaces: GuildPlace[] = ['Gold', 'Silver', 'Bronze', 'Copper'];
   let selectedGuildFaction = $state<string>('');
 
   // Derived data
